@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelly-criterion</title>
+  <script>
+    function roundToThree(num) {
+      return +(Math.round(num + "e+3") + "e-3");
+    }
+    function calc() {
+
+      const IN = document.querySelectorAll("input")
+      pot = parseFloat(IN[0].value)
+      winOdd = roundToThree(parseFloat(IN[1].value)) * 1000
+      winRate = parseFloat(IN[2].value)
+      console.log(pot, winOdd, winRate)
+
+      
+    }
+  </script>
+</head>
+
+<body>
+  <h2>Kelly-criterion Calculator</h2>
+  <hr>
+  <table>
+    <tr>
+      <td>보유 금액</td>
+      <td> <input type="text" value="1000" placeholder="1000">
+      </td>
+    </tr>
+    <tr>
+      <td>승리 확률</td>
+      <td><input type="text" value="0.7" placeholder="0.7"></td>
+    </tr>
+    <tr>
+      <td>승리 배율</td>
+      <td><input type="text" value="2" placeholder="2"></td>
+    </tr>
+  </table>
+  <button onclick="calc()">계산</button>
+</body>
+
+</html>

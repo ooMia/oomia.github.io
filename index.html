@@ -3,23 +3,351 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta property="og:url" content="https://oomia.github.io">
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="oomia.github.io">
-  <meta property="og:image" content="https://avatars.githubusercontent.com/u/96914905">
-  <meta property="og:description" content="oomia's persoal webpage">
-  <title>oomia.github.io</title>
+  <title>Mia - Backend Engineer Based in Korea.</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <h1>Hello World</h1>
-  <p>I'm hosted with GitHub Pages.</p>
-  <ul>
-    <li><a href="src/">source</a></li>
-    <li><a href="template/">template</a></li>
-    <li><a href="404.html">404 Error Page</a></li>
-  </ul>
+
+  <h1 class="offscreen">Mia's Website</h1>
+
+
+  <header class="header">
+
+    <a href="/" class="header-logo">
+      <img src="img/logo.svg" width="137" height="15">
+    </a>
+
+    <a href="contact.html" class="header-talk">
+      Let's Talk
+
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        width="1.2rem">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+      </svg>
+
+    </a>
+
+    <nav class="header-nav">
+      <h1 class="offscreen">Navigation</h1>
+      <ul class="header-nav-list">
+        <li>
+          <a href="/" aria-current="page" class="active">Home</a>
+        </li>
+        <li>
+          <a href="about.html">About</a>
+        </li>
+        <li>
+          <a href="contact.html">Contact</a>
+        </li>
+
+
+      </ul>
+    </nav>
+  </header>
+
+
+  <section class="hero">
+
+    <div class="container">
+
+      <div class="hero-col hero-image-col">
+
+        <picture class="hero-image">
+          <source srcset="img/hero-sm.jpg" width="363" height="222" media="(max-width: 768px)" type="image/jpg">
+          <source srcset="img/hero-md.jpg" width="608" height="372" media="(max-width: 768px)" type="image/jpg">
+          <img src="img/hero-lg.jpg" width="870" height="532" alt="Me working on a computer">
+        </picture>
+
+      </div>
+
+      <div class="hero-col">
+        <div class="hero-about">
+          <h2 class="hero-about__subheading">Hi 👋 I'm Mia.</h2>
+          <h1 class="hero-about__heading">
+            Developer<span class="text-yellow">.</span>
+            <br>
+            Content Creator<span class="text-purple">.</span>
+          </h1>
+          <p class="hero-about__body">
+            I create digital products and services to help brands, organisations and
+            entrepreneurs get the most out of their websites.
+          </p>
+
+          <div>
+            <a href="#work" class="button button--primary">Selected Work</a>
+
+            <a href="contact.html" class="button button--icon">Let's Talk
+
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" width="1.2rem">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+              </svg>
+
+            </a>
+          </div>
+
+
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <div>
+    <a href="contact.html" class="marquee">
+      <div class="marquee__items">
+        <div>✨ Let's get to work!</div>
+        <div>✨ Have a project in mind?</div>
+        <div>✨ Let's get to work!</div>
+        <div>✨ Have a project in mind?</div>
+        <div>✨ Let's get to work!</div>
+        <div>✨ Have a project in mind?</div>
+      </div>
+
+      <div class="marquee__items" aria-hidden="true">
+        <div>✨ Let's get to work!</div>
+        <div>✨ Have a project in mind?</div>
+        <div>✨ Let's get to work!</div>
+        <div>✨ Have a project in mind?</div>
+        <div>✨ Let's get to work!</div>
+        <div>✨ Have a project in mind?</div>
+      </div>
+    </a>
+  </div>
+
+
+  <section class="work">
+
+    <div class="container">
+
+      <div class="section-heading section-heading--white">
+        <h1>Selected Work</h1>
+        <p>I've been developing websites for a while, but I also equally enjoy creating other digital products.</p>
+      </div>
+
+
+      <div class="selected-work">
+
+
+        <a href="#" class="selected-work-card">
+
+          <div class="selected-work-card__image">
+            <img src="img/portfolio-1.jpg" alt="A photo showcasing branding work that I did for Mia" loading="lazy">
+          </div>
+
+          <div class="selected-work-card__desc">
+            <div>
+              <span>Mia's Brand</span>
+              <span>&#9679; Branding</span>
+            </div>
+
+
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" width="2rem">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+            </svg>
+
+          </div>
+
+        </a>
+
+        <a href="#" class="selected-work-card">
+
+          <div class="selected-work-card__image">
+            <img src="img/portfolio-2.jpg" alt="A photo showcasing branding work that I did for " loading="lazy">
+          </div>
+
+          <div class="selected-work-card__desc">
+            <div>
+              <span>Harley Davidson</span>
+              <span>&#9679; Web Development</span>
+            </div>
+
+
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" width="2rem">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+            </svg>
+
+          </div>
+
+        </a>
+
+        <a href="#" class="selected-work-card">
+
+          <div class="selected-work-card__image">
+            <img src="img/portfolio-3.jpg" alt="A photo showcasing branding work that I did for Mia" loading="lazy">
+          </div>
+
+          <div class="selected-work-card__desc">
+            <div>
+              <span>Oakley</span>
+              <span>&#9679; Web Development</span>
+            </div>
+
+
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" width="2rem">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+            </svg>
+
+          </div>
+
+        </a>
+
+        <a href="#" class="selected-work-card">
+
+          <div class="selected-work-card__image">
+            <img src="img/portfolio-1.jpg" alt="A photo showcasing branding work that I did for Mia" loading="lazy">
+          </div>
+
+          <div class="selected-work-card__desc">
+            <div>
+              <span>Head</span>
+              <span>&#9679; Web Design</span>
+            </div>
+
+
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" width="2rem">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+            </svg>
+
+          </div>
+
+        </a>
+
+      </div>
+
+
+      <div class="view-all-work">
+        <a href="#" class="button button--icon">View All Work
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" width="2rem">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+          </svg>
+
+        </a>
+      </div>
+
+
+    </div>
+
+  </section>
+
+
+  <section class="services">
+
+    <div class="container">
+      <div class="section-heading">
+        <h1>Services</h1>
+        <p>I've been developing websites for a while, but I also equally enjoy creating other digital products.</p>
+      </div>
+
+
+      <div class="services-grid">
+
+        <div class="services-grid__col">
+
+          <div>
+            <h3>Web Design</h3>
+            <p>I've been developing websites for a while, but I also equally enjoy creating other digital products.</p>
+            <a href="#">Learn More</a>
+          </div>
+
+          <div>
+            <h3>Web Development</h3>
+            <p>I've been developing websites for a while, but I also equally enjoy creating other digital products.</p>
+            <a href="#">Learn More</a>
+          </div>
+
+        </div>
+
+        <div class="services-grid__image">
+          <img src="img/services.jpg" alt="Services I offer" width="611" height="764" loading="lazy">
+        </div>
+
+        <div class="services-grid__col">
+
+          <div>
+            <h3>Branding</h3>
+            <p>I've been developing websites for a while, but I also equally enjoy creating other digital products.
+            </p>
+            <a href="#">Learn More</a>
+          </div>
+
+          <div>
+            <h3>SEO</h3>
+            <p>I've been developing websites for a while, but I also equally enjoy creating other digital products.
+            </p>
+            <a href="#">Learn More</a>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <section class="big-contact-button">
+    <a href="contact.html">
+
+      <div class="container">
+
+        <div>
+          <h2 class="big-contact-button__subheading">Have a project in mind?</h2>
+          <h1 class="big-contact-button__heading">Let's get to work<span class="text-purple">.</span></h1>
+        </div>
+
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          width="5rem">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"></path>
+        </svg>
+
+      </div>
+
+
+
+
+
+    </a>
+  </section>
+
+
+
+  <footer class="footer">
+
+    <a href="/" class="footer-logo">
+      <img src="img/logo.svg" width="137" height="15" alt="asd">
+    </a>
+
+    <a href="contact.html" class="footer-talk">
+      Let's Talk
+
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        width="1.2rem">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+      </svg>
+
+    </a>
+
+    <div class="footer-copyright">
+      &copy; 2022 Raddy &#9679; Built with HTML and CSS &#9679; Hosted on GitHub
+    </div>
+  </footer>
+
+
 </body>
 
 </html>
