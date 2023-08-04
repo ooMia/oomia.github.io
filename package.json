@@ -15,13 +15,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "export": "next export"
+    "export": "next build && next export"
   },
   "dependencies": {
     "cypress": "^10.0.3",
     "next": "^12.1.4",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "yarn": "^1.22.19"
   },
   "devDependencies": {
     "netlify-plugin-cypress": "2.2.1"
