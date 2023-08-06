@@ -1,0 +1,34 @@
+{
+  "private": true,
+  "name": "emma",
+  "description": "Minimalistic portfolio with full-width grid, page transitions, support for additional MDX pages, and a focus on large images",
+  "version": "0.3.14",
+  "author": "LekoArts",
+  "license": "0BSD",
+  "starter-name": "gatsby-starter-portfolio-emma",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "develop:cypress": "cross-env CYPRESS_SUPPORT=y yarn develop",
+    "build:cypress": "cross-env CYPRESS_SUPPORT=y yarn build",
+    "start": "gatsby develop",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "dependencies": {
+    "@lekoarts/gatsby-theme-emma": "^5.0.4",
+    "gatsby": "^5.10.0",
+    "gatsby-plugin-manifest": "^5.10.0",
+    "gatsby-plugin-sitemap": "^6.10.0",
+    "gatsby-plugin-webpack-statoscope": "^1.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.16",
+    "@types/react": "^18.2.9",
+    "@types/react-dom": "^18.2.4",
+    "cross-env": "^7.0.3",
+    "typescript": "^4.9.5"
+  }
+}

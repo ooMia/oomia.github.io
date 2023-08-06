@@ -1,19 +1,7 @@
-function App() {
-  const name = "react";
+import MyComponent from "./ToDoTemplate/MyComponent";
 
-  return (
-    <div
-      style={{
-        backgroundColor: "black", // 주석
-        color: "aqua",
-        fontSize: "48px",
-        fontWeight: "bold",
-        padding: 16,
-      }}
-    >
-      {"react" /*주석*/}
-    </div>
-  );
-}
+const App = () => {
+  return <MyComponent></MyComponent>;
+};
 
 export default App;
