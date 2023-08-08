@@ -29,4 +29,4 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: sync static directory with s3
-        run: aws s3 sync ./build/static/. s3://my-gatsby-contents --recursive --acl public-read
+        run: aws s3 sync ./build/static/. s3://my-gatsby-contents --acl public-read
