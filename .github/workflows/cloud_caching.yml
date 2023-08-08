@@ -1,12 +1,9 @@
 name: Cache static files on AWS S3 storage
 
-env:
-  PROJECT_PATH: ./my-gatsby
-
 on:
   push:
     paths:
-      - "$PROJECT_PATH/public/static/*"
+      - "*/public/static/*"
 
 jobs:
   build:
@@ -14,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          sparse-checkout: $PROJECT_PATH/public/static/
+          sparse-checkout: "*/public/static/*"
       - uses: actions/setup-node@v3
         with:
           node-version: 18
