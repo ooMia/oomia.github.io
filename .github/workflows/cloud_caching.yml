@@ -6,7 +6,7 @@ env:
 on:
   push:
     paths:
-      - $PROJECT_PATH/public/static/*
+      - "$PROJECT_PATH/public/static/*"
 
 jobs:
   build:
