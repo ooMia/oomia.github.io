@@ -1,8 +1,8 @@
 name: Cache static files on AWS S3 storage
 
 env:
-  PROJECT_ROOT: ./my-gatsby
-  STATIC_PATH: public/static/
+  STATIC_PATH: ./my-gatsby/public/static/
+  S3_BUCKET_NAME: my-gatsby-contents
 
 on:
   push:
@@ -11,19 +11,19 @@ on:
 
 jobs:
   deploy:
-    name: build and upload to s3
+    name: sync static with s3
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
       - name: copy static directory with s3
-        run: aws s3 sync $PROJECT_ROOT/$STATIC_PATH. s3://my-gatsby-contents --delete
+        run: aws s3 sync $STATIC_PATH. s3://$S3_BUCKET_NAME --delete
