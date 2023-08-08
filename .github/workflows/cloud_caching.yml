@@ -1,0 +1,28 @@
+name: Cache static files on AWS S3 storage
+
+env:
+  PROJECT_PATH: ./my-gatsby
+
+on:
+  push:
+    paths:
+      - "$PROJECT_PATH/public/static/*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout: $PROJECT_PATH/public/static/*
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # - name: Set AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-region: ap-northeast-2
+
+      - run: npm ci
+      - run: npm test
