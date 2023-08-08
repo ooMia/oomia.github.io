@@ -6,7 +6,7 @@ env:
 on:
   push:
     paths:
-      - "*/public/static/*"
+      - ./public/static/.
 
 jobs:
   build:
@@ -14,15 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          sparse-checkout: $PROJECT_PATH/public/static/
+          sparse-checkout: ./public/static/.
       - uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      # - name: Set AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-region: ap-northeast-2
-
-      - run: npm ci
-      - run: npm test
+      - name: Set AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id:
+            ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key:
+            ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-region: ap-northeast-2
+      - name: Copy to AWS S3
+        run: aws s3 sync ./build/static/. s3://
