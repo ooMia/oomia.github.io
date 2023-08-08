@@ -28,5 +28,5 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: sync static directory with s3
-        run: aws s3 sync .$STATIC_PATH. s3://my-gatsby-contents --acl public-read
+      - name: copy static directory with s3
+        run: aws s3 cp $STATIC_PATH s3://my-gatsby-contents --recursive --acl public-read
