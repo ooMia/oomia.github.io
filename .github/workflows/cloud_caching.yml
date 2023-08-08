@@ -1,16 +1,13 @@
 name: Cache static files on AWS S3 storage
 
 env:
-  STATIC_PATH: /public/static/
+  PROJECT_ROOT: ./my-gatsby
+  STATIC_PATH: public/static/
 
 on:
   push:
     paths:
-      - "*/public/static/*"
-
-permissions:
-  id-token: write
-  contents: read
+      - "*/$STATIC_PATH*"
 
 jobs:
   deploy:
@@ -29,4 +26,4 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: copy static directory with s3
-        run: aws s3 sync ./my-gatsby/public/static/. s3://my-gatsby-contents --delete
+        run: aws s3 sync $PROJECT_ROOT/$STATIC_PATH. s3://my-gatsby-contents --delete
