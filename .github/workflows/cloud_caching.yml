@@ -29,4 +29,4 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: copy static directory with s3
-        run: aws s3 sync ./public/static/. s3://my-gatsby-contents
+        run: aws s3 sync ./my-gatsby/public/static/. s3://my-gatsby-contents
