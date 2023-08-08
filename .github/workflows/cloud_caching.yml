@@ -1,12 +1,12 @@
 name: Cache static files on AWS S3 storage
 
 env:
-  PROJECT_PATH: ./my-gatsby
+  PROJECT_PATH: my-gatsby
 
 on:
   push:
     paths:
-      - "$PROJECT_PATH/public/static/*"
+      - "*$PROJECT_PATH/public/static/*"
 
 jobs:
   build:
