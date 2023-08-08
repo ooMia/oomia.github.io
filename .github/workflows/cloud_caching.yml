@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy:
-    name: sync static with s3
+    name: sync static sources from Github with AWS S3
     runs-on: ubuntu-latest
 
     steps:
@@ -25,5 +25,5 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: copy static directory with s3
+      - name: sync static directory with s3
         run: aws s3 sync $STATIC_PATH. s3://$S3_BUCKET_NAME --delete
