@@ -1,7 +1,7 @@
 name: Cache static files on AWS S3 storage
 
 env:
-  STATIC_PATH: ./my-gatsby/public/static/
+  STATIC_PATH: /public/static/
   S3_BUCKET_NAME: my-gatsby-contents
 
 on:
@@ -26,4 +26,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: sync static directory with s3
-        run: aws s3 sync $STATIC_PATH. s3://$S3_BUCKET_NAME --delete
+        run: aws s3 sync ./my-gatsby$STATIC_PATH. s3://$S3_BUCKET_NAME --delete
+
+      - name: sync static directory with s3
+        run: aws s3 sync ./react-projects/hello-react/$STATIC_PATH. s3://$S3_BUCKET_NAME --delete
