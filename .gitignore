@@ -1,8 +1,0 @@
-### Gatsby ###
-my-gatsby/node_modules/
-
-my-gatsby/.cache/
-my-gatsby/public/*
-!my-gatsby/public/static/
-
-my-gatsby/src/gatsby-types.d.ts
