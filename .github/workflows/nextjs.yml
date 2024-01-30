@@ -66,9 +66,12 @@ jobs:
         with:
           node-version: 'latest'
           cache: ${{ steps.detect-package-manager.outputs.manager }}
-          
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         with:
           # Automatically inject basePath in your Next.js configuration file and disable
           # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).

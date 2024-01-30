@@ -1,7 +1,13 @@
 {
+  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
+    "incremental": true,
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -12,24 +18,46 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
+    "forceConsistentCasingInFileNames": true,
+    "composite": true,
+    "strictNullChecks": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
     "plugins": [
       {
         "name": "next"
       }
     ],
     "baseUrl": "",
-    "rootDirs": ["src"],
+    "rootDirs": [
+      "src"
+    ],
+    "outDir": "build",
     "paths": {
-      "@/*": ["src/app/*"],
-      "@/resource/*": ["src/resource/*"],
-      "@/global/*": ["src/global/*"],
-      "@/scripts/*": ["src/scripts/*"]
+      "@/*": [
+        "src/app/*"
+      ],
+      "@/resource/*": [
+        "src/resource/*"
+      ],
+      "@/global/*": [
+        "src/global/*"
+      ],
+      "@/util/*": [
+        "src/util/*"
+      ]
     }
   },
   "include": [
-    "next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]
 }
+
