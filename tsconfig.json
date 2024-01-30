@@ -33,7 +33,7 @@
     "rootDirs": [
       "src"
     ],
-    "outDir": "build",
+    "outDir": "out",
     "paths": {
       "@/*": [
         "src/app/*"

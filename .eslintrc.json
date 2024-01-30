@@ -2,5 +2,8 @@
   "extends": [
     "./node_modules/gts/",
     "next/core-web-vitals"
-  ]
+  ],
+  "rules": {
+    "prettier/prettier": ["error", { "endOfLine": "auto" }]
+  }
 }
