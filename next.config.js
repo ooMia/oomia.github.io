@@ -1,9 +1,14 @@
 /**
  * @type {import('next').NextConfig}
  */
-const nextConfig = {
-  // https://nextjs.org/docs/app/building-your-application/deploying/static-exports#configuration
-  output: 'export',
-}
+const withMDX = require('@next/mdx')();
 
-module.exports = nextConfig
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Configure `pageExtensions` to include MDX files
+  pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
+  // https://nextjs.org/docs/app/building-your-application/deploying/static-exports#configuration
+  output: 'export'
+};
+
+module.exports = withMDX(nextConfig);
