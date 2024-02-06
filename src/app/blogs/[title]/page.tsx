@@ -16,15 +16,12 @@ export default async function Page({ params }: { params: { title: string } }) {
   const mdxSource = await readFileFromS3(`${title}.mdx`);
   return (
     <>
-      <div className="px-5 md:px-80 py-10">
-        <p className="text-5xl mb-4">{title}</p>
+      <div className="prose lg:prose-xl prose-slate invert">
         <MDXRemote source={mdxSource} />
+        ---
+        <MDXRemote components={{ RedText }}
+                   source={'# My Page\n\nThis is some text.\n\n<RedText>This text is red, but inverted.</RedText>'} />
       </div>
-      ---
-
-
-      <MDXRemote components={{ RedText }}
-                 source={'# My Page\n\nThis is some text.\n\n<RedText>This text is red.</RedText>'} />
     </>
   );
 }
