@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import '@/global/globals.css';
-import Script from 'next/script';
 import React from 'react';
 import Comments from '@/components/Comments';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -42,13 +42,15 @@ metadata.openGraph = {
 // https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="bg-slate-900 text-white max-w-3xl mx-auto py-20 px-4 ">
+    <html lang="en">
     <Script
       src={'https://us.umami.is/script.js'}
       data-website-id="65ec97d8-24c3-4b88-8646-225d81a1cfe4"
       async
     />
-    <body className={inter.className}>
+
+    <body className={inter.className + ' mx-auto py-20 px-4 max-w-3xl bg-gray-dark'}>
+
     {children}
     <Comments />
     </body>
