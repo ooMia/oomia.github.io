@@ -1,10 +1,11 @@
-import type {Metadata} from 'next';
-import {Inter} from 'next/font/google';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import '@/global/globals.css';
 import Script from 'next/script';
 import React from 'react';
+import Comments from '@/components/Comments';
 
-const inter = Inter({subsets: ['latin']});
+const inter = Inter({ subsets: ['latin'] });
 
 const author = 'ooMia';
 export const metadata: Metadata = {
@@ -13,8 +14,8 @@ export const metadata: Metadata = {
   authors: [
     {
       name: author,
-      url: `https://github.com/${author}`,
-    },
+      url: `https://github.com/${author}`
+    }
   ],
   description: 'Personal blog',
   icons: '@/resource/favicon.ico',
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   generator: author,
   keywords: [author, 'blog', 'portfolio'],
   creator: author,
-  publisher: author,
+  publisher: author
 };
 
 metadata.openGraph = {
@@ -33,43 +34,24 @@ metadata.openGraph = {
   siteName: metadata.applicationName!,
   images: [
     {
-      url: 'https://oomia.github.io/resource/next.svg',
-    },
-  ],
+      url: 'https://oomia.github.io/resource/next.svg'
+    }
+  ]
 };
 
 // https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required
-export default function RootLayout({children}: {children: React.ReactNode}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <Script
-        src={'https://us.umami.is/script.js'}
-        data-website-id="65ec97d8-24c3-4b88-8646-225d81a1cfe4"
-        async
-      />
-
-      {/*https://nextjs.org/docs/app/building-your-application/optimizing/scripts*/}
-      <Script
-        src={'https://giscus.app/client.js'}
-        data-repo="ooMia/giscus-comments"
-        data-repo-id="R_kgDOLFhy6A"
-        data-category="Announcements"
-        data-category-id="DIC_kwDOLFhy6M4CcdO2"
-        data-mapping="pathname"
-        data-strict="1"
-        data-reactions-enabled="1"
-        data-emit-metadata="1"
-        data-input-position="top"
-        data-theme="dark_high_contrast"
-        data-lang="ko"
-        data-loading="lazy"
-        crossOrigin="anonymous"
-        async
-        // https://nextjs.org/docs/app/api-reference/components/script#strategy
-        strategy="lazyOnload"
-      />
-
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className="bg-slate-900 text-white max-w-3xl mx-auto py-20 px-4 ">
+    <Script
+      src={'https://us.umami.is/script.js'}
+      data-website-id="65ec97d8-24c3-4b88-8646-225d81a1cfe4"
+      async
+    />
+    <body className={inter.className}>
+    {children}
+    <Comments />
+    </body>
     </html>
   );
 }

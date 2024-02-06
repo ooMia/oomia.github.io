@@ -1,26 +1,59 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
+  // https://www.typescriptlang.org/tsconfig
   "compilerOptions": {
-    "incremental": true,
-    "target": "es5",
+    /*
+      Type Checking
+    */
+    "strict": true,
+    "strictNullChecks": true,
+    "alwaysStrict": true,
+    /*
+      Modules
+    */
+    "baseUrl": "src",
+    "rootDirs": [
+      "src"
+    ],
+    "paths": {
+      "@/*": [
+        "app/*"
+      ],
+      "@/resource/*": [
+        "resource/*"
+      ],
+      "@/global/*": [
+        "global/*"
+      ],
+      "@/util/*": [
+        "util/*"
+      ],
+      "@/components/*": [
+        "components/*"
+      ]
+    },
+    "resolveJsonModule": true,
+    //
+    "target": "ES6",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
+    /*
+      Emit
+    */
+    "declaration": true,
+    "outDir": "build",
+    // default
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "forceConsistentCasingInFileNames": true,
-    "composite": true,
-    "strictNullChecks": true,
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
@@ -29,30 +62,23 @@
         "name": "next"
       }
     ],
-    "baseUrl": "",
-    "rootDirs": [
-      "src"
-    ],
-    "outDir": "out",
-    "paths": {
-      "@/*": [
-        "src/app/*"
-      ],
-      "@/resource/*": [
-        "src/resource/*"
-      ],
-      "@/global/*": [
-        "src/global/*"
-      ],
-      "@/util/*": [
-        "src/util/*"
-      ]
-    }
+    /*
+      Compiler Diagnostics
+    */
+    "diagnostics": true,
+    "extendedDiagnostics": true,
+    /*
+      Projects
+    */
+    "incremental": true,
+    // TypeScript project references are not fully supported in Next
+    "composite": false,
+    "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "test/**/*.ts",
+    "tailwind.config.ts",
     "next-env.d.ts",
     ".next/types/**/*.ts"
   ],
