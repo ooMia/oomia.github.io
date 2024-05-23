@@ -29,6 +29,9 @@
       ],
       "@/components/*": [
         "components/*"
+      ],
+      "@/type/*": [
+        "type/*"
       ]
     },
     "resolveJsonModule": true,

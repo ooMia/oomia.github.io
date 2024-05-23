@@ -1,24 +1,35 @@
+// blog post page
+
 import { MDXRemote } from 'next-mdx-remote/rsc';
 
-import { getBucketFileNames, readFileFromS3 } from '@/util/aws-s3';
+import { convertSystemToHumanDate, getLocalMDXContent, getLocalMDXMetaInfo, getLocalMDXTitles } from '@/util/local-mdx';
 import RedText from '@/components/RedText';
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   const params: { title: string }[] = [];
-  (await getBucketFileNames()).map(e =>
-    params.push({ title: e.split('.mdx')[0]! })
-  );
+  getLocalMDXTitles().map(title => {
+    params.push({
+      title: title
+    });
+  });
   return params;
 }
 
-export default async function Page({ params }: { params: { title: string } }) {
-  const { title } = params;
-  const mdxSource = await readFileFromS3(`${title}.mdx`);
+export default function Page({ params }: { params: { title: string } }) {
+
+  const [content, meta] = [getLocalMDXContent(params.title), getLocalMDXMetaInfo(params.title)];
+
+
   return (
     <>
       <div className="prose lg:prose-xl prose-slate invert">
-        <MDXRemote source={mdxSource} />
-        ---
+        <div>
+          <p>Created: {convertSystemToHumanDate(meta.birthtimeMs)}</p>
+          <p>Modified: {convertSystemToHumanDate(meta.mtimeMs)}</p>
+        </div>
+
+        <MDXRemote source={content} />
+
         <MDXRemote components={{ RedText }}
                    source={'# My Page\n\nThis is some text.\n\n<RedText>This text is red, but inverted.</RedText>'} />
       </div>

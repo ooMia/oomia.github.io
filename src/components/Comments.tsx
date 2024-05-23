@@ -1,12 +1,12 @@
-import React from "react";
-import Script from "next/script";
+import React from 'react';
+import Script from 'next/script';
 
 export default async function Comments() {
   return (
     <div>
       {/*https://nextjs.org/docs/app/building-your-application/optimizing/scripts*/}
       <Script
-        src={"https://giscus.app/client.js"}
+        src={'https://giscus.app/client.js'}
         data-repo="ooMia/giscus-comments"
         data-repo-id="R_kgDOLFhy6A"
         data-category="Announcements"
