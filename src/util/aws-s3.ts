@@ -1,31 +1,30 @@
-import {
-  GetObjectCommand,
-  ListBucketsCommand,
-  ListObjectsCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
-import {NodeJsClient} from '@smithy/types';
+import { GetObjectCommand, ListBucketsCommand, ListObjectsCommand, S3Client } from '@aws-sdk/client-s3';
+import { NodeJsClient } from '@smithy/types';
 
 // When no region or credentials are provided, the SDK will use the
 // region and credentials from the local AWS config.
-const client = new S3Client({
+const client = new S3Client([{
+  Credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  },
   region: 'ap-northeast-2',
-  maxAttempts: 1,
-}) as NodeJsClient<S3Client>;
+  maxAttempts: 1
+}]) as NodeJsClient<S3Client>;
 
 const myBucketName = 'github-io';
 
 export const getBuckets = async () => {
   const command = new ListBucketsCommand({});
-  const {Buckets} = await client.send(command);
+  const { Buckets } = await client.send(command);
   return Buckets;
 };
 
 export const getBucketFileNames = async (): Promise<string[]> => {
-  const command = new ListObjectsCommand({Bucket: myBucketName});
+  const command = new ListObjectsCommand({ Bucket: myBucketName });
 
   const fileNames: string[] = [];
-  const {Contents} = await client.send(command);
+  const { Contents } = await client.send(command);
   console.log('Files: ');
   console.log(Contents?.map(file => file.Key).join('\n'));
   Contents?.map(file => fileNames.push(file.Key!));
@@ -34,9 +33,9 @@ export const getBucketFileNames = async (): Promise<string[]> => {
 };
 
 export const readFileFromS3 = async (fileName?: string): Promise<string> => {
-  const command = new GetObjectCommand({Bucket: myBucketName, Key: fileName});
+  const command = new GetObjectCommand({ Bucket: myBucketName, Key: fileName });
 
-  const {Body} = await client.send(command);
+  const { Body } = await client.send(command);
 
   let res = '';
 
