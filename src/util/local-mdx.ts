@@ -27,9 +27,8 @@ export const getLocalMDXContent = (fileName: string) => {
 export const getLocalMDXMetaInfo = (fileName: string) => {
   const filePath = getMDXFilePath(fileName);
   // read meta info: like modified date, author, etc.
-  const meta = fs.statSync(filePath);
   // console.table(meta);
-  return meta;
+  return fs.statSync(filePath);
 };
 
 /**
