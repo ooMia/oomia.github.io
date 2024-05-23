@@ -13,7 +13,11 @@ export default async function Page() {
       <li>
         <a href={'/blogs'}>/blogs</a>
       </li>
+      <li>
+        <a href={'/video'}>/video</a>
+      </li>
     </ul>
+
 
   </div>;
 }
