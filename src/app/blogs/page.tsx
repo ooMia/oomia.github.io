@@ -14,7 +14,7 @@ export default async function Page() {
   // const titles = files.map(e => e.split('.mdx')[0]!);
 
   return <>
-    <div className="prose lg:prose-xl prose-slate invert">
+    <div className="">
       <h1>Blog Posts</h1>
       <ul>
         {files.map((e, i) => (
