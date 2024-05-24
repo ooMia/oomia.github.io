@@ -1,10 +1,11 @@
 export default async function Page() {
-  return <div className={'prose prose-red prose-2xl'}>
+  return <div className={''}>
 
     {
       /**
        * list of endpoints
        * - blogs
+       * - video
        */
     }
 

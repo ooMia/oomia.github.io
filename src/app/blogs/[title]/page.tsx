@@ -22,7 +22,7 @@ export default function Page({ params }: { params: { title: string } }) {
 
   return (
     <>
-      <div className="prose lg:prose-xl prose-slate invert">
+      <div className="lg:prose-xl">
         <div>
           <p>Created: {convertSystemToHumanDate(meta.birthtimeMs)}</p>
           <p>Modified: {convertSystemToHumanDate(meta.mtimeMs)}</p>
