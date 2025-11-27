@@ -16,6 +16,7 @@ jobs:
       - name: Checkout with submodules
         uses: actions/checkout@v6
         with:
+          token: ${{ secrets.DOCS_GITHUB_PAT }}
           submodules: true
 
       - name: Run access test (grep for 'WSL')
