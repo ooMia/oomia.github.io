@@ -9,8 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     # https://github.com/actions/checkout?tab=readme-ov-file#recommended-permissions
+    # Fetching submodules requires write access to the repository contents
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout with submodules
