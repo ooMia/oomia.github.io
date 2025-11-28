@@ -1,0 +1,39 @@
+name: Deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./quartz
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.DOCS_GITHUB_PAT }}
+          submodules: true
+
+      - uses: actions/setup-node@v6
+        with:
+          cache: "npm"
+          node-version: ">=22"
+
+      - run: npm ci
+
+      - name: Setup Quartz workspace
+        run: npx quartz create --strategy symlink --source ../docs --links shortest
+
+      - name: Build Artifact
+        run: npx quartz build -v
+
+      - uses: actions/upload-artifact@v5
+        with:
+          path: quartz/public
