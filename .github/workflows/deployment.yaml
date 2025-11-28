@@ -1,0 +1,55 @@
+name: Deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./quartz
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.DOCS_GITHUB_PAT }}
+          submodules: true
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ">=22"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - run: npm ci
+      - run: npx quartz create --strategy symlink --source ../docs --links shortest
+      - run: npx quartz build -v
+
+      - id: deployment
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: quartz/public/
+
+  deploy: # https://github.com/actions/deploy-pages/tree/v4
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
