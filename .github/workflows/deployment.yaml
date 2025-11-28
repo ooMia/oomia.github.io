@@ -15,7 +15,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: builder
+        working-directory: ./builder
 
     steps:
       - uses: actions/checkout@v6
