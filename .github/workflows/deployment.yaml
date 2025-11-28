@@ -15,7 +15,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./quartz
+        working-directory: builder
 
     steps:
       - uses: actions/checkout@v6
@@ -29,14 +29,14 @@ jobs:
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
 
-      - run: npm ci
-      - run: npx quartz create --strategy symlink --source ../docs --links shortest
+      - run: npm ci --omit=dev
+      - run: npx quartz create --strategy symlink --source ../content --links shortest
       - run: npx quartz build -v
 
       - id: deployment
         uses: actions/upload-pages-artifact@v4
         with:
-          path: quartz/public/
+          path: builder/public/
 
   deploy: # https://github.com/actions/deploy-pages/tree/v4
     needs: build
