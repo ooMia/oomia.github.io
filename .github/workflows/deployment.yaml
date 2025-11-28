@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-preview:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -16,6 +16,7 @@ jobs:
       run:
         shell: bash
         working-directory: ./quartz
+
     steps:
       - uses: actions/checkout@v6
         with:
@@ -29,13 +30,26 @@ jobs:
           cache-dependency-path: "**/package-lock.json"
 
       - run: npm ci
+      - run: npx quartz create --strategy symlink --source ../docs --links shortest
+      - run: npx quartz build -v
 
-      - name: Setup Quartz workspace
-        run: npx quartz create --strategy symlink --source ../docs --links shortest
-
-      - name: Build Artifact
-        run: npx quartz build -v
-
-      - uses: actions/upload-artifact@v5
+      - id: deployment
+        uses: actions/upload-pages-artifact@v4
         with:
-          path: quartz/public
+          path: quartz/public/
+
+  deploy: # https://github.com/actions/deploy-pages/tree/v4
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
