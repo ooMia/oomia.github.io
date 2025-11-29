@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          token: ${{ secrets.DOCS_GITHUB_PAT }}
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
           submodules: true
 
       - uses: actions/setup-node@v6
