@@ -1,0 +1,6 @@
+[submodule "docs"]
+	path = content
+	url = https://github.com/ooMia/oomia.github.io.docs
+[submodule "quartz"]
+	path = builder
+	url = https://github.com/ooMia/oomia.github.io.quartz
