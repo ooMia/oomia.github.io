@@ -34,7 +34,7 @@ git submodule update --init --recursive
 cd builder
 
 # 의존성 설치 (개발 의존성 제외)
-npm ci --omit=dev
+npm ci --omit=dev --prefer-offline
 
 # Quartz 설정 및 컨텐츠 소스 연결 (Symlink 전략 사용)
 npx quartz create --strategy symlink --source ../content --links shortest
