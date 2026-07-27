@@ -1,0 +1,12 @@
+{
+  "name": "tistory-skin",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": ">=6"
+  },
+  "dependencies": {
+    "parse5": "^8.0.1"
+  }
+}
