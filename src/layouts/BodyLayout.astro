@@ -1,13 +1,12 @@
 ---
-import { equal } from "assert";
-import { $ } from "../lib/globals";
+import Tag from "#components/tistory/Tag.astro";
+import { $ } from "#lib/globals";
 
-const bodyId = $.body.id.toString();
-equal(bodyId, "[##_body_id_##]");
+const bodyId = $.body_id.toString();
 ---
 
 <body id={bodyId}>
-  <s_t3>
+  <Tag tId='t3'>
     <slot />
-  </s_t3>
+  </Tag>
 </body>

@@ -1,0 +1,52 @@
+---
+type Kind = "value" | "tag";
+type Condition = "always" | "if" | "ifNot";
+
+export interface Props {
+  tId: string;
+  tKind?: Kind;
+  tCondition?: Condition;
+  tOption?: boolean;
+}
+
+const {
+  tId,
+  tKind = "tag",
+  tCondition = "always",
+  tOption = false,
+  ...restProps
+} = Astro.props;
+
+const PREFIX_RULE = {
+  always: "",
+  if: "if_",
+  ifNot: "if_not_",
+} as const satisfies Record<Condition, string>;
+
+function build({
+  tId,
+  tKind = "tag",
+  tCondition = "always",
+  tOption = false,
+}: Props): string {
+  const id = tOption ? `var_${tId}` : tId;
+
+  if (tKind === "value") {
+    return `[##_${id}_##]`;
+  }
+  const prefix = PREFIX_RULE[tCondition];
+  return `s_${prefix}${id}`;
+}
+
+const TagName = build(Astro.props);
+---
+
+{
+  tKind === "value" ? (
+    `[##_${tId}_##]`
+  ) : (
+    <TagName {...restProps}>
+      <slot />
+    </TagName>
+  )
+}
