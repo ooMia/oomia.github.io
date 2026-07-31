@@ -1,0 +1,15 @@
+---
+import { Fragment } from "astro/jsx-runtime";
+import { lower, upper } from "../components/Advertise.astro";
+import Menu, { blogMenu } from "../components/Menu.astro";
+import Sidebar from "../components/Sidebar.astro";
+import RootLayout from "../layouts/RootLayout.astro";
+---
+
+<RootLayout>
+  {upper}
+  {blogMenu}
+  <Menu />
+  <Sidebar />
+  {lower}
+</RootLayout>

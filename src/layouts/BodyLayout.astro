@@ -1,0 +1,13 @@
+---
+import { equal } from "assert";
+import { $ } from "../lib/globals";
+
+const bodyId = $.body.id.toString();
+equal(bodyId, "[##_body_id_##]");
+---
+
+<body id={bodyId}>
+  <s_t3>
+    <slot />
+  </s_t3>
+</body>

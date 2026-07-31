@@ -1,0 +1,11 @@
+---
+import { equal } from "assert";
+import { $ } from "../lib/globals";
+
+const pageTitle = $.page.title.toString();
+equal(pageTitle, "[##_page_title_##]");
+---
+
+<head>
+  <title>{pageTitle}</title>
+</head>

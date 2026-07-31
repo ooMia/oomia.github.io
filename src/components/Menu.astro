@@ -1,0 +1,21 @@
+---
+import { $ } from "../lib/globals";
+
+export const blogMenu = $.blog.menu.toString();
+
+const rssUrl = $.rss.url.toString();
+const taglogLink = $.taglog.link.toString();
+const guestbookLink = $.guestbook.link.toString();
+---
+
+<ul>
+  <li>
+    <a href={rssUrl}>RSS구독</a>
+  </li>
+  <li>
+    <a href={taglogLink}>태그</a>
+  </li>
+  <li>
+    <a href={guestbookLink}>방명록</a>
+  </li>
+</ul>
