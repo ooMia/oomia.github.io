@@ -1,11 +1,13 @@
 ---
+import { $ } from "#lib/globals";
 import { equal } from "assert";
-import { $ } from "../lib/globals";
 
 const pageTitle = $.page.title.toString();
 equal(pageTitle, "[##_page_title_##]");
 ---
 
 <head>
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
   <title>{pageTitle}</title>
 </head>
