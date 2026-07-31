@@ -58,22 +58,18 @@ const cover = {
       description:
         "그룹 태그: 컨텐츠 이미지가 있는 경우에만 치환.\n문자열: 컨텐츠 이미지",
     },
-
     article: {
       info: {
         description: "컨텐츠가 글인 경우에만 치환",
-
         category: {
           description: "카테고리 명",
           url: {
             description: "카테고리 url",
           },
         },
-
         date: {
           description: "글 발행 날짜/시간 (yyyy.mm.dd HH:MM)",
         },
-
         simple_date: {
           description: "글 발행 날짜 (yyyy.mm.dd)",
         },
@@ -87,6 +83,9 @@ const cover = {
 
 // 1. 임의의 원본 상수 객체 정의 (as const를 쓰지 않아도 완벽 작동)
 const rawSchema = {
+  blog: blog,
+  revenue: revenue,
+  cover: cover,
   title: {
     description: "블로그 제목",
   },
@@ -99,7 +98,6 @@ const rawSchema = {
   blogger: {
     description: "블로그 소유자의 필명",
   },
-  blog: blog,
   rss_url: {
     description: "rss feed 주소",
   },
@@ -109,7 +107,6 @@ const rawSchema = {
   guestbook_link: {
     description: "방명록 url",
   },
-  revenue: revenue,
   page: {
     title: {
       description: "페이지 제목",
@@ -118,7 +115,6 @@ const rawSchema = {
   body_id: {
     description: "페이지 타입에 따른 id",
   },
-  cover: cover,
 };
 
 // 2. $ 생성 ($의 타입은 rawSchema 구조를 자동으로 추론함)

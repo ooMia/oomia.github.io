@@ -1,14 +1,25 @@
-// 1. 원본 스키마에서 $doc(설명문)과 일반 경로 노드를 분리하여 추론하는 타입
-type SchemaProxy<T, RAW = T> = (T extends { description: infer D }
-  ? { $doc: D } // description이 존재하면 $doc 속성에 그 메타데이터 타입을 바인딩
+export type TagCondition = "always" | "if" | "ifNot";
+
+const PREFIX_RULE: Record<TagCondition, string> = {
+  always: "",
+  if: "if_",
+  ifNot: "if_not_",
+};
+
+// 2. 스키마 프록시 타입 정의
+export type SchemaProxy<T, RAW = T> = (T extends { description: infer D }
+  ? { $doc: D }
   : {}) & {
-  [K in keyof T as K extends "description" ? never : K]: SchemaProxy<T[K], RAW>;
+  [K in keyof T as K extends "description" | "isOption"
+    ? never
+    : K]: SchemaProxy<T[K], RAW>;
 } & {
   toString(): string;
   valueOf(): string;
+  toValue(optional?: boolean): string;
 };
 
-// 2. 런타임 Proxy 생성 함수
+// 3. 런타임 Proxy 생성 함수
 export function createSchemaProxy<T extends object>(
   rawSchema: T,
   path: string[] = [],
@@ -17,37 +28,54 @@ export function createSchemaProxy<T extends object>(
 
   return new Proxy(target, {
     get(_, prop: string | symbol) {
-      // 1) 형변환 처리
+      // 1) 기본 ID 생성 로직 (path를 _로 연결)
+      const rawId = path.join("_");
+
+      // 2) 스키마 메타데이터에서 isOption 기본값 탐색
+      const isSchemaOption = Boolean(
+        getNestedProperty(rawSchema, path)?.isOption,
+      );
+
+      // 3) [치환자 Value 반환 메서드] - .toValue()
+      if (prop === "toValue") {
+        return (optional?: boolean) => {
+          const isOpt = optional ?? isSchemaOption;
+          const id = isOpt ? `var_${rawId}` : rawId;
+          return `[##_${id}_##]`;
+        };
+      }
+
+      // 4) 문자열/원시값 형변환 (기존 toString 유지)
       if (
         prop === "toString" ||
         prop === "valueOf" ||
         prop === Symbol.toPrimitive
       ) {
-        return () => path.join("_");
+        return () => rawId;
       }
 
-      // 2) 메타데이터($doc) 접근 시 원본 스키마 객체에서 description 탐색
+      // 5) 메타데이터($doc) 접근
       if (prop === "$doc") {
-        return getNestedDescription(rawSchema, path);
+        return getNestedProperty(rawSchema, path)?.description;
       }
 
-      // 3) 비동기/심볼 예외 처리
+      // 6) 비동기/심볼 예외 처리
       if (prop === "then" || typeof prop === "symbol") {
         return undefined;
       }
 
-      // 4) 하위 경로 재귀 생성
+      // 7) 하위 경로 재귀 생성
       return createSchemaProxy(rawSchema, [...path, String(prop)]);
     },
   }) as unknown as SchemaProxy<T>;
 }
 
-// 경로 배열을 따라 원본 스키마의 description을 찾아내는 헬퍼
-function getNestedDescription(obj: any, path: string[]) {
+// 경로 배열을 따라 원본 스키마 객체의 해당 속성 노드를 찾는 헬퍼
+function getNestedProperty(obj: any, path: string[]) {
   let current = obj;
   for (const key of path) {
     if (!current || typeof current !== "object") return undefined;
     current = current[key];
   }
-  return current?.description;
+  return current;
 }

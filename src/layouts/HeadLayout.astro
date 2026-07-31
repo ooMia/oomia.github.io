@@ -2,7 +2,7 @@
 import { $ } from "#lib/globals";
 import { equal } from "assert";
 
-const pageTitle = $.page.title.toString();
+const pageTitle = $.page.title.toValue();
 equal(pageTitle, "[##_page_title_##]");
 ---
 
