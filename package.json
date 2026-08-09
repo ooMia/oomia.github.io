@@ -1,13 +1,16 @@
 {
   "name": "tistory-skin",
   "scripts": {
-    "build": "astro build"
+    "build": "astro build",
+    "format": "prettier -w ."
   },
   "dependencies": {
-    "astro": "^7.1.6"
+    "astro": "^7.2.0"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "husky": "latest",
+    "prettier": "latest"
   },
   "peerDependencies": {
     "typescript": ">=6"

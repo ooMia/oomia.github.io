@@ -10,9 +10,9 @@ const PREFIX_RULE: Record<TagCondition, string> = {
 export type SchemaProxy<T, RAW = T> = (T extends { description: infer D }
   ? { $doc: D }
   : {}) & {
-  [K in keyof T as K extends "description" | "isOption"
-    ? never
-    : K]: SchemaProxy<T[K], RAW>;
+  [
+    K in keyof T as K extends "description" | "isOption" ? never : K
+  ]: SchemaProxy<T[K], RAW>;
 } & {
   toString(): string;
   valueOf(): string;

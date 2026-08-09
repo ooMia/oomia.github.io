@@ -1,2 +1,5 @@
+.husky/
 node_modules/
+
+.astro/
 dist/
