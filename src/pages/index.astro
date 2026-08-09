@@ -1,15 +1,8 @@
 ---
-import { lower, upper } from "#components/Advertise.astro";
-import Menu, { blogMenu } from "#components/Menu.astro";
-import Sidebar from "#components/Sidebar.astro";
+import Home from "#layouts/home/Home.astro";
 import RootLayout from "#layouts/RootLayout.astro";
-
 ---
 
 <RootLayout>
-  {upper}
-  {blogMenu}
-  <Menu />
-  <Sidebar />
-  {lower}
+  <Home />
 </RootLayout>

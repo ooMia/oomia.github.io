@@ -1,0 +1,19 @@
+---
+import Tag from "#components/tistory/Tag.astro";
+import { $ } from "#lib/globals";
+
+// https://tistory.github.io/document-tistory-skin/common/cover.html
+
+export interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+const Cover = {
+  name: name,
+  tId: $.cover.toString(),
+};
+---
+
+<Tag {...Cover}>
+  <slot />
+</Tag>

@@ -1,17 +1,16 @@
 ---
-import { $ } from "../lib/globals";
+import { $ } from "#lib/globals";
 
-const desc = $.desc.toString();
-const blogger = $.blogger.toString();
-const image = $.image.toString();
-const imageDesc = $.blog.image.description.toString();
-const blogImage = $.blog.image.toString();
+const desc = $.desc.toValue();
+const blogger = $.blogger.toValue();
+
+const image = $.image.toValue();
+const blogImageDesc = $.blog.image.$doc;
 ---
 
 <section>
   <div>
-    <!-- {blogImage} -->
-    <img src={image} alt={imageDesc} />
+    <img src={image} alt={blogImageDesc} />
     <div>{desc}<span>{blogger}</span></div>
   </div>
 </section>

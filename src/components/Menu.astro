@@ -1,11 +1,11 @@
 ---
-import { $ } from "../lib/globals";
+import { $ } from "#lib/globals";
 
-export const blogMenu = $.blog.menu.toString();
+export const blogMenu = $.blog.menu.toValue();
 
-const rssUrl = $.rss.url.toString();
-const taglogLink = $.taglog.link.toString();
-const guestbookLink = $.guestbook.link.toString();
+const rssUrl = $.rss_url.toValue();
+const taglogLink = $.taglog_link.toValue();
+const guestbookLink = $.guestbook_link.toValue();
 ---
 
 <ul>

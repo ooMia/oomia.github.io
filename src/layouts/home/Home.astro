@@ -1,0 +1,45 @@
+---
+import Tag from "#components/tistory/Tag.astro";
+import { $ } from "#lib/globals";
+
+import Article from "#components/home/ArticleHomeCover.astro";
+import Fallback from "#components/home/FallbackHomeCover.astro";
+
+// https://tistory.github.io/document-tistory-skin/common/cover.html
+
+const CoverGroup = {
+  Tag: Tag,
+  props: {
+    tId: $.cover.group.toString(),
+  },
+};
+const CoverRep = {
+  Tag: Tag,
+  props: {
+    tId: $.cover.rep.toString(),
+  },
+};
+const ArticleCover = {
+  Tag: Tag,
+  props: {
+    tId: $.cover.item.article.info.toString(),
+  },
+};
+const FallbackCover = {
+  Tag: Tag,
+  props: {
+    tId: $.cover.item.not_article_info.toString(),
+  },
+};
+---
+
+<CoverGroup.Tag {...CoverGroup.props}>
+  <CoverRep.Tag {...CoverRep.props}>
+    <ArticleCover.Tag {...ArticleCover.props}>
+      <Article />
+    </ArticleCover.Tag>
+    <FallbackCover.Tag {...FallbackCover.props}>
+      <Fallback />
+    </FallbackCover.Tag>
+  </CoverRep.Tag>
+</CoverGroup.Tag>
