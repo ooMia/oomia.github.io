@@ -1,0 +1,22 @@
+{
+  "name": "tistory-skin",
+  "scripts": {
+    "dev": "astro dev",
+    "check": "astro check",
+    "build": "astro build",
+    "format": "prettier -w ."
+  },
+  "dependencies": {
+    "astro": "^7.2.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "latest",
+    "@types/bun": "latest",
+    "husky": "latest",
+    "prettier": "latest",
+    "prettier-plugin-astro": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  }
+}

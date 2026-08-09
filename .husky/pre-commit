@@ -1,0 +1,2 @@
+bun prettier --check .
+bun test --pass-with-no-tests
