@@ -1,4 +1,4 @@
-export type TagCondition = "always" | "if" | "ifNot";
+type TagCondition = "always" | "if" | "ifNot";
 
 const PREFIX_RULE: Record<TagCondition, string> = {
   always: "",

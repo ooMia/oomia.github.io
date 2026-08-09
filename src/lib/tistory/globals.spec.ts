@@ -1,13 +1,12 @@
-import { $ } from "#lib/globals";
+import { $ } from "#lib/tistory/globals";
 import { describe, expect, test } from "bun:test";
 
 describe("path conversion", () => {
   // 1. 기본 접근 테스트
   test("basic props", () => {
-    const res = "cover_item_article";
-    expect(String($.cover.item.article)).toBe(res);
-    expect($.cover.item.article.toString()).toBe(res);
-    expect($.cover.item.article.valueOf()).toBe(res);
+    expect(String($.cover.item.article)).toBe("cover_item_article");
+    expect($.cover.item.article.toString()).toBe("cover_item_article");
+    expect($.cover.item.article.valueOf()).toBe("cover_item_article");
   });
 
   test("props with underbar", () => {

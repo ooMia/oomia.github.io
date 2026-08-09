@@ -1,4 +1,4 @@
-import { createSchemaProxy } from "./proxy";
+import { createSchemaProxy, type SchemaProxy } from "./proxy";
 
 const blog = {
   image: {
@@ -80,9 +80,15 @@ const cover = {
     },
   },
 };
-
+const customs = {
+  width: {
+    description: "너비",
+    isOption: true,
+  },
+};
 // 1. 임의의 원본 상수 객체 정의 (as const를 쓰지 않아도 완벽 작동)
 const rawSchema = {
+  ...customs,
   blog: blog,
   revenue: revenue,
   cover: cover,
