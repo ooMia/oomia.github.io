@@ -1,12 +1,12 @@
 ---
 import RootLayout from "#layouts/RootLayout.astro";
-import "#styles/base.css";
 import type { CodeLanguage } from "astro";
 import { Code as Shiki } from "astro:components";
 
 const Code = {
   Component: Shiki,
   props: {
+    lang: "ts" as CodeLanguage,
     code: `interface ImportMetaEnv {
   readonly GOOGLE_TAG_MANAGER_ID: string;
 }
@@ -14,7 +14,6 @@ const Code = {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }` as string,
-    lang: "ts" as CodeLanguage,
   },
 };
 ---

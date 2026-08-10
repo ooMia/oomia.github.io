@@ -14,6 +14,10 @@ preferences  Configure user preferences.
 telemetry  Configure telemetry settings.
 ```
 
+```sh
+bun run build -- --site https://oomia.github.io
+```
+
 ### `dist` 구조
 
 ```sh
