@@ -22,9 +22,8 @@ pageIcon = (() => {
       src=`https://app.notion.com/images/page-cover/solid_${coverColor}.png`
       style="object-position:center 40%"
       alt="page-cover"
-      width="900"
-      height="450"
       loading="eager"
+      inferSize
     />
     <div class:list={["page-header-icon", "page-header-icon-with-cover"]}>
       <span class="icon" data-emoji={pageIcon}></span>
