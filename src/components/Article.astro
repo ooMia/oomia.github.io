@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+
 type coverColorType = "yellow" | "beige" | "red" | "blue";
 interface Props {
   readonly coverColor: coverColorType;
@@ -15,10 +17,14 @@ pageIcon = (() => {
 
 <article class:list={["page", "sans"]} data-notion-page-icon={pageIcon}>
   <header>
-    <img
+    <Image
       class="page-cover-image"
       src=`https://app.notion.com/images/page-cover/solid_${coverColor}.png`
       style="object-position:center 40%"
+      alt="page-cover"
+      width="900"
+      height="450"
+      loading="eager"
     />
     <div class:list={["page-header-icon", "page-header-icon-with-cover"]}>
       <span class="icon" data-emoji={pageIcon}></span>

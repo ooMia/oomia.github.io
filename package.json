@@ -2,9 +2,10 @@
   "name": "tistory-skin",
   "scripts": {
     "dev": "astro dev",
-    "check": "astro check",
-    "build": "astro build",
-    "format": "prettier -w ."
+    "build": "astro build --site https://oomia.github.io",
+    "format": "prettier -w .",
+    "preview": "astro preview",
+    "check": "astro check"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
