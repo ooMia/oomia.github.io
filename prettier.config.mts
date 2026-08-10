@@ -17,6 +17,7 @@ const astroConfig: Config = {
 const configs: Config[] = [astroConfig];
 
 const config: Config = {
+  printWidth: 120,
   plugins: configs.flatMap(({ plugins }) => plugins ?? []),
   overrides: configs.flatMap(({ overrides }) => overrides ?? []),
 };
