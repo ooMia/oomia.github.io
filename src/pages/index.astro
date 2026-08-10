@@ -1,5 +1,6 @@
 ---
 import RootLayout from "#layouts/RootLayout.astro";
+
 import type { CodeLanguage } from "astro";
 import { Code as Shiki } from "astro:components";
 
@@ -18,42 +19,25 @@ interface ImportMeta {
 };
 ---
 
-<RootLayout title='' description=''>
-  <article class='page sans' data-notion-page-icon='🙂'>
-    <header>
-      <img
-        class='page-cover-image'
-        src='https://app.notion.com/images/page-cover/solid_yellow.png'
-        style='object-position:center 40%'
-      /><div class='page-header-icon page-header-icon-with-cover'>
-        <span class='icon' data-emoji='🙂'></span>
-      </div><h1 class='page-title' dir='auto'>title</h1><p
-        class='page-description'
-        dir='auto'
-      >
-      </p>
-    </header>
-    <div class='page-body'>
-      <h1>head1 헤드1</h1><h2>head2 헤드2</h2><h3>head3 헤드3</h3><h4>
-        head4 헤드4
-      </h4>
+<RootLayout title="" description="">
+  <h1>head1 헤드1</h1>
+  <h2>head2 헤드2</h2>
+  <h3>head3 헤드3</h3>
+  <h4>head4 헤드4</h4>
 
-      <aside
-        class='block-color-gray_background callout'
-        data-notion-callout=''
-        data-notion-callout-icon='💡'
-        data-notion-callout-background='gray_background'
-        style='white-space:pre-wrap;display:flex'
-        dir='ltr'
-      >
-        <div style='font-size:1.5em'>
-          <span class='icon' data-emoji='💡'></span>
-        </div><div style='width:100%'>
-          <p>callout</p>
-        </div>
-      </aside>
-
-      <Code.Component {...Code.props} />
+  <aside
+    class="block-color-gray_background callout"
+    data-notion-callout=""
+    data-notion-callout-icon="💡"
+    data-notion-callout-background="gray_background"
+    style="white-space:pre-wrap;display:flex"
+    dir="ltr"
+  >
+    <div style="font-size:1.5em">
+      <span class="icon" data-emoji="💡"></span>
+    </div><div style="width:100%">
+      <p>callout</p>
     </div>
-  </article></RootLayout
->
+  </aside>
+  <Code.Component {...Code.props} />
+</RootLayout>

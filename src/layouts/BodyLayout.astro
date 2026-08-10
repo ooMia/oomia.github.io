@@ -1,7 +1,9 @@
 ---
-
+import ArticleLayout from "./article/ArticleLayout.astro";
 ---
 
 <body>
-  <slot />
+  <ArticleLayout coverColor="red" pageIcon="🙂">
+    <slot />
+  </ArticleLayout>
 </body>

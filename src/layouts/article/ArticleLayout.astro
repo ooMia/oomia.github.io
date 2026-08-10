@@ -1,0 +1,33 @@
+---
+type coverColorType = "yellow" | "beige" | "red" | "blue";
+interface Props {
+  readonly coverColor: coverColorType;
+  pageIcon: string;
+}
+
+let { coverColor, pageIcon } = Astro.props;
+
+pageIcon = (() => {
+  const code = pageIcon.codePointAt(0);
+  return code ? String.fromCodePoint(code) : "";
+})();
+---
+
+<article class="page sans" data-notion-page-icon={pageIcon}>
+  <header>
+    <img
+      class="page-cover-image"
+      src=`https://app.notion.com/images/page-cover/solid_${coverColor}.png`
+      style="object-position:center 40%"
+    /><div class="page-header-icon page-header-icon-with-cover">
+      <span class="icon" data-emoji={pageIcon}></span>
+    </div><h1 class="page-title" dir="auto">title</h1><p
+      class="page-description"
+      dir="auto"
+    >
+    </p>
+  </header>
+  <div class="page-body">
+    <slot />
+  </div>
+</article>

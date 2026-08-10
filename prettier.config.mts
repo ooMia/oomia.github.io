@@ -17,7 +17,6 @@ const astroConfig: Config = {
 const configs: Config[] = [astroConfig];
 
 const config: Config = {
-  jsxSingleQuote: true,
   plugins: configs.flatMap(({ plugins }) => plugins ?? []),
   overrides: configs.flatMap(({ overrides }) => overrides ?? []),
 };
