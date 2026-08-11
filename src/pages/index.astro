@@ -5,6 +5,7 @@ import RootLayout from "#layouts/RootLayout.astro";
 
 import type { CodeLanguage } from "astro";
 import { Code as Shiki } from "astro:components";
+import { getCollection, render } from "astro:content";
 
 const Code = {
   Component: Shiki,
@@ -19,10 +20,24 @@ interface ImportMeta {
 }` as string,
   },
 };
+const articles = await getCollection("articles");
 ---
 
 <RootLayout title="" description="">
   <GravatarCard username="oomia6" />
+
+  <h1>내 게시물</h1>
+  <ul>
+    {
+      articles.map(async (post) => (
+        <li>
+          <a href={`/article/${post.id}`}>
+            {post.data.title} by {post.data.author.id} : {(await render(post)).remarkPluginFrontmatter["minutesRead"]}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
 
   <h1>head1 헤드1</h1>
   <h2>head2 헤드2</h2>
