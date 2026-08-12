@@ -2,10 +2,11 @@
 import Callout from "#components/Callout.astro";
 import GravatarCard from "#components/GravatarCard.astro";
 import RootLayout from "#layouts/RootLayout.astro";
+import { render as renderRemark } from "#plugins/remark";
 
 import type { CodeLanguage } from "astro";
 import { Code as Shiki } from "astro:components";
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 
 const Code = {
   Component: Shiki,
@@ -32,7 +33,7 @@ const articles = await getCollection("articles");
       articles.map(async (post) => (
         <li>
           <a href={`/article/${post.id}`}>
-            {post.data.title} by {post.data.author.id} : {(await render(post)).remarkPluginFrontmatter["minutesRead"]}
+            {post.data.title} by {post.data.author.id} :{(await renderRemark(post)).remarkPluginFrontmatter.minutesRead}
           </a>
         </li>
       ))

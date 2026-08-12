@@ -1,8 +1,8 @@
-import { remarkReadingTime } from "#lib/remark-reading-time.js";
+import { remarkPlugins } from "#lib/remark-plugins";
 import { unified } from "@astrojs/markdown-remark";
-import sitemap from "@astrojs/sitemap";
 import type { AstroUserConfig } from "astro";
 import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
 
 // https://docs.astro.build/ko/reference/configuration-reference/#이미지-옵션
 const imageConfig: AstroUserConfig["image"] = {
@@ -25,7 +25,7 @@ const sitemapConfig = sitemap({
 // https://docs.astro.build/ko/guides/markdown-content/#markdown-플러그인
 const markdownConfig: AstroUserConfig["markdown"] = {
   processor: unified({
-    remarkPlugins: [remarkReadingTime],
+    remarkPlugins: remarkPlugins,
   }),
 };
 

@@ -1,6 +1,6 @@
+import { defineCollection, reference } from "astro:content";
 import { file, glob } from "astro/loaders";
 import { z } from "astro/zod";
-import { defineCollection, reference } from "astro:content";
 
 const articles = defineCollection({
   loader: glob({
@@ -12,7 +12,6 @@ const articles = defineCollection({
     description: z.string().optional(),
     pubDate: z.coerce.date().optional(),
     updatedDate: z.coerce.date().optional(),
-    minutesRead: z.string().optional(),
     author: reference("author"),
   }),
 });
