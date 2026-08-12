@@ -1,7 +1,8 @@
 import { type Config } from "prettier";
+import { mergeWith } from "es-toolkit";
 
-// https://github.com/withastro/prettier-plugin-astro/blob/main/README.md
-const astroConfig: Config = {
+// https://github.com/withastro/prettier-plugin-astro#readme
+const astro: Config = {
   plugins: ["prettier-plugin-astro"],
   overrides: [
     {
@@ -14,12 +15,19 @@ const astroConfig: Config = {
   astroAllowShorthand: true,
 };
 
-const configs: Config[] = [astroConfig];
-
-const config: Config = {
-  printWidth: 120,
-  plugins: configs.flatMap(({ plugins }) => plugins ?? []),
-  overrides: configs.flatMap(({ overrides }) => overrides ?? []),
+// https://github.com/SanderRonde/prettier-plugin-sort-imports#readme
+const sortImport: Config = {
+  plugins: ["prettier-plugin-sort-imports"],
+  sortingMethod: "alphabetical",
+  sortingOrder: "ascending",
+  stripNewlines: true,
 };
 
-export default config;
+const mergeConfig = (target: Config, source: Config): Config =>
+  mergeWith(target, source, (target, source) =>
+    Array.isArray(target) && Array.isArray(source) ? [...target, ...source] : undefined,
+  );
+
+export default [astro, sortImport].reduce(mergeConfig, {
+  printWidth: 120,
+});

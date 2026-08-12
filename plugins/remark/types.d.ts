@@ -1,6 +1,6 @@
-import type { RemarkPlugin } from "@astrojs/markdown-remark";
 import type { DataMap, VFile } from "vfile";
 import { z } from "astro/zod";
+import type { RemarkPlugin } from "@astrojs/markdown-remark";
 
 // plugin spec
 const remarkFrontmatterSchema = z

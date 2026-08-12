@@ -1,5 +1,5 @@
-import { remarkFrontmatterSchema as schema, type DataEntry, type RenderResult } from "./types";
 import type { RemarkPlugins } from "@astrojs/markdown-remark";
+import { remarkFrontmatterSchema as schema, type DataEntry, type RenderResult } from "./types";
 import { remarkReadingTime } from "./reading-time";
 
 export async function render(entry: DataEntry): Promise<RenderResult> {

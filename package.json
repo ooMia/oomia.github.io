@@ -10,7 +10,8 @@
   "dependencies": {
     "@astrojs/markdown-remark": "catalog:mdx",
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^7.2.0",
+    "astro": "^7.2.1",
+    "es-toolkit": "^1.50.0",
     "mdast-util-to-string": "catalog:mdx",
     "reading-time": "catalog:mdx"
   },
@@ -19,10 +20,11 @@
     "@types/bun": "latest",
     "husky": "latest",
     "prettier": "latest",
-    "prettier-plugin-astro": "latest"
+    "prettier-plugin-astro": "latest",
+    "prettier-plugin-sort-imports": "latest"
   },
   "peerDependencies": {
-    "typescript": "^6"
+    "typescript": "^6.0.3"
   },
   "engines": {
     "node": "^24",

@@ -1,8 +1,8 @@
-import { remarkPlugins } from "#lib/remark-plugins";
-import { unified } from "@astrojs/markdown-remark";
-import type { AstroUserConfig } from "astro";
 import { defineConfig } from "astro/config";
+import type { AstroUserConfig } from "astro";
 import sitemap from "@astrojs/sitemap";
+import { unified } from "@astrojs/markdown-remark";
+import { remarkPlugins } from "#plugins/remark";
 
 // https://docs.astro.build/ko/reference/configuration-reference/#이미지-옵션
 const imageConfig: AstroUserConfig["image"] = {
