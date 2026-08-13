@@ -34,7 +34,8 @@ const articles = await getCollection("articles");
         <li>
           {JSON.stringify(post)}
           <a href={`/article/${post.id}`}>
-            {post.data.title} by {post.data.author.id} :{(await renderRemark(post)).remarkPluginFrontmatter.minutesRead}
+            {post.data.title} by {post.data.author.id} :
+            {JSON.stringify((await renderRemark(post)).remarkPluginFrontmatter.readingTime)}
           </a>
         </li>
       ))
