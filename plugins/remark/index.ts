@@ -1,6 +1,6 @@
 import type { RemarkPlugins } from "@astrojs/markdown-remark";
 import { remarkFrontmatterSchema as schema, type DataEntry, type RenderResult } from "./types";
-import { remarkReadingTime } from "./reading-time";
+import readingTime from "./reading-time";
 
 export async function render(entry: DataEntry): Promise<RenderResult> {
   const { render: astroRender } = await import("astro:content");
@@ -12,4 +12,4 @@ export async function render(entry: DataEntry): Promise<RenderResult> {
   };
 }
 
-export const remarkPlugins = [remarkReadingTime] as unknown as RemarkPlugins;
+export default [readingTime] as unknown as RemarkPlugins;

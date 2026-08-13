@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import type { AstroUserConfig } from "astro";
 import sitemap from "@astrojs/sitemap";
 import { unified } from "@astrojs/markdown-remark";
-import { remarkPlugins } from "#plugins/remark";
+import remarkPlugins from "#plugins/remark";
 
 // https://docs.astro.build/ko/reference/configuration-reference/#이미지-옵션
 const imageConfig: AstroUserConfig["image"] = {
@@ -25,7 +25,7 @@ const sitemapConfig = sitemap({
 // https://docs.astro.build/ko/guides/markdown-content/#markdown-플러그인
 const markdownConfig: AstroUserConfig["markdown"] = {
   processor: unified({
-    remarkPlugins: remarkPlugins,
+    remarkPlugins,
   }),
 };
 

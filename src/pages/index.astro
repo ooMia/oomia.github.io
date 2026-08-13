@@ -32,6 +32,7 @@ const articles = await getCollection("articles");
     {
       articles.map(async (post) => (
         <li>
+          {JSON.stringify(post)}
           <a href={`/article/${post.id}`}>
             {post.data.title} by {post.data.author.id} :{(await renderRemark(post)).remarkPluginFrontmatter.minutesRead}
           </a>
