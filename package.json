@@ -1,18 +1,17 @@
 {
   "name": "tistory-skin",
   "scripts": {
-    "predev": "rm -rf .astro && astro sync",
+    "predev": "rm -rf .astro && astro check",
     "dev": "astro dev",
-    "build": "astro check && astro build --site https://oomia.github.io",
+    "build": "astro build --site https://oomia.github.io",
     "format": "prettier -w .",
     "preview": "astro preview"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "catalog:mdx",
+    "@astrojs/markdown-satteri": "catalog:mdx",
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^7.2.1",
-    "es-toolkit": "^1.50.0",
-    "mdast-util-to-string": "catalog:mdx"
+    "astro": "^7.2.2",
+    "es-toolkit": "^1.50.0"
   },
   "devDependencies": {
     "@astrojs/check": "latest",
@@ -32,8 +31,7 @@
   "workspaces": {
     "catalogs": {
       "mdx": {
-        "@astrojs/markdown-remark": "^7.2.2",
-        "mdast-util-to-string": "^4.0.0"
+        "@astrojs/markdown-satteri": "^0.3.5"
       }
     }
   }

@@ -2,7 +2,7 @@
 import Callout from "#components/Callout.astro";
 import GravatarCard from "#components/GravatarCard.astro";
 import RootLayout from "#layouts/RootLayout.astro";
-import { render as renderRemark } from "#plugins/remark";
+import render from "#plugins/render";
 
 import type { CodeLanguage } from "astro";
 import { Code as Shiki } from "astro:components";
@@ -21,7 +21,13 @@ interface ImportMeta {
 }` as string,
   },
 };
+
 const articles = await getCollection("articles");
+
+async function getReadingTime(post: any) {
+  const minutes = (await render(post)).remarkPluginFrontmatter.readingTime.minutes;
+  return Math.ceil(minutes) + " min read";
+}
 ---
 
 <RootLayout title="" description="">
@@ -32,10 +38,8 @@ const articles = await getCollection("articles");
     {
       articles.map(async (post) => (
         <li>
-          {JSON.stringify(post)}
           <a href={`/article/${post.id}`}>
-            {post.data.title} by {post.data.author.id} :
-            {JSON.stringify((await renderRemark(post)).remarkPluginFrontmatter.readingTime)}
+            {`${post.data.title} by ${post.data.author.id} [${await getReadingTime(post)}]`}
           </a>
         </li>
       ))

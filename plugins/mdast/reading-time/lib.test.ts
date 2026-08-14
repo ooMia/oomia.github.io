@@ -39,10 +39,8 @@ describe("calculateReadingStatistics", () => {
 
   test("supports custom reading speeds", () => {
     const result = getReadingTime("one two 세 개", {
-      speed: {
-        en: 100,
-        ko: 50,
-      },
+      en: 100,
+      ko: 50,
     });
 
     expect(result.words).toEqual({
