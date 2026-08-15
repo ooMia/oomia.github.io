@@ -1,9 +1,15 @@
-import { type Config } from "prettier";
 import { mergeWith } from "es-toolkit";
+import { type Config } from "prettier";
 
 // https://github.com/withastro/prettier-plugin-astro#readme
 const astro: Config = {
   plugins: ["prettier-plugin-astro"],
+  astroAllowShorthand: true,
+};
+
+// https://github.com/oki07/prettier-plugin-astro-organize-imports#readme
+const sortImports: Config = {
+  plugins: ["prettier-plugin-astro-organize-imports"],
   overrides: [
     {
       files: "*.astro",
@@ -12,22 +18,19 @@ const astro: Config = {
       },
     },
   ],
-  astroAllowShorthand: true,
 };
 
-// https://github.com/SanderRonde/prettier-plugin-sort-imports#readme
-const sortImport: Config = {
-  plugins: ["prettier-plugin-sort-imports"],
-  sortingMethod: "alphabetical",
-  sortingOrder: "ascending",
-  stripNewlines: true,
-};
+const configs = [
+  astro,
+  sortImports, // MUST come last
+];
 
-const mergeConfig = (target: Config, source: Config): Config =>
-  mergeWith(target, source, (target, source) =>
-    Array.isArray(target) && Array.isArray(source) ? [...target, ...source] : undefined,
-  );
-
-export default [astro, sortImport].reduce(mergeConfig, {
-  printWidth: 120,
-});
+export default configs.reduce(
+  (target, source) =>
+    mergeWith(target, source, (target, source) =>
+      Array.isArray(target) && Array.isArray(source) ? [...target, ...source] : undefined,
+    ),
+  {
+    printWidth: 120,
+  },
+);

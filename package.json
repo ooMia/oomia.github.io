@@ -19,7 +19,7 @@
     "husky": "latest",
     "prettier": "latest",
     "prettier-plugin-astro": "latest",
-    "prettier-plugin-sort-imports": "latest"
+    "prettier-plugin-astro-organize-imports": "latest"
   },
   "peerDependencies": {
     "typescript": "^6.0.3"
