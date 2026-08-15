@@ -32,6 +32,10 @@ export default defineConfig({
   output: "static",
   image: imageConfig,
   markdown: markdownConfig,
-  experimental: { contentIntellisense: true, incrementalBuild: true },
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: "viewport",
+  },
+  experimental: { contentIntellisense: true, incrementalBuild: true, clientPrerender: true },
   integrations: [sitemapConfig],
 });

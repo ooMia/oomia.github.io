@@ -3,7 +3,7 @@ import Callout from "#components/Callout.astro";
 import GravatarCard from "#components/GravatarCard.astro";
 import RootLayout from "#layouts/RootLayout.astro";
 import render from "#plugins/render";
-
+import type { RenderResult } from "#plugins/types";
 import type { CodeLanguage } from "astro";
 import { Code as Shiki } from "astro:components";
 import { getCollection } from "astro:content";
@@ -24,8 +24,8 @@ interface ImportMeta {
 
 const articles = await getCollection("articles");
 
-async function getReadingTime(post: any) {
-  const minutes = (await render(post)).remarkPluginFrontmatter.readingTime.minutes;
+async function getReadingTime(post: RenderResult) {
+  const minutes = post.remarkPluginFrontmatter.readingTime.minutes;
   return Math.ceil(minutes) + " min read";
 }
 ---
@@ -36,13 +36,20 @@ async function getReadingTime(post: any) {
   <h1>내 게시물</h1>
   <ul>
     {
-      articles.map(async (post) => (
-        <li>
-          <a href={`/article/${post.id}`}>
-            {`${post.data.title} by ${post.data.author.id} [${await getReadingTime(post)}]`}
-          </a>
-        </li>
-      ))
+      articles.map(async (article) => {
+        const result = await render(article);
+
+        return (
+          <>
+            <li>
+              <a href={`/articles/${article.id}`}>
+                {`${article.data.title} by ${article.data.author.id} [${await getReadingTime(result)}]`}
+              </a>
+            </li>
+            <result.Content />
+          </>
+        );
+      })
     }
   </ul>
 
