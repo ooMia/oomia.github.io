@@ -4,8 +4,8 @@
     "predev": "rm -rf .astro && astro check",
     "dev": "astro dev",
     "build": "astro build --site https://oomia.github.io",
-    "format": "prettier -w .",
-    "preview": "astro preview"
+    "format": "prettier -w . --cache --cache-strategy metadata",
+    "preview": "bun run build && astro preview"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "catalog:mdx",
