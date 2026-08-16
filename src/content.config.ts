@@ -7,9 +7,10 @@ const articles = defineCollection({
     pattern: "**/*.{md,mdx}",
     base: "./data/articles",
   }),
-  schema: z.object({
+  schema: z.looseObject({
     title: z.string(),
-    description: z.string().optional(),
+    description: z.string(),
+    draft: z.boolean().optional(),
     pubDate: z.coerce.date().optional(),
     updatedDate: z.coerce.date().optional(),
     author: reference("author"),
@@ -18,7 +19,7 @@ const articles = defineCollection({
 
 const author = defineCollection({
   loader: file("./data/author.json"),
-  schema: z.object({
+  schema: z.looseObject({
     name: z.string(),
     portfolio: z.url().optional(),
   }),

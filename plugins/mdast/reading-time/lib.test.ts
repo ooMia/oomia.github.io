@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import getReadingTime from "./lib";
+import f from "./lib";
+import type { ReadingSpeed } from "./types";
+
+function getReadingTime(text: string, speed?: ReadingSpeed) {
+  return f(undefined, text, speed);
+}
 
 describe("calculateReadingStatistics", () => {
   test("counts English words", () => {
