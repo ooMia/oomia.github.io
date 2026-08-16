@@ -21,7 +21,20 @@ const sitemapConfig: AstroUserConfig = {
 const markdownExConfig: AstroUserConfig = {
   // https://docs.astro.build/ko/guides/markdown-content/#markdown-플러그인
   markdown: {
-    processor: satteri({ mdastPlugins: [readingTime] }),
+    processor: satteri({
+      features: {
+        gfm: true,
+        frontmatter: true,
+        math: true,
+        headingAttributes: true,
+        directive: true,
+        superscript: true,
+        subscript: true,
+        wikilinks: true,
+        smartPunctuation: false,
+      },
+      mdastPlugins: [readingTime],
+    }),
   },
   // https://docs.astro.build/ko/guides/integrations-guide/mdx
   integrations: [mdx()],
@@ -51,7 +64,7 @@ export default defineConfig(
       image: imageConfig,
       prefetch: {
         prefetchAll: true,
-        defaultStrategy: "viewport",
+        defaultStrategy: "hover",
       },
       experimental: { contentIntellisense: true, incrementalBuild: true, clientPrerender: true },
     },

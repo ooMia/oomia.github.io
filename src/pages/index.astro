@@ -33,21 +33,17 @@ async function getReadingTime(post: RenderResult) {
 <RootLayout title="" description="">
   <GravatarCard username="oomia6" />
 
-  <h1>내 게시물</h1>
+  <h1>최근 게시물</h1>
   <ul>
     {
       articles.map(async (article) => {
         const result = await render(article);
-
         return (
-          <>
-            <li>
-              <a href={`/articles/${article.id}`}>
-                {`${article.data.title} by ${article.data.author.id} [${await getReadingTime(result)}]`}
-              </a>
-            </li>
-            <result.Content />
-          </>
+          <li>
+            <a href={`/articles/${article.id}`}>
+              {`${article.data.title} by ${article.data.author.id} [${await getReadingTime(result)}]`}
+            </a>
+          </li>
         );
       })
     }

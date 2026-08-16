@@ -7,6 +7,7 @@ interface Props {
   pageIcon: string;
 }
 
+const { title } = Astro.params;
 let { coverColor, pageIcon } = Astro.props;
 
 pageIcon = (() => {
@@ -28,7 +29,7 @@ pageIcon = (() => {
     <div class:list={["page-header-icon", "page-header-icon-with-cover"]}>
       <span class="icon" data-emoji={pageIcon}></span>
     </div>
-    <h1 class="page-title" dir="auto">title</h1>
+    <h1 class="page-title" dir="auto">{title ?? "title"}</h1>
     <p class="page-description" dir="auto"></p>
   </header>
   <div class="page-body">
