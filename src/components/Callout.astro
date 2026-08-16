@@ -1,0 +1,33 @@
+---
+type backgroundColorType = "gray" | "brown" | "orange" | "yellow" | "teal" | "blue" | "purple" | "pink" | "red";
+
+interface Props {
+  readonly backgroundColor: backgroundColorType;
+  calloutIcon: string;
+}
+
+let { backgroundColor, calloutIcon } = Astro.props;
+
+calloutIcon = (() => {
+  const code = calloutIcon.codePointAt(0);
+  return code ? String.fromCodePoint(code) : "";
+})();
+---
+
+<aside
+  class:list={["callout", `block-color-${backgroundColor}_background`]}
+  data-notion-callout=""
+  data-notion-callout-icon={calloutIcon}
+  data-notion-callout-background=`${backgroundColor}_background`
+  style="white-space:pre-wrap;display:flex"
+  dir="ltr"
+>
+  <div style="font-size:1.5em">
+    <span class="icon" data-emoji={calloutIcon}></span>
+  </div>
+  <div style="width:100%">
+    <p>
+      <slot />
+    </p>
+  </div>
+</aside>
