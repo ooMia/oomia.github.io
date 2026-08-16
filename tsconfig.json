@@ -1,0 +1,21 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "compilerOptions": {
+    // Environment setup & latest features
+    "lib": ["ESNext"],
+    "module": "preserve",
+    "jsx": "react-jsx",
+    "types": ["bun"],
+
+    // Some stricter flags
+    "strictNullChecks": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    "paths": {
+      "#*": ["./src/*"],
+      "#lib/*": ["./lib/*"],
+      "#data/*": ["./data/*"],
+      "#plugins/*": ["./plugins/*"]
+    }
+  }
+}
