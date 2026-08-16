@@ -1,0 +1,40 @@
+{
+  "name": "tistory-skin",
+  "scripts": {
+    "predev": "rm -rf .astro && astro check",
+    "dev": "astro dev",
+    "build": "astro build --site https://oomia.github.io",
+    "format": "prettier -w . --cache --cache-strategy metadata | awk '!/(unchanged)/'",
+    "preview": "bun run build && astro preview"
+  },
+  "dependencies": {
+    "@astrojs/markdown-satteri": "catalog:mdx",
+    "@astrojs/mdx": "catalog:mdx",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.2.2",
+    "es-toolkit": "^1.50.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "latest",
+    "@types/bun": "latest",
+    "husky": "latest",
+    "prettier": "latest",
+    "prettier-plugin-astro": "latest",
+    "prettier-plugin-astro-organize-imports": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": "^24",
+    "bun": "^1.3.14"
+  },
+  "workspaces": {
+    "catalogs": {
+      "mdx": {
+        "@astrojs/markdown-satteri": "^0.3.5",
+        "@astrojs/mdx": "^7.0.5"
+      }
+    }
+  }
+}
