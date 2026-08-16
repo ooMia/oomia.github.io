@@ -1,0 +1,59 @@
+---
+import Callout from "#components/Callout.astro";
+import GravatarCard from "#components/GravatarCard.astro";
+import RootLayout from "#layouts/RootLayout.astro";
+import render from "#plugins/render";
+import type { RenderResult } from "#plugins/types";
+import type { CodeLanguage } from "astro";
+import { Code as Shiki } from "astro:components";
+import { getCollection } from "astro:content";
+
+const Code = {
+  Component: Shiki,
+  props: {
+    lang: "ts" as CodeLanguage,
+    code: `interface ImportMetaEnv {
+  readonly GOOGLE_TAG_MANAGER_ID: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}` as string,
+  },
+};
+
+const articles = await getCollection("articles");
+
+async function getReadingTime(post: RenderResult) {
+  const minutes = post.remarkPluginFrontmatter.readingTime.minutes;
+  return Math.ceil(minutes) + " min read";
+}
+---
+
+<RootLayout title="" description="">
+  <GravatarCard username="oomia6" />
+
+  <h1>최근 게시물</h1>
+  <ul>
+    {
+      articles.map(async (article) => {
+        const result = await render(article);
+        return (
+          <li>
+            <a href={`/articles/${article.id}`}>
+              {`${article.data.title} by ${article.data.author.id} [${await getReadingTime(result)}]`}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <h1>head1 헤드1</h1>
+  <h2>head2 헤드2</h2>
+  <h3>head3 헤드3</h3>
+  <h4>head4 헤드4</h4>
+
+  <Callout backgroundColor="gray" calloutIcon="💡" set:text="callout" />
+  <Code.Component {...Code.props} />
+</RootLayout>
