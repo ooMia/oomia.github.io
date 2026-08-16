@@ -1,0 +1,7 @@
+{
+  "$schema": "../.astro/collections/author.schema.json",
+  "oomia": {
+    "name": "oomia",
+    "portfolio": "https://github.com/oomia/oomia.github.io"
+  }
+}
