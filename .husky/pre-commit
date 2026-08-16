@@ -1,0 +1,2 @@
+bun prettier --check . --log-level silent
+bun test --pass-with-no-tests --bail
