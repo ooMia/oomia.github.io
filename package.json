@@ -11,8 +11,10 @@
     "@astrojs/markdown-satteri": "catalog:mdx",
     "@astrojs/mdx": "catalog:mdx",
     "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "catalog:css",
     "astro": "^7.2.2",
-    "es-toolkit": "^1.50.0"
+    "es-toolkit": "^1.50.0",
+    "tailwindcss": "catalog:css"
   },
   "devDependencies": {
     "@astrojs/check": "latest",
@@ -34,6 +36,10 @@
       "mdx": {
         "@astrojs/markdown-satteri": "^0.3.5",
         "@astrojs/mdx": "^7.0.5"
+      },
+      "css": {
+        "tailwindcss": "^4.3.3",
+        "@tailwindcss/vite": "^4.3.3"
       }
     }
   }
