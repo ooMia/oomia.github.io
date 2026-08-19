@@ -1,6 +1,7 @@
 ---
 import Callout from "#components/Callout.astro";
 import GravatarCard from "#components/GravatarCard.astro";
+import { LinkButton } from "#components/ui/button";
 import RootLayout from "#layouts/RootLayout.astro";
 import render from "#plugins/render";
 import type { RenderResult } from "#plugins/types";
@@ -40,9 +41,9 @@ async function getReadingTime(post: RenderResult) {
         const result = await render(article);
         return (
           <li>
-            <a href={`/articles/${article.id}`}>
-              {`${article.data.title} by ${article.data.author.id} [${await getReadingTime(result)}]`}
-            </a>
+            <LinkButton
+              href={`/articles/${article.id}`}
+            >{`${article.data.title} by ${article.data.author.id} [${await getReadingTime(result)}]`}</LinkButton>
           </li>
         );
       })

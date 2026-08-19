@@ -5,12 +5,11 @@
     "lib": ["ESNext"],
     "module": "preserve",
     "jsx": "react-jsx",
-    "types": ["bun"],
-
+    "jsxImportSource": "react",
+    "types": ["bun", "react"],
     // Some stricter flags
     "strictNullChecks": true,
     "noPropertyAccessFromIndexSignature": true,
-
     "paths": {
       "#*": ["./src/*"],
       "#lib/*": ["./lib/*"],
