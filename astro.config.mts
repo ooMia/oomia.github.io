@@ -5,6 +5,8 @@ import { satteri } from "@astrojs/markdown-satteri";
 import readingTime from "#plugins/mdast/reading-time";
 import mdx from "@astrojs/mdx";
 import { mergeWith } from "es-toolkit";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@astrojs/react";
 
 // https://docs.astro.build/ko/guides/integrations-guide/sitemap/#구성
 const sitemapConfig: AstroUserConfig = {
@@ -40,16 +42,25 @@ const markdownExConfig: AstroUserConfig = {
   integrations: [mdx()],
 };
 
-const integrations = [sitemapConfig, markdownExConfig];
+// https://docs.astro.build/en/guides/integrations-guide/react/
+const reactConfig: AstroUserConfig = {
+  integrations: [react()],
+};
+
+const integrations = [sitemapConfig, markdownExConfig, reactConfig];
 
 // https://docs.astro.build/ko/reference/configuration-reference/#이미지-옵션
-const imageConfig: AstroUserConfig["image"] = {
+const image: AstroUserConfig["image"] = {
   remotePatterns: [
     {
       protocol: "https",
       hostname: "app.notion.com",
     },
   ],
+};
+
+const vite: AstroUserConfig["vite"] = {
+  plugins: [tailwindcss()],
 };
 
 export default defineConfig(
@@ -61,7 +72,8 @@ export default defineConfig(
     // https://docs.astro.build/ko/reference/configuration-reference/
     {
       output: "static",
-      image: imageConfig,
+      image,
+      vite,
       prefetch: {
         prefetchAll: true,
         defaultStrategy: "hover",
