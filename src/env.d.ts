@@ -1,5 +1,6 @@
 interface ImportMetaEnv {
-  readonly SITE: URL;
+  readonly SITE_URL?: string;
+  readonly BASE_PATH?: string;
 }
 
 interface ImportMeta {

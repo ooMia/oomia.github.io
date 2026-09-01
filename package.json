@@ -3,7 +3,7 @@
   "scripts": {
     "predev": "rm -rf .astro && astro check",
     "dev": "astro dev",
-    "build": "astro build --site https://oomia.github.io",
+    "build": "astro build",
     "format": "prettier -w . --cache --cache-strategy metadata | awk '!/(unchanged)/'",
     "preview": "bun run build && astro preview"
   },

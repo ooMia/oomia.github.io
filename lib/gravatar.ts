@@ -52,8 +52,8 @@ async function fetchGravatarCard(username: string): Promise<GravatarCard> {
 
   return {
     srcdoc: await cardResponse.text(),
-    width: data.width,
-    height: data.height,
+    width: Math.min(336, data.width),
+    height: Math.min(402, data.height),
   };
 }
 
