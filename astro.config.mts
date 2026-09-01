@@ -1,4 +1,3 @@
-import { defineConfig } from "astro/config";
 import type { AstroUserConfig } from "astro";
 import sitemap from "@astrojs/sitemap";
 import { satteri } from "@astrojs/markdown-satteri";
@@ -7,6 +6,11 @@ import mdx from "@astrojs/mdx";
 import { mergeWith } from "es-toolkit";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@astrojs/react";
+import { defineConfig } from "astro/config";
+import { normalizeBasePath, normalizeSiteUrl } from "./lib/utils";
+
+const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
+const base = normalizeBasePath(process.env["BASE_PATH"]);
 
 // https://docs.astro.build/ko/guides/integrations-guide/sitemap/#구성
 const sitemapConfig: AstroUserConfig = {
@@ -71,6 +75,8 @@ export default defineConfig(
       ),
     // https://docs.astro.build/ko/reference/configuration-reference/
     {
+      site,
+      ...(base ? { base } : {}),
       output: "static",
       image,
       vite,

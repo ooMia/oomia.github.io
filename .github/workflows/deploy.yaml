@@ -20,7 +20,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SITE: https://oomia.github.io/tistory-skin/
+      # Set variables if needed
+      SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
+      BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
