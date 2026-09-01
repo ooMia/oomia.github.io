@@ -19,24 +19,17 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      # Set variables if needed
-      SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
-      BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          submodules: true
+          submodules: recursive
 
       - uses: withastro/action@v6
-        # with:
-        # path: . # The root location of your Astro project inside the repository. (optional)
-        # node-version: 24 # The specific version of Node that should be used to build your site. Defaults to 24. (optional)
-        # package-manager: pnpm@latest # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
-        # build-cmd: pnpm run build # The command to run to build your site. Runs the package build script/task by default. (optional)
-        # out-dir: dist # The output directory created by the build command. Defaults to dist. (optional)
+        env:
+          # Set variables if needed
+          SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
+          BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
 
   deploy:
     needs: build
