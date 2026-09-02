@@ -13,25 +13,25 @@
     "typecheck": "astro check"
   },
   "dependencies": {
-    "@astrojs/react": "^5",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@astrojs/react": "^6.0.5",
     "@workspace/ui": "workspace:*",
-    "astro": "^7",
+    "astro": "^7.2.10",
     "lucide-react": "^1.39.0",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9",
-    "@eslint/js": "^10",
-    "@tailwindcss/vite": "^4",
-    "@types/node": "^24",
-    "eslint": "^10",
+    "@astrojs/check": "^0.9.10",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "eslint": "^10.9.1",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17",
-    "typescript": "~6",
-    "typescript-eslint": "^8"
+    "eslint-plugin-react-refresh": "^0.5.5",
+    "globals": "^17.11.0",
+    "typescript": "catalog:",
+    "typescript-eslint": "^8.69.0"
   }
 }
