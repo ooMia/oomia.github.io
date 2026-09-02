@@ -1,0 +1,17 @@
+---
+import { getGravatarCard } from "@/lib/gravatar"
+
+interface Props {
+  username: string
+}
+
+const { username } = Astro.props
+
+const props = await getGravatarCard(username)
+---
+
+<iframe
+  class:list={["border-0", "m-0", "p-0"]}
+  title="gravatar card"
+  loading="eager"
+  {...props}></iframe>

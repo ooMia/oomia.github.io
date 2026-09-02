@@ -47,6 +47,7 @@ import { Button } from "@workspace/ui/components/button"
 ```sh
 # CLI
 pnpm --recursive update
+DEBUG=tailwindcss:oxide pnpm build --workspace-packages apps/web
 ```
 
 ```sh

@@ -1,25 +1,33 @@
 ---
-import "@workspace/ui/globals.css"
-import { Button } from "@workspace/ui/components/button"
+import GravatarCard from "@/components/GravatarCard.astro"
+import RootLayout from "@/layouts/RootLayout.astro"
+import type { CodeLanguage } from "astro"
+import { Code as Shiki } from "astro:components"
+
+const Code = {
+  Component: Shiki,
+  props: {
+    lang: "ts" as CodeLanguage,
+    code: `interface ImportMetaEnv {
+  readonly GOOGLE_TAG_MANAGER_ID: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}` as string,
+  },
+}
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Astro App</title>
-  </head>
-  <body>
-    <div class="flex min-h-svh p-6">
-      <div class="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 class="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We've already added the button component for you.</p>
-          <Button client:load className="mt-2">Button</Button>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+<RootLayout title="" description="">
+  <GravatarCard username="oomia6" />
+
+  <h1>최근 게시물</h1>
+
+  <h1>head1 헤드1</h1>
+  <h2>head2 헤드2</h2>
+  <h3>head3 헤드3</h3>
+  <h4>head4 헤드4</h4>
+
+  <Code.Component {...Code.props} />
+</RootLayout>
