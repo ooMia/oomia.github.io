@@ -37,3 +37,20 @@ import { Button } from "@workspace/ui/components/button"
   </body>
 </html>
 ```
+
+### Misc.
+
+- [pnpm-workspace](./pnpm-workspace.yaml)
+  - https://pnpm.io/cli/config
+  - https://pnpm.io/settings
+
+```sh
+# CLI
+pnpm --recursive update
+```
+
+```sh
+# apps/web/.env
+SITE_URL="http://localhost:4321"
+BASE_PATH="/"
+```

@@ -1,3 +1,13 @@
+nodeVersion: "24.20.0"
+
+sharedWorkspaceLockfile: true
+strictPeerDependencies: true
+engineStrict: true
+preferOffline: true
+
+# Allow root installation
+ignoreWorkspaceRootCheck: true
+
 packages:
   - "apps/*"
   - "packages/*"
