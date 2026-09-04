@@ -68,7 +68,7 @@ export default function getReadingTime(
       ko: 0,
     },
   },
-  text: string,
+  text: string = "",
   speed: ReadingSpeed = { ...DEFAULT_SPEED }
 ): ReadingStatistics {
   const current = countWords(text)

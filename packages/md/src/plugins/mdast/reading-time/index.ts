@@ -14,7 +14,3 @@ const readingTime: MdastPluginEntry = {
 }
 
 export default readingTime
-
-// createSatteriMarkdownProcessor({
-//   mdastPlugins: [readingTime],
-// })

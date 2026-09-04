@@ -4,9 +4,18 @@ import type { ReadingSpeed } from "./types"
 
 import f from "./lib"
 
-function getReadingTime(text: string, speed?: ReadingSpeed) {
+function getReadingTime(text?: string, speed?: ReadingSpeed) {
   return f(undefined, text, speed)
 }
+
+describe("edge cases", () => {
+  test("undefined", () => {
+    const result = getReadingTime(undefined)
+
+    expect(result.words.en).toBe(0)
+    expect(result.words.ko).toBe(0)
+  })
+})
 
 describe("calculateReadingStatistics", () => {
   test("counts English words", () => {
