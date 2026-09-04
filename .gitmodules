@@ -1,0 +1,4 @@
+[submodule "apps/web/data/articles"]
+	path = apps/web/data/articles
+	url = https://github.com/oomia/oomia.github.io.docs.git
+	branch = main

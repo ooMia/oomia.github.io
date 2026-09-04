@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "astro": "astro",
     "build": "astro build",
     "dev": "astro dev",
     "format": "prettier -w '**/*.astro' --cache --cache-strategy metadata | awk '!/(unchanged)/'",
     "lint": "eslint",
     "preview": "astro preview",
+    "sync": "astro sync",
     "typecheck": "astro check"
   },
   "dependencies": {
