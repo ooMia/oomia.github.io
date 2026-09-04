@@ -1,0 +1,32 @@
+/* 재사용할 값 */
+:root {
+  --content-width: 900px;
+  --body-line-height: 1.5;
+}
+
+/* 기본 HTML 스타일 */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    line-height: var(--body-line-height);
+  }
+}
+
+@media only screen {
+  body {
+    max-width: var(--content-width);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+}

@@ -128,3 +128,5 @@
     @apply bg-background text-foreground;
   }
 }
+
+@import "root.css";
