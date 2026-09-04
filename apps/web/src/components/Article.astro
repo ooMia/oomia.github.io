@@ -1,19 +1,21 @@
 ---
-import { Image } from "astro:assets"
+import "@workspace/ui/styles/notion.css";
 
-type coverColorType = "yellow" | "beige" | "red" | "blue"
+import { Image } from "astro:assets";
+
+type coverColorType = "yellow" | "beige" | "red" | "blue";
 interface Props {
-  readonly coverColor: coverColorType
-  pageIcon: string
+  readonly coverColor: coverColorType;
+  pageIcon: string;
 }
 
-const { title } = Astro.params
-let { coverColor, pageIcon } = Astro.props
+const { title } = Astro.params;
+let { coverColor, pageIcon } = Astro.props;
 
 pageIcon = (() => {
-  const code = pageIcon.codePointAt(0)
-  return code ? String.fromCodePoint(code) : ""
-})()
+  const code = pageIcon.codePointAt(0);
+  return code ? String.fromCodePoint(code) : "";
+})();
 ---
 
 <article class:list={["page", "sans"]} data-notion-page-icon={pageIcon}>

@@ -1,0 +1,28 @@
+---
+import Article from "@/components/Article.astro";
+import RootLayout from "@/layouts/RootLayout.astro";
+import render from "@/lib/content/render";
+import type { InferGetStaticPropsType } from "astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("articles");
+  return posts.map((post) => {
+    return {
+      params: { id: post.id },
+      props: { post },
+    };
+  });
+}
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { post } = Astro.props as Props;
+const article = await render(post);
+---
+
+<RootLayout {...post.data}>
+  <Article coverColor="beige" pageIcon="🤔">
+    <article.Content />
+  </Article>
+</RootLayout>

@@ -1,4 +1,7 @@
 import type * as React from "react"
+
+import { cn } from "@workspace/ui/lib/utils"
+import { buttonVariants } from "@workspace/ui/lib/variants"
 import { type VariantProps } from "class-variance-authority"
 import {
   Button as ButtonPrimitive,
@@ -6,9 +9,6 @@ import {
   type ButtonProps as ButtonPrimitiveProps,
   type LinkProps as LinkPrimitiveProps,
 } from "react-aria-components"
-
-import { cn } from "@workspace/ui/lib/utils"
-import { buttonVariants } from "@workspace/ui/lib/variants"
 
 function Button({
   className,

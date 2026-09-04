@@ -1,4 +1,6 @@
 ---
+import "@workspace/ui/styles/notion.css";
+
 type backgroundColorType =
   | "gray"
   | "brown"
@@ -8,19 +10,19 @@ type backgroundColorType =
   | "blue"
   | "purple"
   | "pink"
-  | "red"
+  | "red";
 
 interface Props {
-  readonly backgroundColor: backgroundColorType
-  calloutIcon: string
+  readonly backgroundColor: backgroundColorType;
+  calloutIcon: string;
 }
 
-let { backgroundColor, calloutIcon } = Astro.props
+let { backgroundColor, calloutIcon } = Astro.props;
 
 calloutIcon = (() => {
-  const code = calloutIcon.codePointAt(0)
-  return code ? String.fromCodePoint(code) : ""
-})()
+  const code = calloutIcon.codePointAt(0);
+  return code ? String.fromCodePoint(code) : "";
+})();
 ---
 
 <aside

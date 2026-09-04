@@ -1,0 +1,7 @@
+# @deprecated
+# Astro supports
+
+.astro/
+.turbo/
+dist/
+node_modules/

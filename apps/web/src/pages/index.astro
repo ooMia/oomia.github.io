@@ -1,8 +1,12 @@
 ---
-import GravatarCard from "@/components/GravatarCard.astro"
-import RootLayout from "@/layouts/RootLayout.astro"
-import type { CodeLanguage } from "astro"
-import { Code as Shiki } from "astro:components"
+import GravatarCard from "@/components/GravatarCard.astro";
+import RootLayout from "@/layouts/RootLayout.astro";
+import render from "@/lib/content/render";
+import type { RenderResult } from "@/lib/content/types";
+import { LinkButton } from "@workspace/ui/components/button";
+import type { CodeLanguage } from "astro";
+import { Code as Shiki } from "astro:components";
+import { getCollection } from "astro:content";
 
 const Code = {
   Component: Shiki,
@@ -16,6 +20,13 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }` as string,
   },
+};
+
+const articles = await getCollection("articles");
+
+async function getReadingTime(post: RenderResult) {
+  const minutes = post.remarkPluginFrontmatter.readingTime.minutes;
+  return Math.ceil(minutes) + " min read";
 }
 ---
 
@@ -23,6 +34,22 @@ interface ImportMeta {
   <GravatarCard username="oomia6" />
 
   <h1>최근 게시물</h1>
+
+  <h1>최근 게시물</h1>
+  <ul>
+    {
+      articles.map(async (article) => {
+        const result = await render(article);
+        return (
+          <li>
+            <LinkButton
+              href={`/articles/${article.id}`}
+            >{`${article.data.title} by ${article.data.author.id} [${await getReadingTime(result)}]`}</LinkButton>
+          </li>
+        );
+      })
+    }
+  </ul>
 
   <h1>head1 헤드1</h1>
   <h2>head2 헤드2</h2>

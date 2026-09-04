@@ -1,0 +1,29 @@
+{
+  "name": "@workspace/md",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "format": "vp fmt",
+    "lint": "vp lint",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@astrojs/markdown-satteri": "^0.4.0",
+    "@astrojs/mdx": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "satteri": "^0.10.5",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "astro": "catalog:"
+  }
+}

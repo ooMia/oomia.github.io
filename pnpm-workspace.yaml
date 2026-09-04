@@ -17,17 +17,12 @@ allowBuilds:
   sharp: true
   msw: false
 
-minimumReleaseAgeExclude:
-  - "@internationalized/date@3.12.4"
-  - "@internationalized/number@3.6.8"
-  - "lucide-react@1.39.0"
-  - "react-aria-components@1.21.0"
-  - "react-aria@3.52.0"
-  - "react-stately@3.50.0"
-
 catalog:
+  "astro": ^7.3.1
   "@types/node": ^24.13.3 # LTS support
   "typescript": ^6.0.3 # Library compatability
+  vite: npm:@voidzero-dev/vite-plus-core@0.3.0
+  vite-plus: 0.3.0
 
 catalogs:
   react19:
@@ -35,3 +30,13 @@ catalogs:
     "react-dom": "^19.2.8"
     "@types/react": "^19.2.18"
     "@types/react-dom": "^19.2.5"
+
+overrides:
+  vite@*: "catalog:"
+peerDependencyRules:
+  allowAny:
+    - vite
+  allowedVersions:
+    vite: "*"
+minimumReleaseAgeExclude:
+  - astro@7.3.1

@@ -27,6 +27,7 @@ yarn-error.log*
 
 # vscode setting folder
 .vscode/
+.github/
 
 # typescript
 *.tsbuildinfo

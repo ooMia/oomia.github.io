@@ -1,6 +1,7 @@
 import type { AstroIntegration } from "astro"
-import { toggleTheme } from "@workspace/ui/lib/utils"
+
 import { ThemeToggle } from "@workspace/ui/components/composite/ThemeToggle"
+import { toggleTheme } from "@workspace/ui/lib/utils"
 
 export default function initTheme(): AstroIntegration {
   return {

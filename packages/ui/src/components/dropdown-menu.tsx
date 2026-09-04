@@ -1,5 +1,7 @@
-import * as React from "react"
+import { cn } from "@workspace/ui/lib/utils"
 import { cva } from "class-variance-authority"
+import { CheckIcon, ChevronRightIcon } from "lucide-react"
+import * as React from "react"
 import {
   composeRenderProps,
   Header as HeaderPrimitive,
@@ -13,9 +15,6 @@ import {
   type MenuItemProps as MenuItemPrimitiveProps,
   type MenuSectionProps as MenuSectionPrimitiveProps,
 } from "react-aria-components"
-
-import { cn } from "@workspace/ui/lib/utils"
-import { CheckIcon, ChevronRightIcon } from "lucide-react"
 
 function DropdownMenuTrigger({
   ...props

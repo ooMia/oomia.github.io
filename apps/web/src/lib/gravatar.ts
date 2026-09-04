@@ -1,6 +1,6 @@
-import { dirname, resolve } from "node:path"
-import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { existsSync } from "node:fs"
+import { mkdir, readFile, writeFile } from "node:fs/promises"
+import { dirname, resolve } from "node:path"
 
 interface GravatarOEmbed {
   version: string

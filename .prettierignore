@@ -1,9 +1,0 @@
-coverage/
-pnpm-lock.yaml
-.pnpm-store/
-
-**/.turbo/
-**/node_modules/
-
-apps/web/dist/
-apps/web/.astro/
