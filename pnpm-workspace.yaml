@@ -21,8 +21,9 @@ catalog:
   "astro": ^7.3.1
   "@types/node": ^24.13.3 # LTS support
   "typescript": ^6.0.3 # Library compatability
-  vite: npm:@voidzero-dev/vite-plus-core@0.3.0
-  vite-plus: 0.3.0
+  "vite": npm:@voidzero-dev/vite-plus-core@0.3.0
+  "vite-plus": 0.3.0
+  "es-toolkit": ^1.52.0
 
 catalogs:
   react19:

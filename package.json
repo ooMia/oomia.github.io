@@ -11,14 +11,20 @@
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
-    "es-toolkit": "^1.52.0",
+    "es-toolkit": "catalog:",
     "turbo": "^2.10.12",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.25.0",
+      "onFail": "download"
+    }
+  },
   "engines": {
     "node": ">=24"
-  },
-  "packageManager": "pnpm@12.2.1+sha512.f55ca68aacb9eb5ab69c66f828a98af89a32286703aef1f8da131ca7eab4d677f34bfa85e186467a919c0799df8b6f4aa240f7dc2919b33b3273190104162616"
+  }
 }
