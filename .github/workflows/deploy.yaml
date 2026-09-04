@@ -27,7 +27,6 @@ jobs:
 
       - uses: withastro/action@v6
         with:
-          package-manager: pnpm
           cache-dir: apps/web/node_modules/.astro
           out-dir: apps/web/dist
         env:
