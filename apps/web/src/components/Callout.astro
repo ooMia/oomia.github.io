@@ -1,44 +1,25 @@
 ---
-import "@workspace/ui/styles/notion.css";
-
-type backgroundColorType =
-  | "gray"
-  | "brown"
-  | "orange"
-  | "yellow"
-  | "teal"
-  | "blue"
-  | "purple"
-  | "pink"
-  | "red";
-
 interface Props {
-  readonly backgroundColor: backgroundColorType;
-  calloutIcon: string;
+  tone?: "info" | "warning";
 }
-
-let { backgroundColor, calloutIcon } = Astro.props;
-
-calloutIcon = (() => {
-  const code = calloutIcon.codePointAt(0);
-  return code ? String.fromCodePoint(code) : "";
-})();
+const { tone = "info" } = Astro.props;
+if (!["info", "warning"].includes(tone)) throw new Error("Unsupported Callout tone");
 ---
 
-<aside
-  class:list={["callout", `block-color-${backgroundColor}_background`]}
-  data-notion-callout=""
-  data-notion-callout-icon={calloutIcon}
-  data-notion-callout-background=`${backgroundColor}_background`
-  style="white-space:pre-wrap;display:flex"
-  dir="ltr"
->
-  <div style="font-size:1.5em">
-    <span class="icon" data-emoji={calloutIcon}></span>
-  </div>
-  <div style="width:100%">
-    <p>
-      <slot />
-    </p>
-  </div>
-</aside>
+<aside class="callout" data-tone={tone}><slot /></aside>
+
+<style>
+  .callout {
+    margin-block: 1rem;
+    padding: 1rem;
+    border-inline-start: 0.25rem solid #2563eb;
+    background: #eff6ff;
+    color: #172554;
+    border-radius: 0.25rem;
+  }
+  .callout[data-tone="warning"] {
+    border-color: #b45309;
+    background: #fffbeb;
+    color: #451a03;
+  }
+</style>

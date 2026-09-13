@@ -1,4 +1,5 @@
 ---
+import Callout from "@/components/Callout.astro";
 import Article from "@/components/Article.astro";
 import RootLayout from "@/layouts/RootLayout.astro";
 import render from "@/lib/content/render";
@@ -23,6 +24,6 @@ const article = await render(post);
 
 <RootLayout {...post.data}>
   <Article coverColor="beige" pageIcon="🤔">
-    <article.Content />
+    <article.Content components={{ Callout }} />
   </Article>
 </RootLayout>
