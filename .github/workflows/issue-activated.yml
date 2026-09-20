@@ -2,7 +2,7 @@ name: Issue activation
 
 on:
   issues:
-    types: [opened, reopened, edited]
+    types: [opened, reopened]
   workflow_dispatch:
     inputs:
       issue_number:
