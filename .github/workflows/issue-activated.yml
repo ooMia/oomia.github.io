@@ -1,0 +1,60 @@
+name: Issue activation
+
+on:
+  issues:
+    types: [opened, reopened, edited]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Existing Issue number to synchronize
+        required: true
+        type: number
+
+concurrency:
+  group: issue-activation-${{ github.repository }}-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  project:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.state == 'open' && !startsWith(github.event.issue.title, 'draft:'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Synchronize Project #11
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PROJECT_OWNER: ooMia
+          PROJECT_NUMBER: "11"
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+        run: node .github/scripts/sync-project.mjs
+
+  development:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.state == 'open' && !startsWith(github.event.issue.title, 'draft:'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Create linked Development branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DEVELOPMENT_BASE: main
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+        run: node .github/scripts/create-development-branch.mjs
