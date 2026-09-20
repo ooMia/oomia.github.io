@@ -55,6 +55,6 @@ jobs:
       - name: Create linked Development branch
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          DEVELOPMENT_BASE: main
+          DEVELOPMENT_BASE: develop
           ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
         run: node .github/scripts/create-development-branch.mjs
