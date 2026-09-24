@@ -57,3 +57,7 @@ DEBUG=tailwindcss:oxide pnpm build --workspace-packages apps/web
 SITE_URL="http://localhost:4321"
 BASE_PATH="/"
 ```
+
+## Content contract
+
+[콘텐츠 소비 계약](docs/content-consumption-contract.md)은 Site 입력·렌더링·publishability 설계를 소유한다. 목표 지원 범위와 실제 schema를 구분하며, Engine의 파일 수정 계약은 해당 원본을 참조한다.
