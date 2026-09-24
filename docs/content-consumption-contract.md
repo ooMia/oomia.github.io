@@ -1,6 +1,6 @@
 # Content consumption contract
 
-Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. Engine의 파일 수정 계약과 분리한다. 아래 지원 표와 검증 목록은 Knowledge에서 이관한 목표 계약이며 현재 모든 기능이 구현되었다는 뜻이 아니다.
+Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. Engine의 파일 수정 계약과 분리한다. 이 문서는 관찰 가능한 소비 경계와 검증 원칙을 설명하며, 실제 지원 syntax·component·schema의 세부 정의는 Site가 사용하는 코드와 package가 소유한다.
 
 ## 현재 소비 경계
 
@@ -12,72 +12,66 @@ Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. E
 
 | 수준 | 보장 |
 |---|---|
-| Publishable | Site의 입력 계약과 실제 consumer 검증을 만족한다. |
-| Blocked | 현재 Site 계약을 만족하지 못하며 실패 이유를 관찰 가능하게 제공한다. |
+| Publishable | Site의 실제 입력 계약과 consumer 검증을 만족한다. |
+| Blocked | 현재 Site가 소비할 수 없으며 실패 이유를 관찰 가능하게 제공한다. |
 
-Visual editor round-trip은 Site 소비의 필수조건이 아니다. 저장·후처리와 소비 가능성은 별도로 판정한다. consumer가 required field나 component 지원을 바꾸면 이 문서와 구현 schema를 갱신한다. 문서가 어떤 도구로 작성·수정되었는지는 소비 판정에 사용하지 않는다.
+문서가 어떤 editor나 후처리 도구를 거쳤는지는 소비 판정에 사용하지 않는다. 사용자가 작성한 그대로 commit한 파일도 실제 입력 계약을 만족하면 소비한다. Engine 실행이나 별도 projection 생성을 공통 발행 선행 조건으로 요구하지 않는다.
 
-사용자가 작성한 그대로 commit한 파일도 입력 계약을 만족하면 소비한다. 필드 누락이나 지원하지 않는 문법은 해당 입력 오류로 진단한다. Engine 실행 여부를 검사하거나 Engine 처리 완료를 요구하지 않는다. 별도 projection 생성은 현재 공통 발행 절차의 필수 단계가 아니다.
+문서나 planning manifest가 code보다 먼저 유효한 콘텐츠를 정의하지 않는다. 실제 parser/schema/renderer/component package와 build 검증이 현재 구현의 source of truth다.
 
 ## 1.0 소비 목표
 
-Editing·Storage 수준은 이 표에 복제하지 않는다. 저장 가능한 draft가 Site에서 소비 불가할 수 있다.
-
 | 콘텐츠 유형 | 소비 목표 | 설명 |
 |---|---|---|
-| 기본 Markdown | Publishable | 선택된 editor와 Site가 같은 file을 손실 없이 공유해야 한다. |
-| 일반 GFM table | Publishable | Visual 지원 수준이 source 보존 범위를 제한하지 않는다. |
-| Fumadocs Editor가 표현하지 못하는 Markdown | Publishable | 실제 Site가 지원하면 발행할 수 있다. |
-| 임의 code fence language | Publishable | syntax highlighting 지원 여부와 storage/publishability를 분리한다. |
+| 기본 Markdown / GFM | Publishable | 실제 parser와 renderer가 지원하는 source를 소비한다. |
+| code fence | Publishable | 지원 language와 highlighting 동작은 실제 implementation으로 검증한다. |
 | 일반 Markdown image | Publishable | 별도 Media DB object로 강제 변환하지 않는다. |
-| workspace-relative asset | Publishable | repository portability와 Site asset resolution contract를 따라야 한다. |
-| durable external asset URL | Publishable | 허용 scheme/domain과 portability policy를 따른다. |
-| raw HTML | Site policy에 따라 Publishable/Blocked | Visual 지원과 실행 허용을 분리한다. |
-| Obsidian-native callout / styled Markdown primitive | Publishable | Obsidian authoring UX와 Site remark/renderer mapping을 우선 검토한다. |
-| Fumadocs built-in MDX component | Publishable | Site에서는 우선 재사용하되 canonical source syntax로 직접 사용할지는 Obsidian interoperability와 함께 판단한다. |
-| custom MDX component + visual spec | Publishable | 명시된 component contract와 Site consumer 검증을 통과해야 한다. |
-| custom MDX component + visual spec 없음 | Publishable 가능 | visual adapter 부재만으로 차단하지 않는다. |
-| contract에 없는 MDX component | Blocked | source는 보존하되 현재 Site contract가 없으면 발행하지 않는다. |
-| 잘못된 component props | Blocked | file 저장과 publish validation을 분리한다. |
-| arbitrary JavaScript expression | Blocked by default | 명시적 지원 계약 전에는 executable content를 publish contract 밖에 둔다. |
+| workspace-relative asset | Publishable | repository portability와 Site asset resolution을 만족해야 한다. |
+| durable external asset URL | Publishable | 허용 scheme/domain과 공개 정책을 만족해야 한다. |
+| raw HTML | Site policy에 따라 Publishable/Blocked | public publish security policy에 따른다. |
+| 지원 component package의 MDX component | Publishable | 실제 package/code가 제공하는 component semantics와 renderer 검증을 따른다. |
+| 지원하지 않는 MDX component 또는 잘못된 props | Blocked | source는 보존할 수 있지만 현재 Site consumer가 유효하다고 판정하지 않는다. |
+| arbitrary JavaScript expression | Blocked by default | 명시적 지원 전에는 executable content를 publish contract 밖에 둔다. |
 | 문서 내부 임의 import/export | Blocked by default | document별 arbitrary dependency를 기본 허용하지 않는다. |
-| 문법 오류가 있는 draft | Blocked | draft source는 저장 가능하며 publish에서 차단한다. |
+| 문법 오류가 있는 draft | Blocked | draft 저장과 publishability를 분리한다. |
 
-## Component contract
+## Component source of truth
 
-Fumadocs built-in component를 우선 활용한다.
+component를 사용하는 경우 **renderer와 authoring integration이 동일한 component implementation source를 바라보는 것**을 기본으로 한다.
 
-- built-in component의 이름/props를 그대로 canonical syntax로 사용할 수 있는 경우 불필요한 wrapper를 만들지 않는다.
-- 플랫폼에서 허용할 component subset이 필요하면 supported profile을 명시한다.
-- custom component가 필요하면 name / props / children / source semantics를 먼저 정의한다.
-- Engine authoring spec과 Site renderer가 shared runtime contract를 필요로 할 때만 manifest 또는 shared package를 도입한다.
-- 별도 `@oomia/content-components` renderer library는 1.0 필수조건이 아니다.
+- Fumadocs UI 같은 외부 component package를 사용하면 해당 package와 실제 Site integration이 component semantics의 원본이다.
+- custom component가 필요하면 Site와 authoring surface가 동일한 package/codebase를 소비하도록 구성한다.
+- editor가 component palette, prop form, insert command 등 별도 형식의 metadata를 요구하면 원본 component implementation에서 필요한 정보를 노출하는 얇은 adapter를 둘 수 있다.
+- adapter는 두 번째 component semantics 원본이 아니다. 가능한 한 같은 type/schema/code에서 파생하고 drift를 검증한다.
+- Engine이나 Knowledge가 별도의 component catalog/manifest를 만들어 Site에 강제하지 않는다.
+- Agent나 다른 consumer가 component 정보를 필요로 하면 owning implementation이 제공하는 code/API/adapter를 소비한다.
 
-[Content Component Manifest Schema](https://github.com/ooMia/oomia.github.io.knowledge/blob/docs/shared-repository-scheme/schemas/content-component-manifest.schema.json)는 custom component contract가 실제로 필요해질 때 사용할 수 있는 planning schema다.
+따라서 별도의 cross-repository manifest는 현재 필수 artifact가 아니다. 실제 implementation package와 adapter가 계약을 충분히 표현하면 코드가 문서를 대체할 수 있다.
 
 ## Publish validation 원칙
 
-Publish validation은 editor round-trip 여부가 아니라 **현재 canonical files가 Site에서 안전하고 재현 가능하게 소비되는가**를 판정한다.
+Publish validation은 **현재 canonical files가 Site에서 안전하고 재현 가능하게 소비되는가**를 판정한다.
 
 최소 검증:
 
-1. workspace/file layout와 frontmatter schema
+1. workspace/file discovery와 frontmatter schema
 2. Markdown/MDX parse
-3. component contract / dangerous expression policy
+3. 실제 component package/renderer compatibility와 executable-content policy
 4. asset resolution
 5. Site sync/typecheck/test/build
-6. canonical docs commit과 Site revision linkage
+6. canonical Docs commit과 Site revision linkage
 
-Source를 publish 전에 visual editor codec으로 decode/encode하는 절차는 요구하지 않는다.
+editor round-trip이나 특정 editor 실행 이력은 publish gate가 아니다.
 
 ## Consumer integration 전환
 
 Site는 이미 docs consumption → Astro build → GitHub Pages delivery Evidence가 있으므로 Engine과 달리 greenfield를 기본값으로 하지 않는다.
 
 - Astro structure는 유지 가능
-- Fumadocs integration은 incremental spike
-- Turbo 전환은 아래 Toolchain 전환 절이 소유
-- generic `packages/ui`, `packages/md`는 실제 새 responsibility와 맞는지 integration 과정에서 재검토
+- Fumadocs integration은 incremental하게 적용한다.
+- authoring UI가 필요하면 현재 Site repository 안에서 구현할 수 있으나, editor 종류는 Site consumer contract 자체의 전제 조건이 아니다.
+- component integration은 별도 planning manifest보다 실제 package/code와 tests를 우선한다.
+- generic `packages/ui`, `packages/md` 등 기존 package 경계는 실제 책임과 맞는지 integration 과정에서 재검토한다.
 
 ## Toolchain 전환
 
@@ -89,5 +83,5 @@ Turbo는 즉시 삭제하지 않지만 새 workflow가 Turbo dependency를 확�
 
 - [Site Issue #10](https://github.com/ooMia/oomia.github.io/issues/10)
 - [Knowledge coordination](https://github.com/ooMia/oomia.github.io.knowledge/issues/10)
-- 출처: Knowledge의 `content-authoring-contract.md` 중 Publishing / 1.0 목표 정책 테이블의 소비 관련 열 / Component contract / Publish validation 원칙.
-- 교차 레포 링크는 문서 이관 branch를 가리킨다. 각 PR 통합 뒤 실제 원본 위치로 갱신한다.
+- 초기 이관 내용의 provenance는 관련 PR/Git history에 남긴다. 현재 소비 계약의 원본은 이 문서와 실제 Site code/package다.
+- 교차 레포 링크는 이관 branch를 가리킨다. 각 PR 통합 뒤 실제 원본 위치로 갱신한다.
