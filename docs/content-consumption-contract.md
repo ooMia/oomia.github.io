@@ -6,7 +6,7 @@ Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. E
 
 현재 develop 기준 [content.config.ts](../apps/web/src/content.config.ts)는 `data/articles`의 Markdown/MDX를 읽고 title·description·author를 요구한다. draft·pubDate·updatedDate는 optional이다. 정확한 필드 타입과 author reference는 해당 schema가 소유한다. 이 문서 변경으로 loader, renderer, 입력 콘텐츠 또는 배포를 변경하지 않는다.
 
-[Engine 수정 계약](https://github.com/ooMia/oomia.github.io.engine/blob/docs/content-modification-contract/docs/content-modification-contract.md)은 후처리 시 파일을 수정·보존하는 방법을 소유한다. 이 링크는 참고용이며 입력 생산 도구에 대한 의존성이 아니다. Site는 Docs 파일을 자신의 입력 계약에 따라 기계적으로 렌더링하며 Engine 내부 처리나 처리 이력을 알 필요가 없다. Site의 소비 실패는 Engine이 원문을 삭제하거나 자동으로 고칠 권한이 되지 않는다.
+[Engine 수정 계약](https://github.com/ooMia/oomia.github.io.engine/blob/develop/docs/content-modification-contract.md)은 후처리 시 파일을 수정·보존하는 방법을 소유한다. 이 링크는 참고용이며 입력 생산 도구에 대한 의존성이 아니다. Site는 Docs 파일을 자신의 입력 계약에 따라 기계적으로 렌더링하며 Engine 내부 처리나 처리 이력을 알 필요가 없다. Site의 소비 실패는 Engine이 원문을 삭제하거나 자동으로 고칠 권한이 되지 않는다.
 
 ## Publishing
 
