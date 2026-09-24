@@ -70,6 +70,21 @@ Publish validation은 editor round-trip 여부가 아니라 **현재 canonical f
 
 Source를 publish 전에 visual editor codec으로 decode/encode하는 절차는 요구하지 않는다.
 
+## Consumer integration 전환
+
+Site는 이미 docs consumption → Astro build → GitHub Pages delivery Evidence가 있으므로 Engine과 달리 greenfield를 기본값으로 하지 않는다.
+
+- Astro structure는 유지 가능
+- Fumadocs integration은 incremental spike
+- Turbo 전환은 아래 Toolchain 전환 절이 소유
+- generic `packages/ui`, `packages/md`는 실제 새 responsibility와 맞는지 integration 과정에서 재검토
+
+## Toolchain 전환
+
+Vite+와 Turbo를 함께 사용하는 기존 Site의 전환 방향이다. 공통 개발 기준은 Knowledge가 소유하고, 이 절은 Site에 적용할 migration 제약만 다룬다.
+
+Turbo는 즉시 삭제하지 않지만 새 workflow가 Turbo dependency를 확대하지 않는다. VP recursive/filter/cache가 현재 Turbo usage를 대체할 수 있는지 parity를 검증한 뒤 정리한다. 이 문서 이관은 Turbo 제거, Fumadocs 도입 또는 build/deployment 검증을 수행한 것으로 간주하지 않는다.
+
 ## 이관 및 적용
 
 - [Site Issue #10](https://github.com/ooMia/oomia.github.io/issues/10)
