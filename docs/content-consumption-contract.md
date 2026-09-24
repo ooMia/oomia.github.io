@@ -6,7 +6,7 @@ Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. E
 
 현재 develop 기준 [content.config.ts](../apps/web/src/content.config.ts)는 `data/articles`의 Markdown/MDX를 읽고 title·description·author를 요구한다. draft·pubDate·updatedDate는 optional이다. 정확한 필드 타입과 author reference는 해당 schema가 소유한다. 이 문서 변경으로 loader, renderer, 입력 콘텐츠 또는 배포를 변경하지 않는다.
 
-[Engine 수정 계약](https://github.com/ooMia/oomia.github.io.engine/blob/docs/content-modification-contract/docs/content-modification-contract.md)은 후처리 시 파일을 수정·보존하는 방법을 소유한다. Engine의 prepare 성공을 Site build 성공으로 해석하지 않는다. Site의 소비 실패는 Engine이 원문을 삭제하거나 자동으로 고칠 권한이 되지 않는다.
+[Engine 수정 계약](https://github.com/ooMia/oomia.github.io.engine/blob/docs/content-modification-contract/docs/content-modification-contract.md)은 후처리 시 파일을 수정·보존하는 방법을 소유한다. 이 링크는 참고용이며 입력 생산 도구에 대한 의존성이 아니다. Site는 Docs 파일을 자신의 입력 계약에 따라 기계적으로 렌더링하며 Engine 내부 처리나 처리 이력을 알 필요가 없다. Site의 소비 실패는 Engine이 원문을 삭제하거나 자동으로 고칠 권한이 되지 않는다.
 
 ## Publishing
 
@@ -15,9 +15,9 @@ Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. E
 | Publishable | Site의 입력 계약과 실제 consumer 검증을 만족한다. |
 | Blocked | 현재 Site 계약을 만족하지 못하며 실패 이유를 관찰 가능하게 제공한다. |
 
-Visual editor round-trip은 Site 소비의 필수조건이 아니다. 저장·후처리와 소비 가능성은 별도로 판정한다. consumer가 required field나 component 지원을 바꾸면 이 문서와 구현 schema를 갱신하고 Engine 수정 계약에 영향이 있는지 확인한다.
+Visual editor round-trip은 Site 소비의 필수조건이 아니다. 저장·후처리와 소비 가능성은 별도로 판정한다. consumer가 required field나 component 지원을 바꾸면 이 문서와 구현 schema를 갱신한다. 문서가 어떤 도구로 작성·수정되었는지는 소비 판정에 사용하지 않는다.
 
-기존 post-commit projection 설계의 필요성·위치·owner는 [미결 사항](https://github.com/ooMia/oomia.github.io.knowledge/blob/docs/shared-repository-scheme/docs/open-questions.md#문서-소유권-검토)에서 계속 검토한다. 이번 이관으로 projection 생성을 Site 또는 Engine의 새로운 필수 구현으로 확정하지 않는다.
+사용자가 작성한 그대로 commit한 파일도 입력 계약을 만족하면 소비한다. 필드 누락이나 지원하지 않는 문법은 해당 입력 오류로 진단한다. Engine 실행 여부를 검사하거나 Engine 처리 완료를 요구하지 않는다. 별도 projection 생성은 현재 공통 발행 절차의 필수 단계가 아니다.
 
 ## 1.0 소비 목표
 
