@@ -47,12 +47,14 @@ const markdownExConfig: AstroUserConfig = {
   integrations: [mdx()],
 }
 
+// https://docs.astro.build/en/guides/integrations-guide/react/
 const reactConfig: AstroUserConfig = {
   integrations: [react(), initTheme()],
 }
 
 const integrations = [sitemapConfig, markdownExConfig, reactConfig]
 
+// https://docs.astro.build/ko/reference/configuration-reference/#이미지-옵션
 const image: AstroUserConfig["image"] = {
   remotePatterns: [
     {
@@ -66,12 +68,14 @@ const vite: AstroUserConfig["vite"] = {
   plugins: [tailwindcss()],
 }
 
+// https://astro.build/config
 export default defineConfig(
   integrations.reduce(
     (target, source) =>
       mergeWith(target, source, (o1, o2) =>
         Array.isArray(o1) && Array.isArray(o2) ? [...o1, ...o2] : undefined
       ),
+    // https://docs.astro.build/ko/reference/configuration-reference/
     {
       site,
       base,
