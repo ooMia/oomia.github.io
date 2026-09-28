@@ -7,11 +7,13 @@ import { mdx, readingTime, satteri } from "@workspace/md"
 import { defineConfig } from "astro/config"
 import { mergeWith } from "es-toolkit"
 
+import obsidianAttachments from "@/lib/content/obsidian-attachments"
 import initTheme from "@/lib/hooks/theme"
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils"
 
 const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"])
 const base = normalizeBasePath(process.env["BASE_PATH"])
+const docsAssets = new URL("./data/articles/content/assets/", import.meta.url)
 
 // https://docs.astro.build/ko/guides/integrations-guide/sitemap/#구성
 const sitemapConfig: AstroUserConfig = {
@@ -40,7 +42,7 @@ const markdownExConfig: AstroUserConfig = {
         wikilinks: true,
         smartPunctuation: false,
       },
-      mdastPlugins: [readingTime],
+      mdastPlugins: [readingTime, obsidianAttachments(docsAssets)],
     }),
   },
   // https://docs.astro.build/ko/guides/integrations-guide/mdx
