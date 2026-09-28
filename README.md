@@ -1,63 +1,52 @@
-# Astro + React + TypeScript + shadcn/ui (Monorepo)
+# Publishing Site
 
-This is a monorepo template for Astro with React, TypeScript, and shadcn/ui.
+Astro-based presentation and delivery repository for the Publishing Platform.
 
-## Structure
+The Site consumes canonical content from `ooMia/oomia.github.io.docs` through the submodule mounted at `apps/web/data/articles`. The Article collection is intentionally limited to `content/articles/**/*.{md,mdx}`; other canonical Docs content is not treated as an Article implicitly.
 
-- `apps/web` - Astro application
-- `packages/ui` - Shared UI components (shadcn/ui)
+## Repository responsibilities
 
-## Adding components
+- `apps/web`: Astro consumer, routes and rendering
+- `packages/md`: Markdown/MDX processing owned by this Site codebase
+- `packages/ui`: shared Site UI components
+- `docs/content-consumption-contract.md`: observable input, rendering and publishability boundary
+- `.github/workflows/deploy.yaml`: build verification and GitHub Pages delivery
 
-To add components, run the following command from the root:
+Engine is optional and is not a Site runtime dependency. A canonical Docs revision is publishable only when the actual Site consumer accepts and builds it.
 
-```bash
-npx shadcn@latest add button -c apps/web
-```
+## Development
 
-## Using components
-
-To use the components in your app, import them in an `.astro` file:
-
-```astro
----
-import { Button } from "@workspace/ui/components/button"
----
-
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Astro App</title>
-  </head>
-  <body>
-    <div class="grid h-screen place-items-center content-center">
-      <Button>Button</Button>
-    </div>
-  </body>
-</html>
-```
-
-### Misc.
-
-- [pnpm-workspace](./pnpm-workspace.yaml)
-  - https://pnpm.io/cli/config
-  - https://pnpm.io/settings
+Initialize the canonical content submodule and install dependencies:
 
 ```sh
-# CLI
-corepack up
-pnpm --recursive update
 git submodule update --init --recursive
-DEBUG=tailwindcss:oxide pnpm build --workspace-packages apps/web
+pnpm install --frozen-lockfile
 ```
+
+Run the repository checks through the existing workspace scripts:
 
 ```sh
-# apps/web/.env
-SITE_URL="http://localhost:4321"
-BASE_PATH="/"
+pnpm lint
+pnpm test
+pnpm typecheck
+pnpm build
 ```
 
-## Content contract
+For local web development:
 
-[콘텐츠 소비 계약](docs/content-consumption-contract.md)은 Site 입력·렌더링·publishability 설계를 소유한다. 목표 지원 범위와 실제 schema를 구분하며, Engine의 파일 수정 계약은 해당 원본을 참조한다.
+```sh
+pnpm dev
+```
+
+Local environment values can override the public URL/base path when needed:
+
+```sh
+SITE_URL=http://localhost:4321
+BASE_PATH=/
+```
+
+## Content and delivery
+
+See [Content consumption contract](docs/content-consumption-contract.md) for the current consumer boundary.
+
+Pull requests to `develop` verify the production build path without mutating live GitHub Pages. Live deployment is reserved for the release branch path.
