@@ -1,7 +1,7 @@
-import { cn } from "@workspace/ui/lib/utils"
-import { cva } from "class-variance-authority"
-import { CheckIcon, ChevronRightIcon } from "lucide-react"
-import * as React from "react"
+import { cn } from "@workspace/ui/lib/utils";
+import { cva } from "class-variance-authority";
+import { CheckIcon, ChevronRightIcon } from "lucide-react";
+import * as React from "react";
 import {
   composeRenderProps,
   Header as HeaderPrimitive,
@@ -14,12 +14,12 @@ import {
   SubmenuTrigger as SubmenuTriggerPrimitive,
   type MenuItemProps as MenuItemPrimitiveProps,
   type MenuSectionProps as MenuSectionPrimitiveProps,
-} from "react-aria-components"
+} from "react-aria-components";
 
 function DropdownMenuTrigger({
   ...props
 }: React.ComponentProps<typeof MenuTriggerPrimitive>) {
-  return <MenuTriggerPrimitive data-slot="dropdown-menu-trigger" {...props} />
+  return <MenuTriggerPrimitive data-slot="dropdown-menu-trigger" {...props} />;
 }
 
 function DropdownMenu({
@@ -38,9 +38,9 @@ function DropdownMenu({
     React.ComponentProps<typeof PopoverPrimitive>,
     "placement" | "offset" | "crossOffset"
   > & {
-    "data-slot"?: string
-    className?: string
-    children?: React.ReactNode
+    "data-slot"?: string;
+    className?: string;
+    children?: React.ReactNode;
   }) {
   return (
     <PopoverPrimitive
@@ -60,15 +60,15 @@ function DropdownMenu({
         {children}
       </MenuPrimitive>
     </PopoverPrimitive>
-  )
+  );
 }
 
 function DropdownMenuGroup({
   ...props
 }: Omit<MenuSectionPrimitiveProps<object>, "children"> & {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }) {
-  return <MenuSectionPrimitive data-slot="dropdown-menu-group" {...props} />
+  return <MenuSectionPrimitive data-slot="dropdown-menu-group" {...props} />;
 }
 
 function DropdownMenuLabel({
@@ -76,7 +76,7 @@ function DropdownMenuLabel({
   inset,
   ...props
 }: React.ComponentProps<typeof HeaderPrimitive> & {
-  inset?: boolean
+  inset?: boolean;
 }) {
   return (
     <HeaderPrimitive
@@ -88,7 +88,7 @@ function DropdownMenuLabel({
       )}
       {...props}
     />
-  )
+  );
 }
 
 const dropdownMenuItemVariants = cva(
@@ -104,7 +104,7 @@ const dropdownMenuItemVariants = cva(
       },
     },
   }
-)
+);
 
 function DropdownMenuItem({
   className,
@@ -113,8 +113,8 @@ function DropdownMenuItem({
   children,
   ...props
 }: MenuItemPrimitiveProps<object> & {
-  inset?: boolean
-  variant?: "default" | "destructive"
+  inset?: boolean;
+  variant?: "default" | "destructive";
 }) {
   return (
     <MenuItemPrimitive
@@ -148,13 +148,13 @@ function DropdownMenuItem({
         )
       )}
     </MenuItemPrimitive>
-  )
+  );
 }
 
 function DropdownMenuSub({
   ...props
 }: React.ComponentProps<typeof SubmenuTriggerPrimitive>) {
-  return <SubmenuTriggerPrimitive data-slot="dropdown-menu-sub" {...props} />
+  return <SubmenuTriggerPrimitive data-slot="dropdown-menu-sub" {...props} />;
 }
 
 function DropdownMenuSubTrigger({
@@ -163,7 +163,7 @@ function DropdownMenuSubTrigger({
   children,
   ...props
 }: MenuItemPrimitiveProps<object> & {
-  inset?: boolean
+  inset?: boolean;
 }) {
   return (
     <MenuItemPrimitive
@@ -183,7 +183,7 @@ function DropdownMenuSubTrigger({
         </>
       ))}
     </MenuItemPrimitive>
-  )
+  );
 }
 
 function DropdownMenuSubContent({
@@ -205,7 +205,7 @@ function DropdownMenuSubContent({
       offset={offset}
       {...props}
     />
-  )
+  );
 }
 
 function DropdownMenuSeparator({
@@ -218,7 +218,7 @@ function DropdownMenuSeparator({
       className={cn("-mx-1 my-1 h-px bg-border", className)}
       {...props}
     />
-  )
+  );
 }
 
 function DropdownMenuShortcut({
@@ -234,7 +234,7 @@ function DropdownMenuShortcut({
       )}
       {...props}
     />
-  )
+  );
 }
 
 export {
@@ -248,4 +248,4 @@ export {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-}
+};

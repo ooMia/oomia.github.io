@@ -19,7 +19,9 @@ async function graphql(token, query, variables = {}) {
   });
   const payload = await response.json();
   if (!response.ok || payload.errors?.length) {
-    throw new Error(payload.errors?.map((e) => e.message).join("; ") || response.statusText);
+    throw new Error(
+      payload.errors?.map((e) => e.message).join("; ") || response.statusText
+    );
   }
   return payload.data;
 }
@@ -31,7 +33,9 @@ function splitRepo(fullName) {
 }
 
 function parseSeed(body) {
-  const match = String(body ?? "").match(/<!--\s*project-seed\s*([\s\S]*?)-->/i);
+  const match = String(body ?? "").match(
+    /<!--\s*project-seed\s*([\s\S]*?)-->/i
+  );
   if (!match) return {};
   try {
     return JSON.parse(match[1].trim());
@@ -42,67 +46,120 @@ function parseSeed(body) {
 
 async function fetchIssue(token, repository, number) {
   const { owner, repo } = splitRepo(repository);
-  const data = await graphql(token, `
-    query($owner: String!, $repo: String!, $number: Int!) {
-      repository(owner: $owner, name: $repo) {
-        issue(number: $number) { id number title body state }
+  const data = await graphql(
+    token,
+    `
+      query ($owner: String!, $repo: String!, $number: Int!) {
+        repository(owner: $owner, name: $repo) {
+          issue(number: $number) {
+            id
+            number
+            title
+            body
+            state
+          }
+        }
       }
-    }
-  `, { owner, repo, number });
-  if (!data.repository?.issue) throw new Error(`Issue #${number} not found in ${repository}`);
+    `,
+    { owner, repo, number }
+  );
+  if (!data.repository?.issue)
+    throw new Error(`Issue #${number} not found in ${repository}`);
   return data.repository.issue;
 }
 
 async function fetchProject(token, owner, number) {
-  const data = await graphql(token, `
-    query($owner: String!, $number: Int!) {
-      user(login: $owner) {
-        projectV2(number: $number) {
-          id
-          title
-          fields(first: 100) {
-            nodes {
-              __typename
-              ... on ProjectV2FieldCommon { id name dataType }
-              ... on ProjectV2SingleSelectField { options { id name } }
-              ... on ProjectV2MultiSelectField { multiSelectOptions { id name } }
-              ... on ProjectV2IterationField {
-                configuration {
-                  iterations { id title }
-                  completedIterations { id title }
+  const data = await graphql(
+    token,
+    `
+      query ($owner: String!, $number: Int!) {
+        user(login: $owner) {
+          projectV2(number: $number) {
+            id
+            title
+            fields(first: 100) {
+              nodes {
+                __typename
+                ... on ProjectV2FieldCommon {
+                  id
+                  name
+                  dataType
+                }
+                ... on ProjectV2SingleSelectField {
+                  options {
+                    id
+                    name
+                  }
+                }
+                ... on ProjectV2MultiSelectField {
+                  multiSelectOptions {
+                    id
+                    name
+                  }
+                }
+                ... on ProjectV2IterationField {
+                  configuration {
+                    iterations {
+                      id
+                      title
+                    }
+                    completedIterations {
+                      id
+                      title
+                    }
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-  `, { owner, number });
-  if (!data.user?.projectV2) throw new Error(`Project not found: ${owner}/projects/${number}`);
+    `,
+    { owner, number }
+  );
+  if (!data.user?.projectV2)
+    throw new Error(`Project not found: ${owner}/projects/${number}`);
   return data.user.projectV2;
 }
 
 async function addItem(token, projectId, contentId) {
-  const data = await graphql(token, `
-    mutation($project: ID!, $content: ID!) {
-      addProjectV2ItemById(input: { projectId: $project, contentId: $content }) {
-        item { id }
+  const data = await graphql(
+    token,
+    `
+      mutation ($project: ID!, $content: ID!) {
+        addProjectV2ItemById(
+          input: { projectId: $project, contentId: $content }
+        ) {
+          item {
+            id
+          }
+        }
       }
-    }
-  `, { project: projectId, content: contentId });
+    `,
+    { project: projectId, content: contentId }
+  );
   return data.addProjectV2ItemById.item.id;
 }
 
 function optionId(options, wanted, fieldName) {
-  const match = options.find((option) => option.name.toLowerCase() === String(wanted).toLowerCase());
+  const match = options.find(
+    (option) => option.name.toLowerCase() === String(wanted).toLowerCase()
+  );
   if (!match) {
-    throw new Error(`Field "${fieldName}" has no option "${wanted}". Available: ${options.map((x) => x.name).join(", ")}`);
+    throw new Error(
+      `Field "${fieldName}" has no option "${wanted}". Available: ${options.map((x) => x.name).join(", ")}`
+    );
   }
   return match.id;
 }
 
 function makeFieldValue(field, wanted) {
-  if (wanted == null || wanted === "" || (Array.isArray(wanted) && wanted.length === 0)) return null;
+  if (
+    wanted == null ||
+    wanted === "" ||
+    (Array.isArray(wanted) && wanted.length === 0)
+  )
+    return null;
 
   if (field.__typename === "ProjectV2SingleSelectField") {
     const value = Array.isArray(wanted) ? wanted[0] : wanted;
@@ -111,12 +168,18 @@ function makeFieldValue(field, wanted) {
 
   if (field.__typename === "ProjectV2MultiSelectField") {
     const values = Array.isArray(wanted) ? wanted : [wanted];
-    return { multiSelectOptionIds: values.map((value) => optionId(field.multiSelectOptions, value, field.name)) };
+    return {
+      multiSelectOptionIds: values.map((value) =>
+        optionId(field.multiSelectOptions, value, field.name)
+      ),
+    };
   }
 
   if (field.__typename === "ProjectV2IterationField") {
-    const iterations = [...field.configuration.iterations, ...field.configuration.completedIterations]
-      .map(({ id, title }) => ({ id, name: title }));
+    const iterations = [
+      ...field.configuration.iterations,
+      ...field.configuration.completedIterations,
+    ].map(({ id, title }) => ({ id, name: title }));
     return { iterationId: optionId(iterations, wanted, field.name) };
   }
 
@@ -124,20 +187,37 @@ function makeFieldValue(field, wanted) {
     return { text: Array.isArray(wanted) ? wanted.join(", ") : String(wanted) };
   }
 
-  throw new Error(`Unsupported field type for "${field.name}": ${field.__typename}/${field.dataType}`);
+  throw new Error(
+    `Unsupported field type for "${field.name}": ${field.__typename}/${field.dataType}`
+  );
 }
 
 async function updateField(token, projectId, itemId, fieldId, value) {
-  await graphql(token, `
-    mutation($project: ID!, $item: ID!, $field: ID!, $value: ProjectV2FieldValue!) {
-      updateProjectV2ItemFieldValue(input: {
-        projectId: $project
-        itemId: $item
-        fieldId: $field
-        value: $value
-      }) { projectV2Item { id } }
-    }
-  `, { project: projectId, item: itemId, field: fieldId, value });
+  await graphql(
+    token,
+    `
+      mutation (
+        $project: ID!
+        $item: ID!
+        $field: ID!
+        $value: ProjectV2FieldValue!
+      ) {
+        updateProjectV2ItemFieldValue(
+          input: {
+            projectId: $project
+            itemId: $item
+            fieldId: $field
+            value: $value
+          }
+        ) {
+          projectV2Item {
+            id
+          }
+        }
+      }
+    `,
+    { project: projectId, item: itemId, field: fieldId, value }
+  );
 }
 
 async function main() {
@@ -147,9 +227,14 @@ async function main() {
   const projectOwner = process.env.PROJECT_OWNER ?? "ooMia";
   const projectNumber = Number(process.env.PROJECT_NUMBER ?? "11");
 
-  if (!token) throw new Error("PROJECT_TOKEN is required. Store a classic PAT with repo + project scopes as this repository secret.");
+  if (!token)
+    throw new Error(
+      "PROJECT_TOKEN is required. Store a classic PAT with repo + project scopes as this repository secret."
+    );
   if (!repository || !Number.isInteger(issueNumber) || issueNumber <= 0) {
-    throw new Error("GITHUB_REPOSITORY and positive ISSUE_NUMBER are required.");
+    throw new Error(
+      "GITHUB_REPOSITORY and positive ISSUE_NUMBER are required."
+    );
   }
 
   const issue = await fetchIssue(token, repository, issueNumber);
@@ -172,14 +257,31 @@ async function main() {
   ]);
 
   for (const [fieldName, wanted] of desired) {
-    if (wanted == null || wanted === "" || (Array.isArray(wanted) && wanted.length === 0)) continue;
-    const field = project.fields.nodes.find((candidate) => candidate?.name === fieldName);
+    if (
+      wanted == null ||
+      wanted === "" ||
+      (Array.isArray(wanted) && wanted.length === 0)
+    )
+      continue;
+    const field = project.fields.nodes.find(
+      (candidate) => candidate?.name === fieldName
+    );
     if (!field) throw new Error(`Project field not found: ${fieldName}`);
-    await updateField(token, project.id, itemId, field.id, makeFieldValue(field, wanted));
-    console.log(`${fieldName}: ${Array.isArray(wanted) ? wanted.join(", ") : wanted}`);
+    await updateField(
+      token,
+      project.id,
+      itemId,
+      field.id,
+      makeFieldValue(field, wanted)
+    );
+    console.log(
+      `${fieldName}: ${Array.isArray(wanted) ? wanted.join(", ") : wanted}`
+    );
   }
 
-  console.log(`Synchronized ${repository}#${issue.number} with ${projectOwner}/projects/${projectNumber}.`);
+  console.log(
+    `Synchronized ${repository}#${issue.number} with ${projectOwner}/projects/${projectNumber}.`
+  );
 }
 
 main().catch((error) => fail(error.stack ?? error.message ?? String(error)));
