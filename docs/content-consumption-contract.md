@@ -10,10 +10,10 @@ Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. E
 
 ## Publishing
 
-| 수준 | 보장 |
-|---|---|
-| Publishable | Site의 실제 입력 계약과 consumer 검증을 만족한다. |
-| Blocked | 현재 Site가 소비할 수 없으며 실패 이유를 관찰 가능하게 제공한다. |
+| 수준        | 보장                                                             |
+| ----------- | ---------------------------------------------------------------- |
+| Publishable | Site의 실제 입력 계약과 consumer 검증을 만족한다.                |
+| Blocked     | 현재 Site가 소비할 수 없으며 실패 이유를 관찰 가능하게 제공한다. |
 
 문서가 어떤 editor나 후처리 도구를 거쳤는지는 소비 판정에 사용하지 않는다. 사용자가 작성한 그대로 commit한 파일도 실제 입력 계약을 만족하면 소비한다. Engine 실행이나 별도 projection 생성을 공통 발행 선행 조건으로 요구하지 않는다.
 
@@ -21,19 +21,19 @@ Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. E
 
 ## 1.0 소비 목표
 
-| 콘텐츠 유형 | 소비 목표 | 설명 |
-|---|---|---|
-| 기본 Markdown / GFM | Publishable | 실제 parser와 renderer가 지원하는 source를 소비한다. |
-| code fence | Publishable | 지원 language와 highlighting 동작은 실제 implementation으로 검증한다. |
-| 일반 Markdown image | Publishable | 별도 Media DB object로 강제 변환하지 않는다. |
-| workspace-relative asset | Publishable | repository portability와 Site asset resolution을 만족해야 한다. |
-| durable external asset URL | Publishable | 허용 scheme/domain과 공개 정책을 만족해야 한다. |
-| raw HTML | Site policy에 따라 Publishable/Blocked | public publish security policy에 따른다. |
-| 지원 component package의 MDX component | Publishable | 실제 package/code가 제공하는 component semantics와 renderer 검증을 따른다. |
-| 지원하지 않는 MDX component 또는 잘못된 props | Blocked | source는 보존할 수 있지만 현재 Site consumer가 유효하다고 판정하지 않는다. |
-| arbitrary JavaScript expression | Blocked by default | 명시적 지원 전에는 executable content를 publish contract 밖에 둔다. |
-| 문서 내부 임의 import/export | Blocked by default | document별 arbitrary dependency를 기본 허용하지 않는다. |
-| 문법 오류가 있는 draft | Blocked | draft 저장과 publishability를 분리한다. |
+| 콘텐츠 유형                                   | 소비 목표                              | 설명                                                                       |
+| --------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
+| 기본 Markdown / GFM                           | Publishable                            | 실제 parser와 renderer가 지원하는 source를 소비한다.                       |
+| code fence                                    | Publishable                            | 지원 language와 highlighting 동작은 실제 implementation으로 검증한다.      |
+| 일반 Markdown image                           | Publishable                            | 별도 Media DB object로 강제 변환하지 않는다.                               |
+| workspace-relative asset                      | Publishable                            | repository portability와 Site asset resolution을 만족해야 한다.            |
+| durable external asset URL                    | Publishable                            | 허용 scheme/domain과 공개 정책을 만족해야 한다.                            |
+| raw HTML                                      | Site policy에 따라 Publishable/Blocked | public publish security policy에 따른다.                                   |
+| 지원 component package의 MDX component        | Publishable                            | 실제 package/code가 제공하는 component semantics와 renderer 검증을 따른다. |
+| 지원하지 않는 MDX component 또는 잘못된 props | Blocked                                | source는 보존할 수 있지만 현재 Site consumer가 유효하다고 판정하지 않는다. |
+| arbitrary JavaScript expression               | Blocked by default                     | 명시적 지원 전에는 executable content를 publish contract 밖에 둔다.        |
+| 문서 내부 임의 import/export                  | Blocked by default                     | document별 arbitrary dependency를 기본 허용하지 않는다.                    |
+| 문법 오류가 있는 draft                        | Blocked                                | draft 저장과 publishability를 분리한다.                                    |
 
 ## Component source of truth
 

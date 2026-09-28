@@ -1,17 +1,17 @@
-import type { AstroUserConfig } from "astro"
+import type { AstroUserConfig } from "astro";
 
-import react from "@astrojs/react"
-import sitemap from "@astrojs/sitemap"
-import tailwindcss from "@tailwindcss/vite"
-import { mdx, readingTime, satteri } from "@workspace/md"
-import { defineConfig } from "astro/config"
-import { mergeWith } from "es-toolkit"
+import react from "@astrojs/react";
+import sitemap from "@astrojs/sitemap";
+import tailwindcss from "@tailwindcss/vite";
+import { mdx, readingTime, satteri } from "@workspace/md";
+import { defineConfig } from "astro/config";
+import { mergeWith } from "es-toolkit";
 
-import initTheme from "@/lib/hooks/theme"
-import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils"
+import initTheme from "@/lib/hooks/theme";
+import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
-const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"])
-const base = normalizeBasePath(process.env["BASE_PATH"])
+const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
+const base = normalizeBasePath(process.env["BASE_PATH"]);
 
 // https://docs.astro.build/ko/guides/integrations-guide/sitemap/#구성
 const sitemapConfig: AstroUserConfig = {
@@ -23,7 +23,7 @@ const sitemapConfig: AstroUserConfig = {
       },
     }),
   ],
-}
+};
 
 const markdownExConfig: AstroUserConfig = {
   // https://docs.astro.build/ko/guides/markdown-content/#markdown-플러그인
@@ -45,14 +45,14 @@ const markdownExConfig: AstroUserConfig = {
   },
   // https://docs.astro.build/ko/guides/integrations-guide/mdx
   integrations: [mdx()],
-}
+};
 
 // https://docs.astro.build/en/guides/integrations-guide/react/
 const reactConfig: AstroUserConfig = {
   integrations: [react(), initTheme()],
-}
+};
 
-const integrations = [sitemapConfig, markdownExConfig, reactConfig]
+const integrations = [sitemapConfig, markdownExConfig, reactConfig];
 
 // https://docs.astro.build/ko/reference/configuration-reference/#이미지-옵션
 const image: AstroUserConfig["image"] = {
@@ -62,11 +62,11 @@ const image: AstroUserConfig["image"] = {
       hostname: "app.notion.com",
     },
   ],
-}
+};
 
 const vite: AstroUserConfig["vite"] = {
   plugins: [tailwindcss()],
-}
+};
 
 // https://astro.build/config
 export default defineConfig(
@@ -93,4 +93,4 @@ export default defineConfig(
       },
     }
   )
-)
+);

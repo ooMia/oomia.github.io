@@ -19,7 +19,9 @@ async function graphql(token, query, variables = {}) {
   });
   const payload = await response.json();
   if (!response.ok || payload.errors?.length) {
-    throw new Error(payload.errors?.map((e) => e.message).join("; ") || response.statusText);
+    throw new Error(
+      payload.errors?.map((e) => e.message).join("; ") || response.statusText
+    );
   }
   return payload.data;
 }
@@ -31,7 +33,9 @@ function splitRepo(fullName) {
 }
 
 function parseSeed(body) {
-  const match = String(body ?? "").match(/<!--\s*project-seed\s*([\s\S]*?)-->/i);
+  const match = String(body ?? "").match(
+    /<!--\s*project-seed\s*([\s\S]*?)-->/i
+  );
   if (!match) return {};
   try {
     return JSON.parse(match[1].trim());
@@ -52,36 +56,74 @@ function slugify(value) {
 function branchName(issue, seed) {
   if (seed.branch) return seed.branch;
   const title = issue.title.replace(/^draft:\s*/i, "").trim();
-  const conventional = title.match(/^(feat|fix|chore|docs|refactor|test|experiment):\s*(.+)$/i);
-  if (conventional) return `${issue.number}-${conventional[1].toLowerCase()}-${slugify(conventional[2])}`;
+  const conventional = title.match(
+    /^(feat|fix|chore|docs|refactor|test|experiment):\s*(.+)$/i
+  );
+  if (conventional)
+    return `${issue.number}-${conventional[1].toLowerCase()}-${slugify(conventional[2])}`;
   return `${issue.number}-${slugify(title)}`;
 }
 
-async function fetchContext(token, repository, issueNumber, baseBranch, branch) {
+async function fetchContext(
+  token,
+  repository,
+  issueNumber,
+  baseBranch,
+  branch
+) {
   const { owner, repo } = splitRepo(repository);
-  const data = await graphql(token, `
-    query($owner: String!, $repo: String!, $number: Int!, $base: String!, $branch: String!) {
-      repository(owner: $owner, name: $repo) {
-        id
-        base: ref(qualifiedName: $base) { target { oid } }
-        branch: ref(qualifiedName: $branch) { name }
-        issue(number: $number) {
-          id number title body state
-          linkedBranches(first: 100) {
-            nodes { ref { name repository { nameWithOwner } } }
+  const data = await graphql(
+    token,
+    `
+      query (
+        $owner: String!
+        $repo: String!
+        $number: Int!
+        $base: String!
+        $branch: String!
+      ) {
+        repository(owner: $owner, name: $repo) {
+          id
+          base: ref(qualifiedName: $base) {
+            target {
+              oid
+            }
+          }
+          branch: ref(qualifiedName: $branch) {
+            name
+          }
+          issue(number: $number) {
+            id
+            number
+            title
+            body
+            state
+            linkedBranches(first: 100) {
+              nodes {
+                ref {
+                  name
+                  repository {
+                    nameWithOwner
+                  }
+                }
+              }
+            }
           }
         }
       }
+    `,
+    {
+      owner,
+      repo,
+      number: issueNumber,
+      base: `refs/heads/${baseBranch}`,
+      branch: `refs/heads/${branch}`,
     }
-  `, {
-    owner,
-    repo,
-    number: issueNumber,
-    base: `refs/heads/${baseBranch}`,
-    branch: `refs/heads/${branch}`,
-  });
-  if (!data.repository?.issue) throw new Error(`Issue #${issueNumber} not found in ${repository}`);
-  if (!data.repository.base?.target?.oid) throw new Error(`Base branch not found: ${baseBranch}`);
+  );
+  if (!data.repository?.issue)
+    throw new Error(`Issue #${issueNumber} not found in ${repository}`);
+  if (!data.repository.base?.target?.oid)
+    throw new Error(`Base branch not found: ${baseBranch}`);
   return data.repository;
 }
 
@@ -93,10 +135,18 @@ async function main() {
 
   if (!token) throw new Error("GITHUB_TOKEN is required.");
   if (!repository || !Number.isInteger(issueNumber) || issueNumber <= 0) {
-    throw new Error("GITHUB_REPOSITORY and positive ISSUE_NUMBER are required.");
+    throw new Error(
+      "GITHUB_REPOSITORY and positive ISSUE_NUMBER are required."
+    );
   }
 
-  const preliminary = await fetchContext(token, repository, issueNumber, baseBranch, "__issue_branch_probe__");
+  const preliminary = await fetchContext(
+    token,
+    repository,
+    issueNumber,
+    baseBranch,
+    "__issue_branch_probe__"
+  );
   const issue = preliminary.issue;
   if (issue.state !== "OPEN" || /^draft:\s*/i.test(issue.title)) {
     console.log("Issue is not active; Development branch creation skipped.");
@@ -105,15 +155,25 @@ async function main() {
 
   const seed = parseSeed(issue.body);
   if (seed.development === false) {
-    console.log("project-seed.development=false; Development branch creation skipped.");
+    console.log(
+      "project-seed.development=false; Development branch creation skipped."
+    );
     return;
   }
 
   const name = branchName(issue, seed);
-  const context = await fetchContext(token, repository, issueNumber, baseBranch, name);
-  const linked = context.issue.linkedBranches.nodes.some((node) =>
-    node.ref?.name === name &&
-    node.ref?.repository?.nameWithOwner?.toLowerCase() === repository.toLowerCase()
+  const context = await fetchContext(
+    token,
+    repository,
+    issueNumber,
+    baseBranch,
+    name
+  );
+  const linked = context.issue.linkedBranches.nodes.some(
+    (node) =>
+      node.ref?.name === name &&
+      node.ref?.repository?.nameWithOwner?.toLowerCase() ===
+        repository.toLowerCase()
   );
 
   if (linked) {
@@ -121,28 +181,47 @@ async function main() {
     return;
   }
   if (context.branch) {
-    throw new Error(`Branch ${name} already exists but is not linked to Issue #${issueNumber}. Resolve this one-time migration manually.`);
+    throw new Error(
+      `Branch ${name} already exists but is not linked to Issue #${issueNumber}. Resolve this one-time migration manually.`
+    );
   }
 
-  const data = await graphql(token, `
-    mutation($issue: ID!, $repository: ID!, $oid: GitObjectID!, $name: String!) {
-      createLinkedBranch(input: {
-        issueId: $issue
-        repositoryId: $repository
-        oid: $oid
-        name: $name
-      }) {
-        linkedBranch { ref { name } }
+  const data = await graphql(
+    token,
+    `
+      mutation (
+        $issue: ID!
+        $repository: ID!
+        $oid: GitObjectID!
+        $name: String!
+      ) {
+        createLinkedBranch(
+          input: {
+            issueId: $issue
+            repositoryId: $repository
+            oid: $oid
+            name: $name
+          }
+        ) {
+          linkedBranch {
+            ref {
+              name
+            }
+          }
+        }
       }
+    `,
+    {
+      issue: context.issue.id,
+      repository: context.id,
+      oid: context.base.target.oid,
+      name,
     }
-  `, {
-    issue: context.issue.id,
-    repository: context.id,
-    oid: context.base.target.oid,
-    name,
-  });
+  );
 
-  console.log(`Created linked Development branch: ${data.createLinkedBranch.linkedBranch.ref.name}`);
+  console.log(
+    `Created linked Development branch: ${data.createLinkedBranch.linkedBranch.ref.name}`
+  );
 }
 
 main().catch((error) => fail(error.stack ?? error.message ?? String(error)));
