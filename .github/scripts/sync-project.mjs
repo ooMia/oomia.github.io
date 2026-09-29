@@ -91,12 +91,6 @@ async function fetchProject(token, owner, number) {
                     name
                   }
                 }
-                ... on ProjectV2MultiSelectField {
-                  multiSelectOptions {
-                    id
-                    name
-                  }
-                }
                 ... on ProjectV2IterationField {
                   configuration {
                     iterations {
@@ -166,25 +160,12 @@ function makeFieldValue(field, wanted) {
     return { singleSelectOptionId: optionId(field.options, value, field.name) };
   }
 
-  if (field.__typename === "ProjectV2MultiSelectField") {
-    const values = Array.isArray(wanted) ? wanted : [wanted];
-    return {
-      multiSelectOptionIds: values.map((value) =>
-        optionId(field.multiSelectOptions, value, field.name)
-      ),
-    };
-  }
-
   if (field.__typename === "ProjectV2IterationField") {
     const iterations = [
       ...field.configuration.iterations,
       ...field.configuration.completedIterations,
     ].map(({ id, title }) => ({ id, name: title }));
     return { iterationId: optionId(iterations, wanted, field.name) };
-  }
-
-  if (field.__typename === "ProjectV2Field" && field.dataType === "TEXT") {
-    return { text: Array.isArray(wanted) ? wanted.join(", ") : String(wanted) };
   }
 
   throw new Error(
@@ -251,9 +232,6 @@ async function main() {
     ["Status", seed.status ?? "Todo"],
     ["Iteration", seed.iteration],
     ["Work Type", seed.workType],
-    ["Scope", seed.scope],
-    ["Objective", seed.objective],
-    ["Target Release", seed.targetRelease],
   ]);
 
   for (const [fieldName, wanted] of desired) {
