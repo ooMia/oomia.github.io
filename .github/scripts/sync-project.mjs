@@ -91,12 +91,6 @@ async function fetchProject(token, owner, number) {
                     name
                   }
                 }
-                ... on ProjectV2MultiSelectField {
-                  multiSelectOptions {
-                    id
-                    name
-                  }
-                }
                 ... on ProjectV2IterationField {
                   configuration {
                     iterations {
