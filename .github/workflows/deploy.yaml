@@ -55,6 +55,7 @@ jobs:
             pnpm-store-v1-${{ runner.os }}-${{ runner.arch }}-pnpm12-
 
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web sync
       - run: pnpm exec vp check
       - run: pnpm exec vp test
       - run: pnpm exec vp run -r build
