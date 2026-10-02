@@ -1,4 +1,4 @@
-import { defineConfig } from "vite-plus"
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   staged: {
@@ -24,7 +24,7 @@ export default defineConfig({
       ],
     },
     endOfLine: "lf",
-    semi: false,
+    semi: true,
     singleQuote: false,
     tabWidth: 2,
     trailingComma: "es5",
@@ -47,4 +47,4 @@ export default defineConfig({
       "apps/web/.astro/",
     ],
   },
-})
+});

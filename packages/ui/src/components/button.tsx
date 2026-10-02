@@ -1,14 +1,14 @@
-import type * as React from "react"
+import type * as React from "react";
 
-import { cn } from "@workspace/ui/lib/utils"
-import { buttonVariants } from "@workspace/ui/lib/variants"
-import { type VariantProps } from "class-variance-authority"
+import { cn } from "@workspace/ui/lib/utils";
+import { buttonVariants } from "@workspace/ui/lib/variants";
+import { type VariantProps } from "class-variance-authority";
 import {
   Button as ButtonPrimitive,
   Link as LinkPrimitive,
   type ButtonProps as ButtonPrimitiveProps,
   type LinkProps as LinkPrimitiveProps,
-} from "react-aria-components"
+} from "react-aria-components";
 
 function Button({
   className,
@@ -18,7 +18,7 @@ function Button({
 }: Omit<ButtonPrimitiveProps, "className"> &
   React.RefAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
-    className?: string
+    className?: string;
   }) {
   return (
     <ButtonPrimitive
@@ -28,7 +28,7 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  );
 }
 
 function LinkButton({
@@ -38,7 +38,7 @@ function LinkButton({
   ...props
 }: Omit<LinkPrimitiveProps, "className"> &
   VariantProps<typeof buttonVariants> & {
-    className?: string
+    className?: string;
   }) {
   return (
     <LinkPrimitive
@@ -48,7 +48,7 @@ function LinkButton({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  );
 }
 
-export { Button, LinkButton }
+export { Button, LinkButton };
