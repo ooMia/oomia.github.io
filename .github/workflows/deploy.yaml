@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   pull_request:
-    branches: [develop]
+    branches: [develop, main]
   push:
     branches: [main]
   workflow_dispatch:
@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   build:
+    if: github.event_name != 'pull_request' || github.base_ref == 'develop'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -26,6 +27,37 @@ jobs:
         env:
           SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
           BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
+
+  promotion:
+    name: Promotion validation
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          submodules: recursive
+
+      - uses: pnpm/setup@v3
+        with:
+          cache: false
+          install: false
+          require-lockfile: true
+
+      - name: Use isolated pnpm store
+        run: pnpm config set store-dir "${{ runner.temp }}/pnpm-store"
+
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ${{ runner.temp }}/pnpm-store
+          key: pnpm-store-v1-${{ runner.os }}-${{ runner.arch }}-pnpm12-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-v1-${{ runner.os }}-${{ runner.arch }}-pnpm12-
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vp check
+      - run: pnpm exec vp test
+      - run: pnpm exec vp run -r build
 
   deploy:
     if: >-
