@@ -8,7 +8,6 @@ import { defineConfig } from "astro/config";
 import { mergeWith } from "es-toolkit";
 
 import resolveLinkCardData from "@/lib/content/link-card";
-import initTheme from "@/lib/hooks/theme";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
 const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
@@ -51,7 +50,7 @@ const markdownExConfig: AstroUserConfig = {
 
 // https://docs.astro.build/en/guides/integrations-guide/react/
 const reactConfig: AstroUserConfig = {
-  integrations: [react(), initTheme()],
+  integrations: [react()],
 };
 
 const integrations = [sitemapConfig, markdownExConfig, reactConfig];

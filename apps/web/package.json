@@ -19,6 +19,8 @@
     "@workspace/ui": "workspace:*",
     "astro": "catalog:",
     "es-toolkit": "catalog:",
+    "fumadocs-core": "^16.15.18",
+    "fumadocs-ui": "^16.15.18",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "sharp": "^0.35.4"

@@ -1,8 +1,9 @@
 ---
 import Callout from "@/components/Callout.astro";
-import Article from "@/components/Article.astro";
+import { ArticleFrame } from "@/components/presentation/ArticleFrame";
 import RootLayout from "@/layouts/RootLayout.astro";
 import render from "@/lib/content/render";
+import "@/styles/link-card.css";
 import type { InferGetStaticPropsType } from "astro";
 import { getCollection } from "astro:content";
 
@@ -23,7 +24,16 @@ const article = await render(post);
 ---
 
 <RootLayout {...post.data}>
-  <Article coverColor="beige" pageIcon="🤔">
+  <ArticleFrame
+    pathname={Astro.url.pathname}
+    homeUrl={import.meta.env.BASE_URL}
+    title={post.data.title}
+    description={post.data.description}
+    readingMinutes={Math.ceil(
+      article.remarkPluginFrontmatter.readingTime.minutes,
+    )}
+    client:load
+  >
     <article.Content components={{ Callout }} />
-  </Article>
+  </ArticleFrame>
 </RootLayout>
