@@ -53,17 +53,17 @@ custom CSS는 Site 고유의 composition이나 외부 component가 해결하지 
 
 ## Ownership
 
-| Concern | Owner |
-| --- | --- |
-| canonical article source | `ooMia/oomia.github.io.docs` |
-| article discovery/schema | Astro content collection in `apps/web` |
-| Markdown/MDX parsing and semantic transforms | `@workspace/md` |
-| Site route and page composition | Astro layouts/pages in `apps/web` |
-| maintained document typography primitives | Fumadocs UI where adopted |
-| Site-specific reusable UI | `packages/ui` or the owning component |
-| component-local presentation | owning component |
-| publishability contract | [Content consumption contract](content-consumption-contract.md) |
-| presentation baseline | this document |
+| Concern                                      | Owner                                                           |
+| -------------------------------------------- | --------------------------------------------------------------- |
+| canonical article source                     | `ooMia/oomia.github.io.docs`                                    |
+| article discovery/schema                     | Astro content collection in `apps/web`                          |
+| Markdown/MDX parsing and semantic transforms | `@workspace/md`                                                 |
+| Site route and page composition              | Astro layouts/pages in `apps/web`                               |
+| maintained document typography primitives    | Fumadocs UI where adopted                                       |
+| Site-specific reusable UI                    | `packages/ui` or the owning component                           |
+| component-local presentation                 | owning component                                                |
+| publishability contract                      | [Content consumption contract](content-consumption-contract.md) |
+| presentation baseline                        | this document                                                   |
 
 Fumadocs source/page-tree API는 현재 content source of truth가 아니다. 필요해질 때 도입할 수 있지만 C1-W4 baseline은 기존 Astro collection과 `@workspace/md`를 유지한다.
 
