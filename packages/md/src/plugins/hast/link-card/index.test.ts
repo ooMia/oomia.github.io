@@ -15,16 +15,18 @@ const resolve: LinkCardResolver = (value) =>
       }
     : undefined;
 
-function render(source: string): string {
-  return markdownToHtml(source, {
+async function render(source: string): Promise<string> {
+  const result = await markdownToHtml(source, {
     features: { gfm: true },
     hastPlugins: [linkCard(resolve)],
-  }).html;
+  });
+
+  return result.html;
 }
 
 describe("link card", () => {
-  test("renders a metadata-backed autolink paragraph as a card", () => {
-    const html = render(`<${url}>`);
+  test("renders a metadata-backed autolink paragraph as a card", async () => {
+    const html = await render(`<${url}>`);
 
     expect(html).toContain('class="link-card"');
     expect(html).toContain('data-link-card="true"');
@@ -33,45 +35,48 @@ describe("link card", () => {
     expect(html).toContain("Example");
   });
 
-  test("renders a standalone Markdown link as a card", () => {
-    const html = render(`[Read more](${url})`);
+  test("renders a standalone Markdown link as a card", async () => {
+    const html = await render(`[Read more](${url})`);
 
     expect(html).toContain('class="link-card"');
     expect(html).toContain("Example article");
   });
 
-  test("keeps an inline external link as an ordinary anchor", () => {
-    const html = render(`Read [this article](${url}) for details.`);
+  test("keeps an inline external link as an ordinary anchor", async () => {
+    const html = await render(`Read [this article](${url}) for details.`);
 
     expect(html).not.toContain('class="link-card"');
     expect(html).toContain(`href="${url}"`);
     expect(html).toContain("this article");
   });
 
-  test("keeps a standalone link without metadata as an ordinary anchor", () => {
-    const html = render("<https://example.org/unknown>");
+  test(
+    "keeps a standalone link without metadata as an ordinary anchor",
+    async () => {
+      const html = await render("<https://example.org/unknown>");
 
-    expect(html).not.toContain('class="link-card"');
-    expect(html).toContain('href="https://example.org/unknown"');
-  });
+      expect(html).not.toContain('class="link-card"');
+      expect(html).toContain('href="https://example.org/unknown"');
+    }
+  );
 
-  test("keeps an internal link as an ordinary anchor", () => {
-    const html = render("[Local](/articles/local)");
+  test("keeps an internal link as an ordinary anchor", async () => {
+    const html = await render("[Local](/articles/local)");
 
     expect(html).not.toContain('class="link-card"');
     expect(html).toContain('href="/articles/local"');
   });
 
-  test("renders with only the required metadata", () => {
+  test("renders with only the required metadata", async () => {
     const minimal = linkCard((value) =>
       value === url ? { url, title: "Minimal" } : undefined
     );
 
-    const html = markdownToHtml(`<${url}>`, {
+    const result = await markdownToHtml(`<${url}>`, {
       hastPlugins: [minimal],
-    }).html;
+    });
 
-    expect(html).toContain('class="link-card"');
-    expect(html).toContain("Minimal");
+    expect(result.html).toContain('class="link-card"');
+    expect(result.html).toContain("Minimal");
   });
 });
