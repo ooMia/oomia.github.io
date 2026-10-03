@@ -7,6 +7,9 @@ import { z } from "astro/zod";
 import schema from "./schema";
 
 type ElementType<T> = T extends readonly (infer U)[] ? U : never;
+export type HastPluginEntry = ElementType<
+  SatteriProcessorOptions["hastPlugins"]
+>;
 export type MdastPluginEntry = ElementType<
   SatteriProcessorOptions["mdastPlugins"]
 >;
