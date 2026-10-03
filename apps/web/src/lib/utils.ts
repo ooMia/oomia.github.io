@@ -13,6 +13,9 @@ export function normalizeBasePath(value: string | undefined) {
 }
 
 export function withBasePath(path: string, base?: string) {
-  if (!base) return path;
-  return `/${base.replace(/^\/+|\/+$/g, "")}${path.startsWith("/") ? path : `/${path}`}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const normalizedBase = base?.replace(/^\/+|\/+$/g, "") ?? "";
+
+  if (!normalizedBase) return normalizedPath;
+  return `/${normalizedBase}${normalizedPath}`;
 }

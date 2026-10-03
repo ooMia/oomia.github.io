@@ -112,6 +112,26 @@ test("theme persists across reload and shared homepage navigation", async ({
   await expect(page.locator("html")).not.toHaveClass(/dark/);
 });
 
+test("homepage article links stay within the configured base path", async ({
+  page,
+}) => {
+  await page.goto(`${base}/`);
+  const articleLinks = page.locator('a[href*="/articles/"]');
+
+  expect(await articleLinks.count()).toBeGreaterThan(0);
+  const hrefs = await articleLinks.evaluateAll((links) =>
+    links.map((link) => link.getAttribute("href"))
+  );
+  expect(hrefs.every((href) => href !== null && !href.startsWith("//"))).toBe(
+    true
+  );
+
+  await articleLinks.first().click();
+  await expect
+    .poll(() => new URL(page.url()).pathname)
+    .toMatch(new RegExp(`^${base}/articles/`));
+});
+
 test("system dark preference is respected without an explicit saved theme", async ({
   page,
 }) => {
