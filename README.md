@@ -55,7 +55,10 @@ Local environment values can override the public URL/base path when needed:
 ```sh
 SITE_URL=http://localhost:4321
 BASE_PATH=/
+FILTER_DRAFT_ARTICLES=false
 ```
+
+`FILTER_DRAFT_ARTICLES=true` excludes `draft: true` entries from generated article routes. It is opt-in and currently left disabled; #36 owns the production publication policy and any future default change.
 
 ## Content and presentation
 
