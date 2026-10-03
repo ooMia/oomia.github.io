@@ -10,6 +10,7 @@ The Site consumes canonical content from `ooMia/oomia.github.io.docs` through th
 - `packages/md`: Markdown/MDX processing owned by this Site codebase
 - `packages/ui`: shared Site UI components
 - `docs/content-consumption-contract.md`: observable input, rendering and publishability boundary
+- `docs/presentation-foundation.md`: layout, typography, theme and presentation baseline
 - `.github/workflows/deploy.yaml`: build verification and GitHub Pages delivery
 
 Engine is optional and is not a Site runtime dependency. A canonical Docs revision is publishable only when the actual Site consumer accepts and builds it.
@@ -45,8 +46,8 @@ SITE_URL=http://localhost:4321
 BASE_PATH=/
 ```
 
-## Content and delivery
+## Content and presentation
 
-See [Content consumption contract](docs/content-consumption-contract.md) for the current consumer boundary.
+See [Content consumption contract](docs/content-consumption-contract.md) for the input/publishability boundary and [Site presentation foundation](docs/presentation-foundation.md) for the current layout, typography, theme and authoring-neutral presentation baseline.
 
-Pull requests to `develop` verify the production build path without mutating live GitHub Pages. Live deployment is reserved for the release branch path.
+Repository integration and release behavior is defined by the live repository workflows and current Git history; do not infer current branch topology from older release snapshots.
