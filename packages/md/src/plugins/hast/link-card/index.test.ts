@@ -50,15 +50,12 @@ describe("link card", () => {
     expect(html).toContain("this article");
   });
 
-  test(
-    "keeps a standalone link without metadata as an ordinary anchor",
-    async () => {
-      const html = await render("<https://example.org/unknown>");
+  test("keeps missing metadata as an ordinary anchor", async () => {
+    const html = await render("<https://example.org/unknown>");
 
-      expect(html).not.toContain('class="link-card"');
-      expect(html).toContain('href="https://example.org/unknown"');
-    }
-  );
+    expect(html).not.toContain('class="link-card"');
+    expect(html).toContain('href="https://example.org/unknown"');
+  });
 
   test("keeps an internal link as an ordinary anchor", async () => {
     const html = await render("[Local](/articles/local)");
