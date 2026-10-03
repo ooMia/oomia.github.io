@@ -21,22 +21,33 @@ Initialize the canonical content submodule and install dependencies:
 
 ```sh
 git submodule update --init --recursive
-pnpm install --frozen-lockfile
+vp install --frozen-lockfile
 ```
 
-Run the repository checks through the existing workspace scripts:
+Run the current consumer checks:
 
 ```sh
-pnpm lint
-pnpm test
-pnpm typecheck
-pnpm build
+vp exec --filter web -- astro sync
+vp check
+vp test
+vp run --filter web typecheck
+vp run --filter @workspace/ui typecheck
+vp run --filter web build
 ```
+
+For browser verification against the built corpus:
+
+```sh
+vp exec --filter web -- playwright install chromium
+vp run --filter web test:presentation
+```
+
+An installed Chrome can be used with `PLAYWRIGHT_CHANNEL=chrome`. Browser tests cover desktop/mobile TOC, theme persistence, Callout/LinkCard, static reading and the current corpus. See [rendered Evidence and known limits](docs/evidence/c1-w4-presentation/README.md).
 
 For local web development:
 
 ```sh
-pnpm dev
+vp run --filter web dev
 ```
 
 Local environment values can override the public URL/base path when needed:
@@ -50,4 +61,6 @@ BASE_PATH=/
 
 See [Content consumption contract](docs/content-consumption-contract.md) for the input/publishability boundary and [Site presentation foundation](docs/presentation-foundation.md) for the current layout, typography, theme and authoring-neutral presentation baseline.
 
-Repository integration and release behavior is defined by the live repository workflows and current Git history; do not infer current branch topology from older release snapshots.
+The current development-branch script defaults to `main`. PRs targeting `main` run Promotion validation; PRs targeting `develop` run the build job. Pages delivery runs only on `main` push or explicit workflow dispatch. These behaviors are owned by the live workflow/script, and a successful PR validation is not a deployment.
+
+Articles use a shared Fumadocs HomeLayout/provider island, Site-owned ArticleFrame, DocsBody typography and a compact top TOC. Canonical Markdown/MDX and `@workspace/md` stay unchanged. Metadata/publication alignment (#36) and homepage discovery (#37) remain separate work.

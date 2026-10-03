@@ -87,7 +87,7 @@ Fumadocs를 도입하기 위해 canonical Docs, Astro collection 또는 기존 M
 
 **Fumadocs `HomeLayout` + Site-owned article composition**을 baseline으로 한다.
 
-HomeLayout은 navbar 중심의 얇은 Site shell로 사용한다. `DocsLayout`과 `NotebookLayout`은 documentation-style sidebar/page-tree를 기본 전제로 하기 때문에 현재 Writing/blog 중심 corpus의 baseline으로 채택하지 않는다.
+HomeLayout은 navbar 중심의 얇은 Site shell로 사용한다. `SiteFrame`은 공식 header slot을 사용해 mobile에서도 theme control과 GitHub link를 직접 노출한다. 기본 mobile menu는 이 corpus에 필요하지 않다. `DocsLayout`과 `NotebookLayout`은 documentation-style sidebar/page-tree를 기본 전제로 하기 때문에 현재 Writing/blog 중심 corpus의 baseline으로 채택하지 않는다.
 
 재검토 조건:
 
@@ -96,21 +96,21 @@ HomeLayout은 navbar 중심의 얇은 Site shell로 사용한다. `DocsLayout`�
 
 ### Article layout
 
-article은 Site-owned `ArticleLayout` composition을 사용한다.
+article은 Site-owned React `ArticleFrame` composition을 사용한다.
 
 개념적 구조:
 
 ```text
 RootProvider
 └─ HomeLayout
-   └─ ArticleLayout
+   └─ ArticleFrame
       ├─ ArticleHeader
-      ├─ ArticleTOC
+      ├─ AnchorProvider + ArticleTOC
       └─ DocsBody
          └─ rendered article content
 ```
 
-Fumadocs `DocsPage`는 필요한 primitive/slot이 ArticleLayout의 유지보수를 유의미하게 줄일 때 선택적으로 사용할 수 있다. breadcrumb, documentation footer, permanent side TOC 같은 DocsPage 기본 기능을 필요 없이 도입하지 않는다.
+Fumadocs `DocsPage`는 필요한 primitive/slot이 ArticleFrame의 유지보수를 유의미하게 줄일 때 선택적으로 사용할 수 있다. breadcrumb, documentation footer, permanent side TOC 같은 DocsPage 기본 기능을 필요 없이 도입하지 않는다.
 
 ### Article typography
 
@@ -118,7 +118,7 @@ Fumadocs `DocsBody`를 baseline typography owner로 사용한다.
 
 목표는 기존 `notion.css`처럼 Site가 heading, paragraph, table, blockquote 등의 전체 typography system을 직접 유지하는 것을 피하는 것이다.
 
-현재 임시 Notion presentation은 제거 대상이다.
+Notion-specific presentation은 사용하지 않는다. 다음 legacy implementation은 제거했다.
 
 - `notion.css`
 - hard-coded Notion cover
@@ -176,10 +176,13 @@ behavior:
 
 - 현재 active heading을 표시한다.
 - 사용자가 전체 outline을 열 수 있다.
-- heading 선택 시 해당 anchor로 이동한다.
+- heading 선택 시 해당 anchor로 이동하고 outline을 닫는다.
+- native `details`/`summary`를 사용하며 Enter로 열고 Escape로 닫을 수 있다.
+- heading이 없으면 TOC를 렌더링하지 않는다.
+- JavaScript 없이도 본문과 native outline/anchor navigation을 사용할 수 있다.
 - mobile에서는 같은 정보 구조를 compact popover/dropdown 형태로 제공할 수 있다.
 
-active heading 추적은 custom observer를 먼저 만들지 않고 Fumadocs Core TOC의 headless primitives를 우선 사용한다. 해당 API는 Intersection Observer 기반 active anchor tracking을 제공한다.
+active heading 추적은 Fumadocs Core `AnchorProvider`, `useActiveAnchor`, `TOCItem`이 소유한다. `single` 모드를 사용하고 Astro render headings를 `{ depth, title, url }`로 전달한다. Site는 별도 IntersectionObserver를 유지하지 않는다. navbar 3.5rem 아래에 TOC를 고정하고 heading의 scroll margin으로 두 control의 높이를 확보한다.
 
 TOC의 정확한 visual control은 기본값 또는 작은 implementation choice로 취급한다. architecture decision으로 고정하지 않는다.
 
@@ -187,31 +190,19 @@ TOC의 정확한 visual control은 기본값 또는 작은 implementation choice
 
 현재 shadcn `aria-nova`의 palette와 visual style은 보존 의무가 없다.
 
-다만 Fumadocs와 기존 Site UI를 하나의 token architecture로 운용하기 위해 **shadcn-compatible Fumadocs theme path를 첫 baseline**으로 사용한다.
+Fumadocs `shadcn.css` preset과 기존 neutral shadcn tokens를 사용한다. 같은 canonical article에서 Fumadocs-native `neutral.css`도 light/dark로 렌더링해 비교했다. 두 경로 모두 읽을 수 있었지만 native preset은 Fumadocs 전용 color set과 `packages/ui`의 tokens를 별도로 유지하게 된다. shadcn preset은 두 component group이 하나의 token set을 소비하므로 추가 palette adapter 없이 cohesion을 유지한다.
 
-구현 비교 우선순위:
-
-1. 현재/새 shadcn token set + Fumadocs `shadcn.css` preset
-2. Fumadocs maintained theme preset
-3. 필요한 경우 최소 custom override
-
-선택 기준:
-
-- Fumadocs component와 existing Site component의 cohesion
-- light/dark consistency
-- custom CSS 양
-- upgrade/maintenance cost
-- article readability
-
-palette 자체는 representative article을 보고 임의의 합리적인 기본값을 선택해도 된다.
+선택 근거와 representative render는 [C1-W4 Evidence](evidence/c1-w4-presentation/README.md)에 남긴다. palette 자체는 유지 의무가 없으며 readability나 maintenance 측면에서 더 좋은 선택이 확인되면 변경할 수 있다.
 
 ### Theme state
 
-Fumadocs RootProvider가 Astro integration에서 theme lifecycle을 안정적으로 소유할 수 있으면 이를 우선한다.
+`SiteFrame`의 Fumadocs Astro `RootProvider`가 theme lifecycle을 소유한다. Fumadocs의 theme switch를 public header slot에서 사용한다.
 
-- custom theme state code를 중복 유지하지 않는다.
-- Fumadocs theme hotkey는 개인 publishing Site에서 예상하지 못한 interaction을 피하기 위해 기본적으로 끈다.
-- 현재 custom `ThemeToggle` / MutationObserver / localStorage implementation은 parity가 확보되면 제거할 수 있다.
+- system preference와 saved preference를 적용한다.
+- explicit theme는 새로고침과 페이지 이동 후에도 유지된다.
+- theme hotkey는 `hotKey: false`로 끈다.
+- 별도의 custom ThemeToggle, initTheme, MutationObserver, localStorage runtime은 유지하지 않는다.
+- 한 페이지의 provider/layout/article/TOC를 하나의 React island에서 구성한다. Astro-rendered canonical body는 그 tree에 static child로 전달한다.
 
 ### CSS ownership
 
@@ -310,23 +301,23 @@ Astro `getCollection()`은 공식적으로 frontmatter filter와 `import.meta.en
 - UI component generator
 - custom design system framework
 
-## Implementation sequence
+## Implementation boundary
 
-C1-W4의 first vertical slice는 다음 순서를 따른다.
+| File / component                  | Responsibility                                                                          |
+| --------------------------------- | --------------------------------------------------------------------------------------- |
+| `RootLayout.astro`                | HTML/head/body, document title/description, app stylesheet                              |
+| `SiteFrame.tsx`                   | Astro RootProvider, HomeLayout, public header slot and shared theme controls            |
+| `ArticleFrame.tsx`                | `post.data` header, render-derived reading time, 48rem width, DocsBody and TOC provider |
+| `ArticleTOC.tsx`                  | native compact outline UI and Fumadocs active-anchor consumption                        |
+| `article.css`                     | small native Astro code-fence adapter; syntax highlighting remains Astro-owned          |
+| `apps/web/src/styles/global.css`  | workspace UI globals + Fumadocs shadcn/preset imports                                   |
+| `Callout.astro` / `link-card.css` | component-owned tone/visual boundary; existing render semantics preserved               |
 
-1. Fumadocs Astro/React island dependency and provider boundary 연결
-2. theme preset을 representative article에 적용
-3. HomeLayout 기반 global shell 연결
-4. Site-owned ArticleLayout 생성
-5. `post.data` 기반 title/description 전달
-6. DocsBody로 actual canonical article rendering
-7. Notion-specific presentation 제거
-8. existing Callout/LinkCard regression 확인
-9. Fumadocs headless TOC로 top TOC vertical slice
-10. mobile/light/dark representative verification
-11. current article corpus sync/typecheck/test/build
+Only `fumadocs-core` and `fumadocs-ui` are added as runtime presentation dependencies. `@playwright/test` is a development-only browser validation dependency. Fumadocs Source, search, OG and MDX processing are not introduced.
 
-visual 세부값은 이 baseline을 깨지 않는 범위에서 구현자가 합리적인 기본값을 선택할 수 있다.
+The homepage uses the same SiteFrame; its discovery structure remains #37. Production draft filtering and broader metadata/publication changes remain #36.
+
+Browser regressions and reproducible commands are documented in [C1-W4 Evidence](evidence/c1-w4-presentation/README.md). Build/render evidence applies to the linked revision, not to an assumed deployment.
 
 ## Revisit rules
 
