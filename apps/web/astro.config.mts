@@ -55,16 +55,6 @@ const reactConfig: AstroUserConfig = {
 
 const integrations = [sitemapConfig, markdownExConfig, reactConfig];
 
-// https://docs.astro.build/ko/reference/configuration-reference/#이미지-옵션
-const image: AstroUserConfig["image"] = {
-  remotePatterns: [
-    {
-      protocol: "https",
-      hostname: "app.notion.com",
-    },
-  ],
-};
-
 const vite: AstroUserConfig["vite"] = {
   plugins: [tailwindcss()],
 };
@@ -81,7 +71,6 @@ export default defineConfig(
       site,
       base,
       output: "static",
-      image,
       vite,
       prefetch: {
         prefetchAll: true,

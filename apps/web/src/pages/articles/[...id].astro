@@ -21,6 +21,11 @@ type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 const { post } = Astro.props as Props;
 const article = await render(post);
+const toc = article.headings.map((heading) => ({
+  depth: heading.depth,
+  title: heading.text,
+  url: "#" + heading.slug,
+}));
 ---
 
 <RootLayout {...post.data}>
@@ -32,6 +37,7 @@ const article = await render(post);
     readingMinutes={Math.ceil(
       article.remarkPluginFrontmatter.readingTime.minutes,
     )}
+    {toc}
     client:load
   >
     <article.Content components={{ Callout }} />

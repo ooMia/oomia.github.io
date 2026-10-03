@@ -1,0 +1,13 @@
+/* Astro owns code highlighting; bridge its native pre/code markup to DocsBody. */
+.article-body .astro-code {
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.article-body .astro-code > code {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+}
