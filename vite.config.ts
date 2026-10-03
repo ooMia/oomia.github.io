@@ -45,6 +45,7 @@ export default defineConfig({
       "**/node_modules/",
       "apps/web/dist/",
       "apps/web/.astro/",
+      "apps/web/data/articles/",
     ],
   },
 });
