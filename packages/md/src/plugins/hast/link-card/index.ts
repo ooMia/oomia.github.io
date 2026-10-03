@@ -28,9 +28,7 @@ function textElement(className: string, value: string) {
   };
 }
 
-export default function linkCard(
-  resolve: LinkCardResolver
-): HastPluginEntry {
+export default function linkCard(resolve: LinkCardResolver): HastPluginEntry {
   return {
     name: "link-card",
     element: {
