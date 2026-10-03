@@ -2,11 +2,17 @@
 
 Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. Engine의 파일 수정 계약과 분리한다. 이 문서는 관찰 가능한 소비 경계와 검증 원칙을 설명하며, 실제 지원 syntax·component·schema의 세부 정의는 Site가 사용하는 코드와 package가 소유한다.
 
+Site의 layout·typography·theme·navigation 같은 presentation 정책은 [Site presentation foundation](presentation-foundation.md)이 소유한다. 소비 계약은 특정 presentation library나 visual layout을 publishability의 선행 조건으로 만들지 않는다.
+
 ## 현재 소비 경계
 
-현재 develop 기준 [content.config.ts](../apps/web/src/content.config.ts)는 `data/articles`의 Markdown/MDX를 읽고 title·description·author를 요구한다. draft·pubDate·updatedDate는 optional이다. 정확한 필드 타입과 author reference는 해당 schema가 소유한다. 이 문서 변경으로 loader, renderer, 입력 콘텐츠 또는 배포를 변경하지 않는다.
+현재 구현의 [content.config.ts](../apps/web/src/content.config.ts)는 `data/articles`의 Markdown/MDX를 읽고 title·description·author를 요구한다. draft·pubDate·updatedDate는 optional이다. 정확한 필드 타입과 author reference는 해당 schema가 소유한다.
 
-[Engine 수정 계약](https://github.com/ooMia/oomia.github.io.engine/blob/develop/docs/content-modification-contract.md)은 후처리 시 파일을 수정·보존하는 방법을 소유한다. 이 링크는 참고용이며 입력 생산 도구에 대한 의존성이 아니다. Site는 Docs 파일을 자신의 입력 계약에 따라 기계적으로 렌더링하며 Engine 내부 처리나 처리 이력을 알 필요가 없다. Site의 소비 실패는 Engine이 원문을 삭제하거나 자동으로 고칠 권한이 되지 않는다.
+Article route identity는 `post.id`이고 visible title/description은 `post.data`에서 소비한다. reading time/headings는 기존 Astro + `@workspace/md` render result가 제공한다. 이 결과를 Fumadocs presentation island에 전달하며 content discovery나 processing owner는 바꾸지 않는다.
+
+현재 article route는 `FILTER_DRAFT_ARTICLES=true`일 때만 `draft: true` entry를 제외한다. 플래그는 opt-in이며 현재 기본값/Pages 설정은 비활성 상태이므로 dev/production 모두 전체 collection을 계속 소비한다. 목표 draft semantics인 dev visible / production `draft: true` 제외의 활성화 정책과 listing/route 정렬은 [#36](https://github.com/ooMia/oomia.github.io/issues/36)이 소유한다.
+
+[Engine 수정 계약](https://github.com/ooMia/oomia.github.io.engine/blob/main/docs/content-modification-contract.md)은 후처리 시 파일을 수정·보존하는 방법을 소유한다. 이 링크는 참고용이며 입력 생산 도구에 대한 의존성이 아니다. Site는 Docs 파일을 자신의 입력 계약에 따라 기계적으로 렌더링하며 Engine 내부 처리나 처리 이력을 알 필요가 없다. Site의 소비 실패는 Engine이 원문을 삭제하거나 자동으로 고칠 권한이 되지 않는다.
 
 ## Publishing
 
@@ -48,6 +54,14 @@ component를 사용하는 경우 **renderer와 authoring integration이 동일�
 
 따라서 별도의 cross-repository manifest는 현재 필수 artifact가 아니다. 실제 implementation package와 adapter가 계약을 충분히 표현하면 코드가 문서를 대체할 수 있다.
 
+## Authoring-neutral enhancement
+
+canonical source는 특정 presentation framework에 종속되지 않는 Markdown/GFM 표현을 우선한다.
+
+rich presentation이 필요할 때는 source 의미를 유지할 수 있다면 Markdown convention을 `@workspace/md`의 MDAST/HAST stage에서 semantic component로 변환하는 방식을 우선 검토한다. explicit MDX component는 native Markdown/convention으로 의미를 충분히 표현하기 어려울 때 사용할 수 있다.
+
+이 원칙은 모든 Markdown extension을 자동으로 지원한다는 계약이 아니다. 실제 supported syntax와 transformation은 parser/renderer implementation과 tests가 소유한다.
+
 ## Publish validation 원칙
 
 Publish validation은 **현재 canonical files가 Site에서 안전하고 재현 가능하게 소비되는가**를 판정한다.
@@ -67,8 +81,8 @@ editor round-trip이나 특정 editor 실행 이력은 publish gate가 아니다
 
 Site는 이미 docs consumption → Astro build → GitHub Pages delivery Evidence가 있으므로 Engine과 달리 greenfield를 기본값으로 하지 않는다.
 
-- Astro structure는 유지 가능
-- Fumadocs integration은 incremental하게 적용한다.
+- 기존 Astro content collection과 rendering boundary를 불필요하게 교체하지 않는다.
+- Fumadocs integration은 incremental하게 적용하고 presentation baseline은 [Site presentation foundation](presentation-foundation.md)에서 관리한다.
 - authoring UI가 필요하면 현재 Site repository 안에서 구현할 수 있으나, editor 종류는 Site consumer contract 자체의 전제 조건이 아니다.
 - component integration은 별도 planning manifest보다 실제 package/code와 tests를 우선한다.
 - generic `packages/ui`, `packages/md` 등 기존 package 경계는 실제 책임과 맞는지 integration 과정에서 재검토한다.
@@ -84,4 +98,3 @@ Turbo는 즉시 삭제하지 않지만 새 workflow가 Turbo dependency를 확�
 - [Site Issue #10](https://github.com/ooMia/oomia.github.io/issues/10)
 - [Knowledge coordination](https://github.com/ooMia/oomia.github.io.knowledge/issues/10)
 - 초기 이관 내용의 provenance는 관련 PR/Git history에 남긴다. 현재 소비 계약의 원본은 이 문서와 실제 Site code/package다.
-- 교차 레포 링크는 이관 branch를 가리킨다. 각 PR 통합 뒤 실제 원본 위치로 갱신한다.

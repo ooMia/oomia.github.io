@@ -10,6 +10,7 @@
     "lint": "eslint",
     "preview": "astro preview",
     "sync": "astro sync",
+    "test:presentation": "playwright test",
     "typecheck": "astro check"
   },
   "dependencies": {
@@ -19,6 +20,8 @@
     "@workspace/ui": "workspace:*",
     "astro": "catalog:",
     "es-toolkit": "catalog:",
+    "fumadocs-core": "^16.15.18",
+    "fumadocs-ui": "^16.15.18",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "sharp": "^0.35.4"
@@ -26,6 +29,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "catalog:",
     "@types/react": "catalog:react19",

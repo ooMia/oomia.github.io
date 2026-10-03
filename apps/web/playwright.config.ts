@@ -1,0 +1,31 @@
+import { defineConfig } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests",
+  testMatch: "**/*.e2e.ts",
+  fullyParallel: false,
+  workers: 1,
+  reporter: [["list"], ["html", { open: "never" }]],
+  use: {
+    baseURL: process.env["PRESENTATION_URL"] ?? "http://127.0.0.1:4321",
+    channel: process.env["PLAYWRIGHT_CHANNEL"],
+    colorScheme: "light",
+    trace: "retain-on-failure",
+  },
+  projects: [
+    { name: "desktop", use: { viewport: { width: 1440, height: 1000 } } },
+    {
+      name: "mobile",
+      use: {
+        viewport: { width: 390, height: 844 },
+        isMobile: true,
+        hasTouch: true,
+      },
+    },
+  ],
+  webServer: {
+    command: "node tests/preview.mjs",
+    url: "http://127.0.0.1:4321",
+    reuseExistingServer: !process.env["CI"],
+  },
+});

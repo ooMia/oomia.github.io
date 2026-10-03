@@ -8,7 +8,6 @@ import { defineConfig } from "astro/config";
 import { mergeWith } from "es-toolkit";
 
 import resolveLinkCardData from "@/lib/content/link-card";
-import initTheme from "@/lib/hooks/theme";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
 const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
@@ -51,20 +50,10 @@ const markdownExConfig: AstroUserConfig = {
 
 // https://docs.astro.build/en/guides/integrations-guide/react/
 const reactConfig: AstroUserConfig = {
-  integrations: [react(), initTheme()],
+  integrations: [react()],
 };
 
 const integrations = [sitemapConfig, markdownExConfig, reactConfig];
-
-// https://docs.astro.build/ko/reference/configuration-reference/#이미지-옵션
-const image: AstroUserConfig["image"] = {
-  remotePatterns: [
-    {
-      protocol: "https",
-      hostname: "app.notion.com",
-    },
-  ],
-};
 
 const vite: AstroUserConfig["vite"] = {
   plugins: [tailwindcss()],
@@ -82,7 +71,6 @@ export default defineConfig(
       site,
       base,
       output: "static",
-      image,
       vite,
       prefetch: {
         prefetchAll: true,
