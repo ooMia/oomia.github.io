@@ -10,7 +10,7 @@ Site의 layout·typography·theme·navigation 같은 presentation 정책은 [Sit
 
 Article route identity는 `post.id`이고 visible title/description은 `post.data`에서 소비한다. reading time/headings는 기존 Astro + `@workspace/md` render result가 제공한다. 이 결과를 Fumadocs presentation island에 전달하며 content discovery나 processing owner는 바꾸지 않는다.
 
-현재 구현은 dev/production 모두 전체 collection을 소비한다. 목표 draft semantics인 dev visible / production `draft: true` 제외는 [#36](https://github.com/ooMia/oomia.github.io/issues/36)에서 corpus의 publish state와 함께 적용한다. presentation 도입 자체로 draft filtering을 완료한 것으로 판정하지 않는다.
+현재 article route는 `FILTER_DRAFT_ARTICLES=true`일 때만 `draft: true` entry를 제외한다. 플래그는 opt-in이며 현재 기본값/Pages 설정은 비활성 상태이므로 dev/production 모두 전체 collection을 계속 소비한다. 목표 draft semantics인 dev visible / production `draft: true` 제외의 활성화 정책과 listing/route 정렬은 [#36](https://github.com/ooMia/oomia.github.io/issues/36)이 소유한다.
 
 [Engine 수정 계약](https://github.com/ooMia/oomia.github.io.engine/blob/main/docs/content-modification-contract.md)은 후처리 시 파일을 수정·보존하는 방법을 소유한다. 이 링크는 참고용이며 입력 생산 도구에 대한 의존성이 아니다. Site는 Docs 파일을 자신의 입력 계약에 따라 기계적으로 렌더링하며 Engine 내부 처리나 처리 이력을 알 필요가 없다. Site의 소비 실패는 Engine이 원문을 삭제하거나 자동으로 고칠 권한이 되지 않는다.
 
