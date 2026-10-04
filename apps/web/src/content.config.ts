@@ -1,6 +1,6 @@
-import { file, glob } from "astro/loaders";
+import { glob } from "astro/loaders";
 import { z } from "astro/zod";
-import { defineCollection, reference } from "astro:content";
+import { defineCollection } from "astro:content";
 
 const articles = defineCollection({
   loader: glob({
@@ -10,7 +10,7 @@ const articles = defineCollection({
   schema: z.looseObject({
     title: z.string(),
     description: z.string(),
-    author: reference("author"),
+    author: z.string(),
     tags: z.array(z.string()).optional(),
     aliases: z.array(z.string()).nullish(),
     date: z.coerce.date().optional(),
@@ -19,14 +19,4 @@ const articles = defineCollection({
   }),
 });
 
-const author = defineCollection({
-  loader: file("./data/author.json"),
-  schema: z.looseObject({
-    handle: z.string(),
-    name: z.string(),
-    profileUrl: z.url(),
-    email: z.string().email(),
-  }),
-});
-
-export const collections = { articles, author };
+export const collections = { articles };
