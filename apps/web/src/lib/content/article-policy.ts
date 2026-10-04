@@ -2,7 +2,7 @@ import type { ArticleMetadata } from "./article-metadata";
 
 export interface ArticleOrderKey {
   readonly id: string;
-  readonly publishedAt?: Date;
+  readonly publishedAt?: Date | undefined;
 }
 
 export function isArticleVisible(
