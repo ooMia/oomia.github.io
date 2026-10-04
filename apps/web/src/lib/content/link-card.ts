@@ -33,24 +33,23 @@ export function projectExternalLinkRecord(
     return undefined;
   }
 
+  const rawUrl = value["url"];
+  const rawTitle = value["title"];
+  const rawDescription = value["description"];
+
   const url =
-    typeof value.url === "string"
-      ? normalizeExternalHttpUrl(value.url)
-      : undefined;
-  const title = typeof value.title === "string" ? value.title.trim() : "";
+    typeof rawUrl === "string" ? normalizeExternalHttpUrl(rawUrl) : undefined;
+  const title = typeof rawTitle === "string" ? rawTitle.trim() : "";
 
   if (!url || !title) {
     return undefined;
   }
 
-  if (
-    value.description !== undefined &&
-    typeof value.description !== "string"
-  ) {
+  if (rawDescription !== undefined && typeof rawDescription !== "string") {
     return undefined;
   }
 
-  const description = value.description?.trim();
+  const description = rawDescription?.trim();
 
   return {
     url,
