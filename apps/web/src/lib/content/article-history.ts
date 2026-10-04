@@ -3,8 +3,8 @@ import { isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export interface ArticleGitHistory {
-  readonly firstAuthorDate?: Date;
-  readonly lastAuthorDate?: Date;
+  readonly firstAuthorDate: Date;
+  readonly lastAuthorDate: Date;
 }
 
 const appRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -72,9 +72,16 @@ export function readArticleGitHistory(
       return undefined;
     }
 
-    const history = {
-      firstAuthorDate: revisions.at(-1),
-      lastAuthorDate: revisions[0],
+    const firstAuthorDate = revisions.at(-1);
+    const lastAuthorDate = revisions[0];
+    if (!firstAuthorDate || !lastAuthorDate) {
+      cache.set(path, undefined);
+      return undefined;
+    }
+
+    const history: ArticleGitHistory = {
+      firstAuthorDate,
+      lastAuthorDate,
     };
     cache.set(path, history);
     return history;
