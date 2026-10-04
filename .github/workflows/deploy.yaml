@@ -39,6 +39,7 @@ jobs:
 
       - uses: withastro/action@v6
         with:
+          cache: false
           cache-dir: apps/web/node_modules/.astro
           out-dir: apps/web/dist
         env:
