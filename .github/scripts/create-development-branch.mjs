@@ -158,7 +158,7 @@ async function fetchProject(token, owner, number) {
   );
 
   const project = data.user?.projectV2;
-  if (!project) throw new Error(`Project not found: ${owner}/projects/${number}`);
+  if (!project)\n    throw new Error(`Project not found: ${owner}/projects/${number}`);
 
   const statusField = project.fields.nodes.find(
     (field) =>
@@ -213,7 +213,7 @@ async function findProjectItem(token, issueId, projectId) {
     const items = data.node?.projectItems;
     if (!items) throw new Error("Cannot verify Project membership.");
 
-    const matches = items.nodes.filter((item) => item.project?.id === projectId);
+    const matches = items.nodes.filter(\n      (item) => item.project?.id === projectId\n    );
     if (matches.length > 1) {
       throw new Error("Issue has multiple items in the same Project.");
     }
@@ -231,8 +231,7 @@ async function findProjectItem(token, issueId, projectId) {
 
 function statusOptionId(field, wanted) {
   const option = field.options.find(
-    (candidate) =>
-      candidate.name.toLowerCase() === String(wanted).toLowerCase()
+    (candidate) => candidate.name.toLowerCase() === String(wanted).toLowerCase()
   );
   if (!option) {
     throw new Error(
@@ -250,12 +249,7 @@ async function updateProjectStatus(token, project, itemId, status) {
   await graphql(
     token,
     `
-      mutation (
-        $project: ID!
-        $item: ID!
-        $field: ID!
-        $option: String!
-      ) {
+      mutation ($project: ID!, $item: ID!, $field: ID!, $option: String!) {
         updateProjectV2ItemFieldValue(
           input: {
             projectId: $project
@@ -445,9 +439,7 @@ async function main() {
     isArchived: beforeStatus.isArchived,
   });
 
-  if (
-    String(beforeStatus.status?.name ?? "").toLowerCase() !== "in progress"
-  ) {
+  if (String(beforeStatus.status?.name ?? "").toLowerCase() !== "in progress") {
     await updateProjectStatus(
       projectToken,
       project,
@@ -464,7 +456,8 @@ async function main() {
   if (
     !verifiedItem ||
     verifiedItem.isArchived ||
-    verifiedItem.iteration?.iterationId !== initialItem.iteration?.iterationId ||
+    verifiedItem.iteration?.iterationId !==
+      initialItem.iteration?.iterationId ||
     String(verifiedItem.status?.name ?? "").toLowerCase() !== "in progress"
   ) {
     throw new Error("Development start Project verification failed.");
