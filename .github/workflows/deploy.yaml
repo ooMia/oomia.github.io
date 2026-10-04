@@ -38,6 +38,85 @@ jobs:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
           submodules: recursive
 
+      - name: Inspect shallow checkout topology
+        shell: bash
+        run: |
+          set -euo pipefail
+          docs="apps/web/data/articles"
+          site_shallow="$(git rev-parse --is-shallow-repository)"
+          docs_shallow="$(git -C "$docs" rev-parse --is-shallow-repository)"
+          docs_head="$(git -C "$docs" rev-parse HEAD)"
+
+          echo "SITE_SHALLOW_BEFORE=$site_shallow" >> "$GITHUB_ENV"
+          echo "DOCS_SHALLOW_BEFORE=$docs_shallow" >> "$GITHUB_ENV"
+          echo "DOCS_HEAD_BEFORE=$docs_head" >> "$GITHUB_ENV"
+
+          test "$site_shallow" = "true"
+          test "$docs_shallow" = "true"
+
+          {
+            echo "## Docs history experiment"
+            echo
+            echo "- Site shallow before: `$site_shallow`"
+            echo "- Docs shallow before: `$docs_shallow`"
+            echo "- Docs HEAD before: `$docs_head`"
+            echo
+            echo "### Docs object store before"
+            echo '~~~text'
+            git -C "$docs" count-objects -vH
+            echo '~~~'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fetch full history for pinned Docs submodule only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C apps/web/data/articles fetch --unshallow --no-tags origin
+
+      - name: Verify Docs history without moving the pinned revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          docs="apps/web/data/articles"
+          site_shallow="$(git rev-parse --is-shallow-repository)"
+          docs_shallow="$(git -C "$docs" rev-parse --is-shallow-repository)"
+          docs_head="$(git -C "$docs" rev-parse HEAD)"
+
+          test "$site_shallow" = "true"
+          test "$docs_shallow" = "false"
+          test "$docs_head" = "$DOCS_HEAD_BEFORE"
+
+          {
+            echo "- Site shallow after: `$site_shallow`"
+            echo "- Docs shallow after: `$docs_shallow`"
+            echo "- Docs HEAD after: `$docs_head`"
+            echo
+            echo "### Representative article history"
+
+            for file in               content/articles/tech/java/Pattern.md               content/articles/tech/log/woowa-precourse-utility.mdx
+            do
+              newest="$(git -C "$docs" log --follow --no-merges -1 --format=%aI -- "$file")"
+              oldest="$(git -C "$docs" log --follow --no-merges --format=%aI -- "$file" | tail -n 1)"
+              count="$(git -C "$docs" log --follow --no-merges --format=%H -- "$file" | wc -l | tr -d ' ')"
+
+              test -n "$newest"
+              test -n "$oldest"
+
+              echo "- `$file`: revisions=`$count`, first=`$oldest`, last=`$newest`"
+            done
+
+            echo
+            echo "### Rename/history-follow sample"
+            echo '~~~text'
+            git -C "$docs" log               --follow               --no-merges               --name-status               --format='commit %H %aI %s'               -- content/articles/tech/java/Pattern.md
+            echo '~~~'
+            echo
+            echo "### Docs object store after"
+            echo '~~~text'
+            git -C "$docs" count-objects -vH
+            echo '~~~'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - uses: pnpm/setup@v3
         with:
           cache: false
