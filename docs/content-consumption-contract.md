@@ -6,11 +6,22 @@ Site의 layout·typography·theme·navigation 같은 presentation 정책은 [Sit
 
 ## 현재 소비 경계
 
-현재 구현의 [content.config.ts](../apps/web/src/content.config.ts)는 `data/articles`의 Markdown/MDX를 읽고 title·description·author를 요구한다. draft·pubDate·updatedDate는 optional이다. 정확한 필드 타입과 author reference는 해당 schema가 소유한다.
+현재 구현의 [content.config.ts](../apps/web/src/content.config.ts)는 `data/articles/content/articles/**/*.{md,mdx}`를 Article collection으로 읽는다. canonical source에서 `title / description / author`는 필수이며 `tags / aliases / date / updatedDate / draft`는 optional이다. source field 이름과 public presentation model은 [article-metadata.ts](../apps/web/src/lib/content/article-metadata.ts)의 adapter에서 분리한다.
 
-Article route identity는 `post.id`이고 visible title/description은 `post.data`에서 소비한다. reading time/headings는 기존 Astro + `@workspace/md` render result가 제공한다. 이 결과를 Fumadocs presentation island에 전달하며 content discovery나 processing owner는 바꾸지 않는다.
+public article model은 다음 의미를 사용한다.
 
-현재 article route는 `FILTER_DRAFT_ARTICLES=true`일 때만 `draft: true` entry를 제외한다. 플래그는 opt-in이며 현재 기본값/Pages 설정은 비활성 상태이므로 dev/production 모두 전체 collection을 계속 소비한다. 목표 draft semantics인 dev visible / production `draft: true` 제외의 활성화 정책과 listing/route 정렬은 [#36](https://github.com/ooMia/oomia.github.io/issues/36)이 소유한다.
+- `publishedAt`: explicit `date`가 우선이며, 없을 때만 Docs Git history의 earliest non-merge author revision을 fallback으로 사용한다.
+- `updatedAt`: explicit `updatedDate`가 우선이며, 없을 때만 Docs Git history의 latest non-merge author revision을 fallback으로 사용한다.
+- Git fallback은 full/reliable Docs history를 읽을 수 있을 때만 사용하고, 불가능하면 값을 만들지 않는다.
+- author source value는 single-author Site identity로 case-insensitive하게 매핑한다. 현재 canonical corpus의 `oomia`와 article template의 `ooMia`를 같은 author로 취급한다.
+- authored tag casing/order와 aliases는 보존한다. aliases는 현재 public route를 만들지 않는다.
+- reading time/headings는 canonical frontmatter가 아니라 기존 Astro + `@workspace/md` render result에서 파생한다.
+
+Article route와 homepage collection access는 [articles.ts](../apps/web/src/lib/content/articles.ts)의 동일한 visibility/order policy를 소비한다. `FILTER_DRAFT_ARTICLES=true`일 때만 `draft: true` entry를 제외하며, unset/false에서는 draft를 계속 포함한다. 현재 Pages/default는 filtering OFF다.
+
+listing order는 `publishedAt` descending, missing date last, article id ascending tie-break로 deterministic하게 유지한다. route identity는 계속 Astro collection `entry.id`이며 aliases를 URL alias로 해석하지 않는다.
+
+Git-derived fallback을 위해 CI는 parent Site checkout을 shallow로 유지하고, pinned `apps/web/data/articles` submodule만 full history로 확장한다. history fetch 전후 Docs HEAD가 같아야 하며 submodule pointer를 이동하지 않는다. 이 전제는 [#42](https://github.com/ooMia/oomia.github.io/issues/42)의 Actions Evidence로 검증했다.
 
 [Engine 수정 계약](https://github.com/ooMia/oomia.github.io.engine/blob/main/docs/content-modification-contract.md)은 후처리 시 파일을 수정·보존하는 방법을 소유한다. 이 링크는 참고용이며 입력 생산 도구에 대한 의존성이 아니다. Site는 Docs 파일을 자신의 입력 계약에 따라 기계적으로 렌더링하며 Engine 내부 처리나 처리 이력을 알 필요가 없다. Site의 소비 실패는 Engine이 원문을 삭제하거나 자동으로 고칠 권한이 되지 않는다.
 
