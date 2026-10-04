@@ -3,6 +3,8 @@ import type { TOCItemType } from "fumadocs-core/toc";
 import { AnchorProvider } from "fumadocs-core/toc";
 import { DocsBody } from "fumadocs-ui/layouts/docs/page";
 
+import type { ArticleAuthor } from "@/lib/content/article-metadata";
+
 import type { SiteFrameProps } from "./SiteFrame";
 
 import { ArticleTOC } from "./ArticleTOC";
@@ -12,13 +14,28 @@ import "./article.css";
 interface ArticleFrameProps extends SiteFrameProps {
   title: string;
   description: string;
+  author: ArticleAuthor;
+  publishedAt?: string;
+  updatedAt?: string;
+  tags: string[];
   readingMinutes: number;
   toc: TOCItemType[];
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    dateStyle: "medium",
+    timeZone: "Asia/Seoul",
+  }).format(new Date(value));
 }
 
 export function ArticleFrame({
   title,
   description,
+  author,
+  publishedAt,
+  updatedAt,
+  tags,
   readingMinutes,
   toc,
   children,
@@ -32,9 +49,40 @@ export function ArticleFrame({
             {title}
           </h1>
           <p className="text-lg text-fd-muted-foreground">{description}</p>
-          <p className="text-sm text-fd-muted-foreground">
-            {readingMinutes} min read
-          </p>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-fd-muted-foreground">
+            <a
+              className="font-medium text-fd-foreground underline-offset-4 hover:underline"
+              href={author.profileUrl}
+              rel="author"
+            >
+              {author.handle}
+            </a>
+            {publishedAt ? (
+              <span>
+                Published{" "}
+                <time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
+              </span>
+            ) : null}
+            {updatedAt ? (
+              <span>
+                Updated{" "}
+                <time dateTime={updatedAt}>{formatDate(updatedAt)}</time>
+              </span>
+            ) : null}
+            <span>{readingMinutes} min read</span>
+          </div>
+          {tags.length > 0 ? (
+            <ul className="flex flex-wrap gap-2" aria-label="Tags">
+              {tags.map((tag) => (
+                <li
+                  key={tag}
+                  className="rounded-full border border-fd-border px-2.5 py-1 text-xs text-fd-muted-foreground"
+                >
+                  #{tag}
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </header>
         <AnchorProvider toc={toc} single>
           <ArticleTOC items={toc} />

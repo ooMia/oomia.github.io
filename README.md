@@ -58,7 +58,7 @@ BASE_PATH=/
 FILTER_DRAFT_ARTICLES=false
 ```
 
-`FILTER_DRAFT_ARTICLES=true` excludes `draft: true` entries from generated article routes. It is opt-in and currently left disabled; #36 owns the production publication policy and any future default change.
+`FILTER_DRAFT_ARTICLES=true` excludes `draft: true` entries from both article discovery and generated routes. It remains opt-in and is currently left disabled, so Pages continues to expose the canonical draft corpus.
 
 ## Content and presentation
 
@@ -66,4 +66,4 @@ See [Content consumption contract](docs/content-consumption-contract.md) for the
 
 Issue `opened`/`reopened` performs first Project #11 admission only. Manual Issue orchestration can replay admission idempotently or explicitly start Development; Development start requires a live Iteration commitment, creates or confirms the linked branch from `main`, and then materializes `In progress`. PRs targeting `main` run Promotion validation; PRs targeting `develop` run the build job. Pages delivery runs only on `main` push or explicit workflow dispatch. These behaviors are owned by the live workflow/script, and a successful PR validation is not a deployment.
 
-Articles use a shared Fumadocs HomeLayout/provider island, Site-owned ArticleFrame, DocsBody typography and a compact top TOC. Canonical Markdown/MDX and `@workspace/md` stay unchanged. Metadata/publication alignment (#36) and homepage discovery (#37) remain separate work.
+Articles use a shared Fumadocs HomeLayout/provider island, Site-owned ArticleFrame, DocsBody typography and a compact top TOC. Canonical `date / updatedDate / tags / aliases / draft / author` are adapted into one public ArticleMetadata model; reading time remains render-derived. CI keeps the parent Site checkout shallow and expands only the pinned Docs submodule history so Git can provide date fallbacks without moving the gitlink. Homepage discovery/visual design remains #37.

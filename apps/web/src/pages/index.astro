@@ -2,70 +2,66 @@
 import GravatarCard from "@/components/GravatarCard.astro";
 import { SiteFrame } from "@/components/presentation/SiteFrame";
 import RootLayout from "@/layouts/RootLayout.astro";
+import { formatArticleDate } from "@/lib/content/article-metadata";
+import { getArticleRecords } from "@/lib/content/articles";
 import render from "@/lib/content/render";
-import type { RenderResult } from "@/lib/content/types";
 import { withBasePath } from "@/lib/utils";
 import { LinkButton } from "@workspace/ui/components/button";
-import type { CodeLanguage } from "astro";
-import { Code as Shiki } from "astro:components";
-import { getCollection } from "astro:content";
 
-const Code = {
-  Component: Shiki,
-  props: {
-    lang: "ts" as CodeLanguage,
-    code: `interface ImportMetaEnv {
-  readonly GOOGLE_TAG_MANAGER_ID: string;
-}
+const articles = await getArticleRecords();
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}` as string,
-  },
-};
-
-const articles = await getCollection("articles");
-
-async function getReadingTime(post: RenderResult) {
-  const minutes = post.remarkPluginFrontmatter.readingTime.minutes;
-  return Math.ceil(minutes) + " min read";
+async function getReadingTime(entry: (typeof articles)[number]["entry"]) {
+  const post = await render(entry);
+  return Math.ceil(post.remarkPluginFrontmatter.readingTime.minutes);
 }
 ---
 
-<RootLayout title="" description="">
+<RootLayout title="ooMia" description="ooMia의 개발 기록">
   <SiteFrame
     pathname={Astro.url.pathname}
     homeUrl={import.meta.env.BASE_URL}
     client:load
   >
-    <div class="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
+    <main class="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
       <GravatarCard username="oomia6" />
 
-      <h1>최근 게시물</h1>
-      <ul>
-        {
-          articles.map(async (article) => {
-            const result = await render(article);
-            return (
-              <li>
-                <LinkButton
-                  href={withBasePath(
-                    `/articles/${article.id}/`,
-                    import.meta.env.BASE_URL,
-                  )}
-                >{`${article.data.title} by ${article.data.author.id} [${await getReadingTime(result)}]`}</LinkButton>
-              </li>
-            );
-          })
-        }
-      </ul>
+      <section class="mt-10">
+        <h1 class="text-2xl font-semibold tracking-tight">최근 게시물</h1>
+        <ul class="mt-5 space-y-5">
+          {
+            articles.map(async ({ entry, metadata }) => {
+              const readingMinutes = await getReadingTime(entry);
+              const publishedAt = formatArticleDate(metadata.publishedAt);
 
-      <h1>head1 헤드1</h1>
-      <h2>head2 헤드2</h2>
-      <h3>head3 헤드3</h3>
-      <h4>head4 헤드4</h4>
-
-      <Code.Component {...Code.props} />
-    </div>
+              return (
+                <li class="space-y-1.5">
+                  <LinkButton
+                    href={withBasePath(
+                      `/articles/${entry.id}/`,
+                      import.meta.env.BASE_URL,
+                    )}
+                  >
+                    {metadata.title}
+                  </LinkButton>
+                  <p class="text-sm text-fd-muted-foreground">
+                    {metadata.description}
+                  </p>
+                  <p class="text-xs text-fd-muted-foreground">
+                    {[publishedAt, `${readingMinutes} min read`]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                  {metadata.tags.length > 0 ? (
+                    <p class="text-xs text-fd-muted-foreground">
+                      {metadata.tags.map((tag) => `#${tag}`).join(" ")}
+                    </p>
+                  ) : null}
+                </li>
+              );
+            })
+          }
+        </ul>
+      </section>
+    </main>
   </SiteFrame>
 </RootLayout>

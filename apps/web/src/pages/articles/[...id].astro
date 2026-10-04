@@ -2,29 +2,23 @@
 import Callout from "@/components/Callout.astro";
 import { ArticleFrame } from "@/components/presentation/ArticleFrame";
 import RootLayout from "@/layouts/RootLayout.astro";
+import { getArticleRecords } from "@/lib/content/articles";
 import render from "@/lib/content/render";
 import "@/styles/link-card.css";
 import type { InferGetStaticPropsType } from "astro";
-import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const filterDraftArticles =
-    import.meta.env.FILTER_DRAFT_ARTICLES === "true";
-  const posts = await getCollection(
-    "articles",
-    ({ data }) => !filterDraftArticles || !data.draft,
-  );
-  return posts.map((post) => {
-    return {
-      params: { id: post.id },
-      props: { post },
-    };
-  });
+  const articles = await getArticleRecords();
+
+  return articles.map(({ entry, metadata }) => ({
+    params: { id: entry.id },
+    props: { post: entry, metadata },
+  }));
 }
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
-const { post } = Astro.props as Props;
+const { post, metadata } = Astro.props as Props;
 const article = await render(post);
 const toc = article.headings.map((heading) => ({
   depth: heading.depth,
@@ -33,12 +27,16 @@ const toc = article.headings.map((heading) => ({
 }));
 ---
 
-<RootLayout {...post.data}>
+<RootLayout title={metadata.title} description={metadata.description}>
   <ArticleFrame
     pathname={Astro.url.pathname}
     homeUrl={import.meta.env.BASE_URL}
-    title={post.data.title}
-    description={post.data.description}
+    title={metadata.title}
+    description={metadata.description}
+    author={metadata.author}
+    publishedAt={metadata.publishedAt?.toISOString()}
+    updatedAt={metadata.updatedAt?.toISOString()}
+    tags={[...metadata.tags]}
     readingMinutes={Math.ceil(
       article.remarkPluginFrontmatter.readingTime.minutes,
     )}
