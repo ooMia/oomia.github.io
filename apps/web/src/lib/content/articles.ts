@@ -2,33 +2,32 @@ import type { CollectionEntry } from "astro:content";
 
 import { getCollection } from "astro:content";
 
+import { readArticleGitHistory } from "./article-history";
 import {
   type ArticleMetadata,
-  getArticleMetadata,
+  mapArticleMetadata,
 } from "./article-metadata";
+import {
+  compareArticleMetadata,
+  isArticleVisible,
+} from "./article-policy";
 
 export interface ArticleRecord {
   readonly entry: CollectionEntry<"articles">;
   readonly metadata: ArticleMetadata;
 }
 
-export function isArticleVisible(draft: boolean | undefined, filterDraft: boolean) {
-  return !filterDraft || draft !== true;
-}
-
-export function compareArticleRecords(a: ArticleRecord, b: ArticleRecord) {
-  const aDate = a.metadata.publishedAt?.getTime();
-  const bDate = b.metadata.publishedAt?.getTime();
-
-  if (aDate !== undefined && bDate === undefined) return -1;
-  if (aDate === undefined && bDate !== undefined) return 1;
-  if (aDate !== undefined && bDate !== undefined && aDate !== bDate) {
-    return bDate - aDate;
-  }
-
-  if (a.entry.id < b.entry.id) return -1;
-  if (a.entry.id > b.entry.id) return 1;
-  return 0;
+export function toArticleRecord(
+  entry: CollectionEntry<"articles">,
+): ArticleRecord {
+  return {
+    entry,
+    metadata: mapArticleMetadata(
+      entry.id,
+      entry.data,
+      readArticleGitHistory(entry.filePath),
+    ),
+  };
 }
 
 export async function getArticleRecords({
@@ -40,12 +39,7 @@ export async function getArticleRecords({
     isArticleVisible(data.draft, filterDraft),
   );
 
-  const records = await Promise.all(
-    entries.map(async (entry) => ({
-      entry,
-      metadata: await getArticleMetadata(entry),
-    })),
-  );
-
-  return records.sort(compareArticleRecords);
+  return entries
+    .map(toArticleRecord)
+    .sort((a, b) => compareArticleMetadata(a.metadata, b.metadata));
 }
