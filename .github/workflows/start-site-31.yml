@@ -5,6 +5,7 @@ on:
     branches: [ops/start-site-31]
     paths:
       - .github/workflows/start-site-31.yml
+      - .github/scripts/commit-site-31-project.mjs
 
 permissions:
   contents: write
@@ -28,6 +29,16 @@ jobs:
           PROJECT_NUMBER: "11"
           ISSUE_NUMBER: "31"
         run: node .github/scripts/sync-project.mjs
+
+      - name: Commit Iteration and Todo status
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PROJECT_OWNER: ooMia
+          PROJECT_NUMBER: "11"
+          ISSUE_NUMBER: "31"
+          ITERATION_TITLE: "C1-W4 · Major Review"
+          STATUS_NAME: Todo
+        run: node .github/scripts/commit-site-31-project.mjs
 
       - name: Start linked Development work
         env:
