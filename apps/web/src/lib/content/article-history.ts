@@ -1,12 +1,14 @@
 import { execFileSync } from "node:child_process";
 import { isAbsolute, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export interface ArticleGitHistory {
   readonly firstAuthorDate?: Date;
   readonly lastAuthorDate?: Date;
 }
 
-const docsRoot = resolve("data/articles");
+const appRoot = fileURLToPath(new URL("../../../", import.meta.url));
+const docsRoot = resolve(appRoot, "data/articles");
 const cache = new Map<string, ArticleGitHistory | undefined>();
 
 function git(args: string[]) {
@@ -17,10 +19,21 @@ function git(args: string[]) {
 }
 
 export function toDocsRelativePath(filePath: string) {
-  const path = relative(docsRoot, resolve(filePath));
-  if (!path || path === "." || path.startsWith("..") || isAbsolute(path)) {
+  const sourcePath = isAbsolute(filePath)
+    ? filePath
+    : resolve(appRoot, filePath);
+  const path = relative(docsRoot, sourcePath);
+
+  if (
+    !path ||
+    path === "." ||
+    path === ".." ||
+    path.startsWith(`..${sep}`) ||
+    isAbsolute(path)
+  ) {
     return undefined;
   }
+
   return path.split(sep).join("/");
 }
 
