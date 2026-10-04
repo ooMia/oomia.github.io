@@ -3,14 +3,8 @@ import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 
 import { readArticleGitHistory } from "./article-history";
-import {
-  type ArticleMetadata,
-  mapArticleMetadata,
-} from "./article-metadata";
-import {
-  compareArticleMetadata,
-  isArticleVisible,
-} from "./article-policy";
+import { type ArticleMetadata, mapArticleMetadata } from "./article-metadata";
+import { compareArticleMetadata, isArticleVisible } from "./article-policy";
 
 export interface ArticleRecord {
   readonly entry: CollectionEntry<"articles">;
@@ -18,14 +12,14 @@ export interface ArticleRecord {
 }
 
 export function toArticleRecord(
-  entry: CollectionEntry<"articles">,
+  entry: CollectionEntry<"articles">
 ): ArticleRecord {
   return {
     entry,
     metadata: mapArticleMetadata(
       entry.id,
       entry.data,
-      readArticleGitHistory(entry.filePath),
+      readArticleGitHistory(entry.filePath)
     ),
   };
 }
@@ -36,7 +30,7 @@ export async function getArticleRecords({
   filterDraft?: boolean;
 } = {}): Promise<ArticleRecord[]> {
   const entries = await getCollection("articles", ({ data }) =>
-    isArticleVisible(data.draft, filterDraft),
+    isArticleVisible(data.draft, filterDraft)
   );
 
   return entries
