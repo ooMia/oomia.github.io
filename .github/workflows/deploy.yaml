@@ -121,6 +121,69 @@ jobs:
             echo '~~~'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Collect Docs history evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          docs="apps/web/data/articles"
+          evidence="docs-history-evidence.txt"
+
+          site_shallow="$(git rev-parse --is-shallow-repository)"
+          docs_shallow="$(git -C "$docs" rev-parse --is-shallow-repository)"
+          docs_head_after="$(git -C "$docs" rev-parse HEAD)"
+
+          test "$site_shallow" = "true"
+          test "$docs_shallow" = "false"
+          test "$docs_head_after" = "$DOCS_HEAD_BEFORE"
+
+          {
+            echo "site_shallow=$site_shallow"
+            echo "docs_shallow=$docs_shallow"
+            echo "docs_head_before=$DOCS_HEAD_BEFORE"
+            echo "docs_head_after=$docs_head_after"
+            echo
+            echo "[docs_object_store]"
+            git -C "$docs" count-objects -vH
+            echo
+            echo "[article_history]"
+
+            for file in \
+              content/articles/tech/java/Pattern.md \
+              content/articles/tech/log/woowa-precourse-utility.mdx
+            do
+              newest="$(git -C "$docs" log --follow --no-merges -1 --format=%aI -- "$file")"
+              oldest="$(git -C "$docs" log --follow --no-merges --format=%aI -- "$file" | tail -n 1)"
+              count="$(git -C "$docs" log --follow --no-merges --format=%H -- "$file" | wc -l | tr -d ' ')"
+
+              test -n "$newest"
+              test -n "$oldest"
+
+              echo "file=$file"
+              echo "revisions=$count"
+              echo "first_author_date=$oldest"
+              echo "last_author_date=$newest"
+              echo
+            done
+
+            echo "[pattern_follow_history]"
+            git -C "$docs" log \
+              --follow \
+              --no-merges \
+              --name-status \
+              --format='commit=%H author_date=%aI subject=%s' \
+              -- content/articles/tech/java/Pattern.md
+          } > "$evidence"
+
+          cat "$evidence"
+
+      - name: Upload Docs history evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-history-evidence
+          path: docs-history-evidence.txt
+          if-no-files-found: error
+          retention-days: 14
+
       - uses: pnpm/setup@v3
         with:
           cache: false
