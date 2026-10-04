@@ -251,7 +251,7 @@ async function findProjectItem(token, issueId, projectId) {
     const items = data.node?.projectItems;
     if (!items) throw new Error("Cannot verify existing Project membership.");
 
-    const matches = items.nodes.filter((item) => item.project?.id === projectId);
+    const matches = items.nodes.filter(\n      (item) => item.project?.id === projectId\n    );
     if (matches.length > 1) {
       throw new Error("Issue has multiple items in the same Project.");
     }
@@ -303,7 +303,9 @@ async function main() {
   // live lifecycle fields instead of replaying stale seed values.
   const existing = await findProjectItem(token, issue.id, project.id);
   if (existing) {
-    console.log("Existing Project item preserved; activation seed not replayed.");
+    console.log(
+      "Existing Project item preserved; activation seed not replayed."
+    );
     return;
   }
 
