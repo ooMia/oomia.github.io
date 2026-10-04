@@ -31,7 +31,7 @@ export function toArticleRecord(
 }
 
 export async function getArticleRecords({
-  filterDraft = import.meta.env.FILTER_DRAFT_ARTICLES === "true",
+  filterDraft = import.meta.env["FILTER_DRAFT_ARTICLES"] === "true",
 }: {
   filterDraft?: boolean;
 } = {}): Promise<ArticleRecord[]> {
