@@ -54,12 +54,16 @@ jobs:
           test "$site_shallow" = "true"
           test "$docs_shallow" = "true"
 
+          echo "site_shallow_before=$site_shallow"
+          echo "docs_shallow_before=$docs_shallow"
+          echo "docs_head_before=$docs_head"
+
           {
             echo "## Docs history experiment"
             echo
-            echo "- Site shallow before: `$site_shallow`"
-            echo "- Docs shallow before: `$docs_shallow`"
-            echo "- Docs HEAD before: `$docs_head`"
+            echo "- Site shallow before: $site_shallow"
+            echo "- Docs shallow before: $docs_shallow"
+            echo "- Docs HEAD before: $docs_head"
             echo
             echo "### Docs object store before"
             echo '~~~text'
