@@ -1,11 +1,4 @@
-import type { CollectionEntry } from "astro:content";
-
-import { getEntry } from "astro:content";
-
-import {
-  type ArticleGitHistory,
-  readArticleGitHistory,
-} from "./article-history";
+import type { ArticleGitHistory } from "./article-history";
 
 export interface ArticleAuthor {
   readonly id: string;
@@ -27,9 +20,10 @@ export interface ArticleMetadata {
   readonly aliases: readonly string[];
 }
 
-interface SourceArticleMetadata {
+export interface SourceArticleMetadata {
   readonly title: string;
   readonly description: string;
+  readonly author: string;
   readonly tags?: readonly string[] | null;
   readonly date?: Date;
   readonly updatedDate?: Date;
@@ -37,12 +31,13 @@ interface SourceArticleMetadata {
   readonly aliases?: readonly string[] | null;
 }
 
-interface SourceAuthorMetadata {
-  readonly handle: string;
-  readonly name: string;
-  readonly profileUrl: string;
-  readonly email: string;
-}
+export const SITE_AUTHOR: ArticleAuthor = {
+  id: "oomia",
+  handle: "ooMia",
+  name: "Hyeon-hak Kim",
+  profileUrl: "https://github.com/ooMia",
+  email: "dev@oomia.click",
+};
 
 export function resolveArticleDates(
   source: Pick<SourceArticleMetadata, "date" | "updatedDate">,
@@ -54,11 +49,17 @@ export function resolveArticleDates(
   };
 }
 
+export function resolveArticleAuthor(author: string): ArticleAuthor {
+  if (author.trim().toLowerCase() !== SITE_AUTHOR.id) {
+    throw new Error(`Unsupported article author: ${author}`);
+  }
+
+  return SITE_AUTHOR;
+}
+
 export function mapArticleMetadata(
   id: string,
   source: SourceArticleMetadata,
-  authorId: string,
-  author: SourceAuthorMetadata,
   history?: ArticleGitHistory,
 ): ArticleMetadata {
   const dates = resolveArticleDates(source, history);
@@ -67,38 +68,13 @@ export function mapArticleMetadata(
     id,
     title: source.title,
     description: source.description,
-    author: {
-      id: authorId,
-      handle: author.handle,
-      name: author.name,
-      profileUrl: author.profileUrl,
-      email: author.email,
-    },
+    author: resolveArticleAuthor(source.author),
     tags: source.tags ?? [],
     publishedAt: dates.publishedAt,
     updatedAt: dates.updatedAt,
     draft: source.draft === true,
     aliases: source.aliases ?? [],
   };
-}
-
-export async function getArticleMetadata(
-  entry: CollectionEntry<"articles">,
-): Promise<ArticleMetadata> {
-  const author = await getEntry(entry.data.author);
-  if (!author) {
-    throw new Error(
-      `Article "${entry.id}" references missing author "${entry.data.author.id}".`,
-    );
-  }
-
-  return mapArticleMetadata(
-    entry.id,
-    entry.data,
-    author.id,
-    author.data,
-    readArticleGitHistory(entry.filePath),
-  );
 }
 
 export function formatArticleDate(date: Date | undefined) {
