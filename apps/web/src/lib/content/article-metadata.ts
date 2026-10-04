@@ -14,8 +14,8 @@ export interface ArticleMetadata {
   readonly description: string;
   readonly author: ArticleAuthor;
   readonly tags: readonly string[];
-  readonly publishedAt?: Date;
-  readonly updatedAt?: Date;
+  readonly publishedAt: Date | undefined;
+  readonly updatedAt: Date | undefined;
   readonly draft: boolean;
   readonly aliases: readonly string[];
 }
@@ -24,11 +24,11 @@ export interface SourceArticleMetadata {
   readonly title: string;
   readonly description: string;
   readonly author: string;
-  readonly tags?: readonly string[] | null;
-  readonly date?: Date;
-  readonly updatedDate?: Date;
-  readonly draft?: boolean;
-  readonly aliases?: readonly string[] | null;
+  readonly tags?: readonly string[] | null | undefined;
+  readonly date?: Date | undefined;
+  readonly updatedDate?: Date | undefined;
+  readonly draft?: boolean | undefined;
+  readonly aliases?: readonly string[] | null | undefined;
 }
 
 export const SITE_AUTHOR: ArticleAuthor = {
