@@ -18,8 +18,8 @@ describe("article metadata", () => {
     expect(
       resolveArticleDates(
         { date, updatedDate },
-        { firstAuthorDate, lastAuthorDate },
-      ),
+        { firstAuthorDate, lastAuthorDate }
+      )
     ).toEqual({
       publishedAt: date,
       updatedAt: updatedDate,
@@ -28,7 +28,7 @@ describe("article metadata", () => {
 
   test("Git history fills missing dates without manufacturing values", () => {
     expect(
-      resolveArticleDates({}, { firstAuthorDate, lastAuthorDate }),
+      resolveArticleDates({}, { firstAuthorDate, lastAuthorDate })
     ).toEqual({
       publishedAt: firstAuthorDate,
       updatedAt: lastAuthorDate,
@@ -43,7 +43,7 @@ describe("article metadata", () => {
     expect(resolveArticleAuthor("oomia")).toBe(SITE_AUTHOR);
     expect(resolveArticleAuthor("ooMia")).toBe(SITE_AUTHOR);
     expect(() => resolveArticleAuthor("another-author")).toThrow(
-      /Unsupported article author/,
+      /Unsupported article author/
     );
   });
 
