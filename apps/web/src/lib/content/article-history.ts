@@ -38,7 +38,7 @@ export function toDocsRelativePath(filePath: string) {
 }
 
 export function readArticleGitHistory(
-  filePath: string | undefined,
+  filePath: string | undefined
 ): ArticleGitHistory | undefined {
   if (!filePath) return undefined;
 
