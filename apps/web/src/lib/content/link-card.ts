@@ -1,6 +1,6 @@
-import { readFileSync } from "node:fs";
-
 import type { LinkCardData, LinkCardResolver } from "@workspace/md";
+
+import { readFileSync } from "node:fs";
 
 const manifestUrl = new URL(
   "../../../data/articles/derived/external-links.json",
