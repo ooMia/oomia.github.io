@@ -158,7 +158,8 @@ async function fetchProject(token, owner, number) {
   );
 
   const project = data.user?.projectV2;
-  if (!project)\n    throw new Error(`Project not found: ${owner}/projects/${number}`);
+  if (!project)
+    throw new Error(`Project not found: ${owner}/projects/${number}`);
 
   const statusField = project.fields.nodes.find(
     (field) =>
