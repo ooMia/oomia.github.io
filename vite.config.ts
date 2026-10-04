@@ -6,11 +6,7 @@ export default defineConfig({
     "apps/web/**/*.astro": "vp exec --filter web -- prettier --write",
   },
   test: {
-    exclude: [
-      "**/node_modules/**",
-      "**/.git/**",
-      "apps/web/data/articles/**",
-    ],
+    exclude: ["**/node_modules/**", "**/.git/**", "apps/web/data/articles/**"],
   },
   lint: {
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
