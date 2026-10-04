@@ -474,6 +474,5 @@ async function main() {
     `Development started for ${repository}#${issueNumber}: branch=${developmentBranch}, status=In progress.`
   );
 }
-}
 
 main().catch((error) => fail(error.stack ?? error.message ?? String(error)));
