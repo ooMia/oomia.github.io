@@ -22,7 +22,7 @@ describe("Development start policy", () => {
       assertDevelopmentStartAllowed({
         iteration: "6173d2fe",
         status: "Todo",
-      }),
+      })
     ).not.toThrow();
   });
 
@@ -31,7 +31,7 @@ describe("Development start policy", () => {
       assertDevelopmentStartAllowed({
         iteration: "6173d2fe",
         status: "In progress",
-      }),
+      })
     ).not.toThrow();
   });
 
@@ -40,7 +40,7 @@ describe("Development start policy", () => {
       assertDevelopmentStartAllowed({
         iteration: null,
         status: "Backlog",
-      }),
+      })
     ).toThrow(/Iteration commitment/);
   });
 
@@ -49,14 +49,14 @@ describe("Development start policy", () => {
       assertDevelopmentStartAllowed({
         iteration: "6173d2fe",
         status: "Done",
-      }),
+      })
     ).toThrow(/Terminal/);
 
     expect(() =>
       assertDevelopmentStartAllowed({
         iteration: "6173d2fe",
         status: "Backlog",
-      }),
+      })
     ).toThrow(/Todo or In progress/);
   });
 
@@ -66,7 +66,7 @@ describe("Development start policy", () => {
         iteration: "6173d2fe",
         status: "Todo",
         isArchived: true,
-      }),
+      })
     ).toThrow(/Archived/);
   });
 });
