@@ -7,7 +7,7 @@ export interface ArticleOrderKey {
 
 export function isArticleVisible(
   draft: boolean | undefined,
-  filterDraft: boolean,
+  filterDraft: boolean
 ) {
   return !filterDraft || draft !== true;
 }
@@ -26,9 +26,6 @@ export function compareArticleOrder(a: ArticleOrderKey, b: ArticleOrderKey) {
   return a.id.localeCompare(b.id);
 }
 
-export function compareArticleMetadata(
-  a: ArticleMetadata,
-  b: ArticleMetadata,
-) {
+export function compareArticleMetadata(a: ArticleMetadata, b: ArticleMetadata) {
   return compareArticleOrder(a, b);
 }
