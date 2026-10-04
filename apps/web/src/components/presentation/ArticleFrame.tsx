@@ -4,6 +4,7 @@ import { AnchorProvider } from "fumadocs-core/toc";
 import { DocsBody } from "fumadocs-ui/layouts/docs/page";
 
 import type { ArticleAuthor } from "@/lib/content/article-metadata";
+
 import type { SiteFrameProps } from "./SiteFrame";
 
 import { ArticleTOC } from "./ArticleTOC";
@@ -64,7 +65,7 @@ export function ArticleFrame({
             ) : null}
             {updatedAt ? (
               <span>
-                Updated <time dateTime={updatedAt}>{formatDate(updatedAt)}</time>
+                Updated{" "}\n                <time dateTime={updatedAt}>{formatDate(updatedAt)}</time>
               </span>
             ) : null}
             <span>{readingMinutes} min read</span>
