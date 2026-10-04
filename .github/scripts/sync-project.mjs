@@ -251,7 +251,9 @@ async function findProjectItem(token, issueId, projectId) {
     const items = data.node?.projectItems;
     if (!items) throw new Error("Cannot verify existing Project membership.");
 
-    const matches = items.nodes.filter(\n      (item) => item.project?.id === projectId\n    );
+    const matches = items.nodes.filter(
+      (item) => item.project?.id === projectId
+    );
     if (matches.length > 1) {
       throw new Error("Issue has multiple items in the same Project.");
     }
