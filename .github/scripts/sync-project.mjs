@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { deriveAdmissionStatus } from "./orchestration-policy.mjs";
+
 const API_URL = "https://api.github.com/graphql";
 
 function fail(message) {
@@ -201,6 +203,78 @@ async function updateField(token, projectId, itemId, fieldId, value) {
   );
 }
 
+async function findProjectItem(token, issueId, projectId) {
+  let after = null;
+
+  do {
+    const data = await graphql(
+      token,
+      `
+        query ($issue: ID!, $after: String) {
+          node(id: $issue) {
+            ... on Issue {
+              projectItems(first: 100, after: $after, includeArchived: true) {
+                nodes {
+                  id
+                  isArchived
+                  project {
+                    id
+                  }
+                  status: fieldValueByName(name: "Status") {
+                    ... on ProjectV2ItemFieldSingleSelectValue {
+                      name
+                    }
+                  }
+                  iteration: fieldValueByName(name: "Iteration") {
+                    ... on ProjectV2ItemFieldIterationValue {
+                      iterationId
+                    }
+                  }
+                  workType: fieldValueByName(name: "Work Type") {
+                    ... on ProjectV2ItemFieldSingleSelectValue {
+                      name
+                    }
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+            }
+          }
+        }
+      `,
+      { issue: issueId, after }
+    );
+
+    const items = data.node?.projectItems;
+    if (!items) throw new Error("Cannot verify existing Project membership.");
+
+    const matches = items.nodes.filter(
+      (item) => item.project?.id === projectId
+    );
+    if (matches.length > 1) {
+      throw new Error("Issue has multiple items in the same Project.");
+    }
+    if (matches.length === 1) return matches[0];
+
+    if (!items.pageInfo.hasNextPage) return null;
+    if (!items.pageInfo.endCursor || items.pageInfo.endCursor === after) {
+      throw new Error("Invalid Project membership pagination.");
+    }
+    after = items.pageInfo.endCursor;
+  } while (after);
+
+  return null;
+}
+
+function sameOption(actual, expected) {
+  return (
+    String(actual ?? "").toLowerCase() === String(expected ?? "").toLowerCase()
+  );
+}
+
 async function main() {
   const token = process.env.PROJECT_TOKEN;
   const repository = process.env.GITHUB_REPOSITORY;
@@ -226,13 +300,25 @@ async function main() {
 
   const seed = parseSeed(issue.body);
   const project = await fetchProject(token, projectOwner, projectNumber);
-  const itemId = await addItem(token, project.id, issue.id);
 
+  // Activation owns first admission only. Reopen/manual replay must preserve
+  // live lifecycle fields instead of replaying stale seed values.
+  const existing = await findProjectItem(token, issue.id, project.id);
+  if (existing) {
+    console.log(
+      "Existing Project item preserved; activation seed not replayed."
+    );
+    return;
+  }
+
+  const itemId = await addItem(token, project.id, issue.id);
+  const initialStatus = deriveAdmissionStatus(seed.iteration);
   const desired = new Map([
-    ["Status", seed.status ?? "Todo"],
+    ["Status", initialStatus],
     ["Iteration", seed.iteration],
     ["Work Type", seed.workType],
   ]);
+  const expected = new Map();
 
   for (const [fieldName, wanted] of desired) {
     if (
@@ -241,24 +327,43 @@ async function main() {
       (Array.isArray(wanted) && wanted.length === 0)
     )
       continue;
+
     const field = project.fields.nodes.find(
       (candidate) => candidate?.name === fieldName
     );
     if (!field) throw new Error(`Project field not found: ${fieldName}`);
-    await updateField(
-      token,
-      project.id,
-      itemId,
-      field.id,
-      makeFieldValue(field, wanted)
-    );
+
+    const value = makeFieldValue(field, wanted);
+    await updateField(token, project.id, itemId, field.id, value);
+    expected.set(fieldName, value);
     console.log(
       `${fieldName}: ${Array.isArray(wanted) ? wanted.join(", ") : wanted}`
     );
   }
 
+  const admitted = await findProjectItem(token, issue.id, project.id);
+  if (!admitted || admitted.id !== itemId || admitted.isArchived) {
+    throw new Error("Project admission verification failed.");
+  }
+  if (!sameOption(admitted.status?.name, initialStatus)) {
+    throw new Error(
+      `Project Status verification failed: expected ${initialStatus}, got ${admitted.status?.name ?? "unset"}.`
+    );
+  }
+
+  const expectedIteration = expected.get("Iteration")?.iterationId ?? null;
+  if ((admitted.iteration?.iterationId ?? null) !== expectedIteration) {
+    throw new Error("Project Iteration verification failed.");
+  }
+
+  if (seed.workType && !sameOption(admitted.workType?.name, seed.workType)) {
+    throw new Error(
+      `Project Work Type verification failed: expected ${seed.workType}, got ${admitted.workType?.name ?? "unset"}.`
+    );
+  }
+
   console.log(
-    `Synchronized ${repository}#${issue.number} with ${projectOwner}/projects/${projectNumber}.`
+    `Admitted ${repository}#${issue.number} to ${projectOwner}/projects/${projectNumber} as ${initialStatus}.`
   );
 }
 

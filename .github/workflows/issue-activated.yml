@@ -1,12 +1,20 @@
-name: Issue activation
+name: Issue orchestration
 
 on:
   issues:
     types: [opened, reopened]
   workflow_dispatch:
     inputs:
+      action:
+        description: Admission replay or explicit Development start
+        required: true
+        default: admit
+        type: choice
+        options:
+          - admit
+          - start
       issue_number:
-        description: Existing Issue number to synchronize
+        description: Existing Issue number
         required: true
         type: number
 
@@ -17,8 +25,10 @@ concurrency:
 jobs:
   project:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.issue.state == 'open' && !startsWith(github.event.issue.title, 'draft:'))
+      (github.event_name == 'issues' &&
+       github.event.issue.state == 'open' &&
+       !startsWith(github.event.issue.title, 'draft:')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.action == 'admit')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,8 +49,7 @@ jobs:
 
   development:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.issue.state == 'open' && !startsWith(github.event.issue.title, 'draft:'))
+      github.event_name == 'workflow_dispatch' && inputs.action == 'start'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -52,9 +61,11 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - name: Create linked Development branch
+      - name: Start linked Development work
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          DEVELOPMENT_BASE: develop
-          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PROJECT_OWNER: ooMia
+          PROJECT_NUMBER: "11"
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
         run: node .github/scripts/create-development-branch.mjs
