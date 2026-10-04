@@ -1,0 +1,39 @@
+name: Start Site #31
+
+on:
+  push:
+    branches: [ops/start-site-31]
+    paths:
+      - .github/workflows/start-site-31.yml
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Admit Issue to Project
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PROJECT_OWNER: ooMia
+          PROJECT_NUMBER: "11"
+          ISSUE_NUMBER: "31"
+        run: node .github/scripts/sync-project.mjs
+
+      - name: Start linked Development work
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PROJECT_OWNER: ooMia
+          PROJECT_NUMBER: "11"
+          ISSUE_NUMBER: "31"
+        run: node .github/scripts/create-development-branch.mjs
