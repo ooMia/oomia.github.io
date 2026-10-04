@@ -1,18 +1,81 @@
-import type { LinkCardData } from "@workspace/md";
+import { readFileSync } from "node:fs";
 
-const metadata: Readonly<Record<string, LinkCardData>> = {
-  "https://www.jetbrains.com/help/idea/working-with-source-code.html": {
-    url: "https://www.jetbrains.com/help/idea/working-with-source-code.html",
-    title: "Write and edit source code",
-    description:
-      "IntelliJ IDEA documentation for editing and working with source code.",
-    siteName: "JetBrains",
-  },
-};
+import type { LinkCardData, LinkCardResolver } from "@workspace/md";
 
-export default function resolveLinkCardData(
-  value: string
+const manifestUrl = new URL(
+  "../../../data/articles/derived/external-links.json",
+  import.meta.url
+);
+
+export function createLinkCardResolver(records: unknown): LinkCardResolver {
+  const metadata = new Map<string, LinkCardData>();
+
+  if (Array.isArray(records)) {
+    for (const record of records) {
+      const projected = projectExternalLinkRecord(record);
+
+      if (projected) {
+        metadata.set(projected.url, projected);
+      }
+    }
+  }
+
+  return (value) => {
+    const url = normalizeExternalHttpUrl(value);
+    return url ? metadata.get(url) : undefined;
+  };
+}
+
+export function projectExternalLinkRecord(
+  value: unknown
 ): LinkCardData | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const url =
+    typeof value.url === "string"
+      ? normalizeExternalHttpUrl(value.url)
+      : undefined;
+  const title = typeof value.title === "string" ? value.title.trim() : "";
+
+  if (!url || !title) {
+    return undefined;
+  }
+
+  if (
+    value.description !== undefined &&
+    typeof value.description !== "string"
+  ) {
+    return undefined;
+  }
+
+  const description = value.description?.trim();
+
+  return {
+    url,
+    title,
+    ...(description ? { description } : {}),
+  };
+}
+
+export function parseExternalLinkManifest(source: string): unknown {
+  try {
+    return JSON.parse(source);
+  } catch {
+    return [];
+  }
+}
+
+function loadExternalLinkManifest(): unknown {
+  try {
+    return parseExternalLinkManifest(readFileSync(manifestUrl, "utf8"));
+  } catch {
+    return [];
+  }
+}
+
+function normalizeExternalHttpUrl(value: string): string | undefined {
   try {
     const url = new URL(value);
 
@@ -20,8 +83,16 @@ export default function resolveLinkCardData(
       return undefined;
     }
 
-    return metadata[url.href];
+    return url.href;
   } catch {
     return undefined;
   }
 }
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+const resolveLinkCardData = createLinkCardResolver(loadExternalLinkManifest());
+
+export default resolveLinkCardData;
