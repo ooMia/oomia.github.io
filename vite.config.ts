@@ -5,6 +5,9 @@ export default defineConfig({
     "*.{js,ts,tsx}": "vp fmt --write --no-error-on-unmatched-pattern",
     "apps/web/**/*.astro": "vp exec --filter web -- prettier --write",
   },
+  test: {
+    exclude: ["**/node_modules/**", "**/.git/**", "apps/web/data/articles/**"],
+  },
   lint: {
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
