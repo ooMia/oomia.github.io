@@ -41,7 +41,7 @@ export const SITE_AUTHOR: ArticleAuthor = {
 
 export function resolveArticleDates(
   source: Pick<SourceArticleMetadata, "date" | "updatedDate">,
-  history?: ArticleGitHistory,
+  history?: ArticleGitHistory
 ) {
   return {
     publishedAt: source.date ?? history?.firstAuthorDate,
@@ -60,7 +60,7 @@ export function resolveArticleAuthor(author: string): ArticleAuthor {
 export function mapArticleMetadata(
   id: string,
   source: SourceArticleMetadata,
-  history?: ArticleGitHistory,
+  history?: ArticleGitHistory
 ): ArticleMetadata {
   const dates = resolveArticleDates(source, history);
 
