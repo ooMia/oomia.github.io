@@ -20,6 +20,22 @@ jobs:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
           submodules: recursive
 
+      - name: Expand pinned Docs history
+        shell: bash
+        run: |
+          set -euo pipefail
+          docs="apps/web/data/articles"
+          docs_head="$(git -C "$docs" rev-parse HEAD)"
+
+          test "$(git rev-parse --is-shallow-repository)" = "true"
+
+          if [ "$(git -C "$docs" rev-parse --is-shallow-repository)" = "true" ]; then
+            git -C "$docs" fetch --unshallow --no-tags origin
+          fi
+
+          test "$(git -C "$docs" rev-parse --is-shallow-repository)" = "false"
+          test "$(git -C "$docs" rev-parse HEAD)" = "$docs_head"
+
       - uses: withastro/action@v6
         with:
           cache-dir: apps/web/node_modules/.astro
@@ -37,6 +53,22 @@ jobs:
         with:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
           submodules: recursive
+
+      - name: Expand pinned Docs history
+        shell: bash
+        run: |
+          set -euo pipefail
+          docs="apps/web/data/articles"
+          docs_head="$(git -C "$docs" rev-parse HEAD)"
+
+          test "$(git rev-parse --is-shallow-repository)" = "true"
+
+          if [ "$(git -C "$docs" rev-parse --is-shallow-repository)" = "true" ]; then
+            git -C "$docs" fetch --unshallow --no-tags origin
+          fi
+
+          test "$(git -C "$docs" rev-parse --is-shallow-repository)" = "false"
+          test "$(git -C "$docs" rev-parse HEAD)" = "$docs_head"
 
       - uses: pnpm/setup@v3
         with:
