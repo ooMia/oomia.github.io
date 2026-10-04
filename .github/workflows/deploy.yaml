@@ -19,6 +19,7 @@ jobs:
         with:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
           submodules: recursive
+          fetch-depth: 1
 
       - name: Expand pinned Docs history
         shell: bash
@@ -53,6 +54,7 @@ jobs:
         with:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
           submodules: recursive
+          fetch-depth: 1
 
       - name: Expand pinned Docs history
         shell: bash
