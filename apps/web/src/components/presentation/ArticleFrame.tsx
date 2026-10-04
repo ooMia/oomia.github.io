@@ -65,7 +65,8 @@ export function ArticleFrame({
             ) : null}
             {updatedAt ? (
               <span>
-                Updated{" "}\n                <time dateTime={updatedAt}>{formatDate(updatedAt)}</time>
+                Updated{" "}
+                <time dateTime={updatedAt}>{formatDate(updatedAt)}</time>
               </span>
             ) : null}
             <span>{readingMinutes} min read</span>
