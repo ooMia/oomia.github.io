@@ -70,12 +70,8 @@ describe("LinkCard derived manifest adapter", () => {
     ]);
 
     expect(resolve("file:///tmp/example")).toBeUndefined();
-    expect(
-      resolve("https://example.com/missing-title")
-    ).toBeUndefined();
-    expect(
-      resolve("https://example.com/bad-description")
-    ).toBeUndefined();
+    expect(resolve("https://example.com/missing-title")).toBeUndefined();
+    expect(resolve("https://example.com/bad-description")).toBeUndefined();
     expect(resolve("https://example.com/valid")).toEqual({
       url: "https://example.com/valid",
       title: "Valid",
