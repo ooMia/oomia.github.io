@@ -10,18 +10,22 @@ const articles = defineCollection({
   schema: z.looseObject({
     title: z.string(),
     description: z.string(),
-    draft: z.boolean().optional(),
-    pubDate: z.coerce.date().optional(),
-    updatedDate: z.coerce.date().optional(),
     author: reference("author"),
+    tags: z.array(z.string()).optional(),
+    aliases: z.array(z.string()).nullish(),
+    date: z.coerce.date().optional(),
+    updatedDate: z.coerce.date().optional(),
+    draft: z.boolean().optional(),
   }),
 });
 
 const author = defineCollection({
   loader: file("./data/author.json"),
   schema: z.looseObject({
+    handle: z.string(),
     name: z.string(),
-    portfolio: z.url().optional(),
+    profileUrl: z.url(),
+    email: z.string().email(),
   }),
 });
 
