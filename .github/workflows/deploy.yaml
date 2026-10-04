@@ -3,8 +3,6 @@ name: Deploy to GitHub Pages
 on:
   pull_request:
     branches: [develop, main]
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,14 +10,40 @@ permissions:
 
 jobs:
   build:
-    if: github.event_name != 'pull_request' || github.base_ref == 'develop'
+    if: >-
+      (github.event_name == 'pull_request' && github.base_ref == 'develop') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout pull request revision
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
           submodules: recursive
           fetch-depth: 1
+
+      - name: Checkout canonical main release revision
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Record production release revision
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_sha="$(git rev-parse HEAD)"
+          echo "Release-SHA=$release_sha"
+          {
+            echo "## Production release"
+            echo
+            echo "- Site revision: `$release_sha`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Expand pinned Docs history
         shell: bash
@@ -96,9 +120,7 @@ jobs:
       - run: pnpm exec vp run -r build
 
   deploy:
-    if: >-
-      github.ref == 'refs/heads/main' &&
-      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -106,7 +128,7 @@ jobs:
       id-token: write
     concurrency:
       group: pages
-      cancel-in-progress: true
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
