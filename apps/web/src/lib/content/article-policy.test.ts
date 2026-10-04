@@ -1,9 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import {
-  compareArticleOrder,
-  isArticleVisible,
-} from "./article-policy";
+import { compareArticleOrder, isArticleVisible } from "./article-policy";
 
 describe("article visibility", () => {
   test("keeps drafts visible until filtering is explicitly enabled", () => {
