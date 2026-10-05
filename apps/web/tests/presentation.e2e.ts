@@ -103,7 +103,10 @@ test("theme persists across reload and shared homepage navigation", async ({
   await evidence(page, info, "dark");
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/dark/);
-  await page.getByRole("link", { name: "ooMia", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "사이트" })
+    .getByRole("link", { name: "ooMia", exact: true })
+    .click();
   await expect(page).toHaveURL(new RegExp(`${base}/$`));
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.getByRole("button", { name: "Toggle Theme" }).click();

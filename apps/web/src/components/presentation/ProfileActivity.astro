@@ -1,0 +1,52 @@
+---
+// Browser-loaded visuals: provider availability never gates content/build.
+const profiles = [
+  {
+    label: "90일 GitHub 활동",
+    src: "https://ghstats.dev/api/sparkline?username=oomia&days=90&width=700",
+    href: "https://github.com/ooMia",
+  },
+  {
+    label: "GitHub streak",
+    src: "https://streak-stats.demolab.com?user=oomia&theme=dark&card_width=700",
+    href: "https://github.com/ooMia",
+  },
+  {
+    label: "solved.ac",
+    src: "https://github-readme-solvedac.hyp3rflow.vercel.app/api/?handle=hs1891179",
+    href: "https://solved.ac/profile/hs1891179",
+  },
+];
+---
+
+<section
+  aria-labelledby="profile-activity"
+  class="mt-10 border-t border-fd-border pt-8"
+>
+  <h2
+    id="profile-activity"
+    class="text-base font-medium text-fd-muted-foreground"
+  >
+    Profile / Activity
+  </h2>
+  <div class="mt-5 grid min-w-0 gap-5 sm:grid-cols-2">
+    {
+      profiles.map(({ label, src, href }, index) => (
+        <figure class:list={["min-w-0", { "sm:col-span-2": index === 0 }]}>
+          <figcaption class="mb-2 text-xs text-fd-muted-foreground">
+            <a href={href} class="hover:underline underline-offset-4">
+              {label}
+            </a>
+          </figcaption>
+          <img
+            src={src}
+            alt={label}
+            loading="lazy"
+            decoding="async"
+            class="block h-auto max-w-full rounded-md"
+          />
+        </figure>
+      ))
+    }
+  </div>
+</section>

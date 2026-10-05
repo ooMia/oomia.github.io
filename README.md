@@ -42,7 +42,7 @@ vp exec --filter web -- playwright install chromium
 vp run --filter web test:presentation
 ```
 
-An installed Chrome can be used with `PLAYWRIGHT_CHANNEL=chrome`. Browser tests cover desktop/mobile TOC, theme persistence, Callout/LinkCard, static reading and the current corpus. See [rendered Evidence and known limits](docs/evidence/c1-w4-presentation/README.md).
+An installed Chrome can be used with `PLAYWRIGHT_CHANNEL=chrome`. Browser tests cover desktop/mobile homepage hierarchy, contact links, canonical discovery metadata, Activity failure isolation, TOC, theme persistence, Callout/LinkCard, static reading and the current corpus. See [presentation Evidence](docs/evidence/c1-w4-presentation/README.md) and [homepage Evidence](docs/evidence/c1-w4-homepage/README.md).
 
 For local web development:
 
@@ -66,4 +66,4 @@ See [Content consumption contract](docs/content-consumption-contract.md) for the
 
 Issue `opened`/`reopened` performs first Project #11 admission only. Manual Issue orchestration can replay admission idempotently or explicitly start Development; Development start requires a live Iteration commitment, creates or confirms the linked branch from `main`, and then materializes `In progress`. PRs targeting `main` run Promotion validation; PRs targeting `develop` run the build job. Pages delivery runs only on `main` push or explicit workflow dispatch. These behaviors are owned by the live workflow/script, and a successful PR validation is not a deployment.
 
-Articles use a shared Fumadocs HomeLayout/provider island, Site-owned ArticleFrame, DocsBody typography and a compact top TOC. Canonical `date / updatedDate / tags / aliases / draft / author` are adapted into one public ArticleMetadata model; reading time remains render-derived. CI keeps the parent Site checkout shallow and expands only the pinned Docs submodule history so Git can provide date fallbacks without moving the gitlink. Homepage discovery/visual design remains #37.
+Articles use a shared Fumadocs HomeLayout/provider island, Site-owned ArticleFrame, DocsBody typography and a compact top TOC. Canonical `date / updatedDate / tags / aliases / draft / author` are adapted into one public ArticleMetadata model; reading time remains render-derived. CI keeps the parent Site checkout shallow and expands only the pinned Docs submodule history so Git can provide date fallbacks without moving the gitlink. The homepage reuses the same SiteFrame and article model for a compact personal Hero, Recent Articles and an independent Profile / Activity component. Activity images load directly in the browser; provider availability does not gate the build or article discovery.
