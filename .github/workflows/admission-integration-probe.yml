@@ -13,7 +13,7 @@ jobs:
   replay:
     uses: ooMia/oomia.github.io.knowledge/.github/workflows/project-admission.yml@0f21e830e86f60f24415e8f6a2a07faaa305c466
     with:
-      issue_number: 32
+      issue_number: 56
       initial_event: false
     secrets:
       project_token: ${{ secrets.PROJECT_TOKEN }}
