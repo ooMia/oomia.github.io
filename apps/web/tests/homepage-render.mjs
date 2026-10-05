@@ -61,34 +61,16 @@ try {
         fallbackVisible: !img.nextElementSibling.hidden,
       }))
     );
-    const gravatarCard = activity.locator("[data-gravatar-card]");
-    const gravatarFrame = gravatarCard.locator("[data-gravatar-card-frame]");
-    await gravatarCard.scrollIntoViewIfNeeded();
-    await gravatarFrame.evaluate(
-      (frame) =>
-        new Promise((done) => {
-          const timer = setTimeout(done, 8000);
-          const finish = () => {
-            clearTimeout(timer);
-            done();
-          };
-          frame.addEventListener("load", finish, { once: true });
-        })
-    );
-    const gravatar = await gravatarCard.evaluate((card) => {
-      const frame = card.querySelector("[data-gravatar-card-frame]");
+    const gravatarFrame = activity.getByTitle("gravatar card");
+    await gravatarFrame.scrollIntoViewIfNeeded();
+    const gravatar = await gravatarFrame.evaluate((frame) => {
       if (!(frame instanceof HTMLIFrameElement)) return null;
-
-      const cardBox = card.getBoundingClientRect();
-      const frameBox = frame.getBoundingClientRect();
+      const box = frame.getBoundingClientRect();
       return {
-        src: frame.getAttribute("src"),
-        card: { width: cardBox.width, height: cardBox.height },
-        frame: { width: frameBox.width, height: frameBox.height },
-        outerFit:
-          Math.abs(cardBox.width - frameBox.width) < 1 &&
-          Math.abs(cardBox.height - frameBox.height) < 1,
-        innerGeometryObservable: false,
+        mode: "build-time-srcdoc",
+        width: box.width,
+        height: box.height,
+        srcdocPresent: Boolean(frame.srcdoc),
       };
     });
     for (const theme of ["light", "dark"]) {
