@@ -1,0 +1,29 @@
+name: Format probe
+
+on:
+  pull_request:
+    paths:
+      - "README.md"
+      - ".github/workflows/format-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
+        with:
+          cache: false
+          install: false
+          require-lockfile: true
+      - run: pnpm install --frozen-lockfile
+      - name: Print canonical README
+        shell: bash
+        run: |
+          pnpm exec vp check --fix README.md
+          printf 'README_B64='
+          base64 -w0 README.md
+          printf '\n'
