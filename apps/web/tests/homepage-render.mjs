@@ -1,11 +1,11 @@
 import { chromium } from "@playwright/test";
 import { preview } from "astro";
+import { execFileSync } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const directory = resolve(
-  process.env["PRESENTATION_EVIDENCE_DIR"] ??
-    "../../docs/evidence/c1-w4-homepage"
+  process.env["PRESENTATION_EVIDENCE_DIR"] ?? "../../test-results/homepage"
 );
 await mkdir(directory, { recursive: true });
 const server = await preview({
@@ -13,7 +13,7 @@ const server = await preview({
   logLevel: "error",
 });
 const browser = await chromium.launch({
-  channel: process.env["PLAYWRIGHT_CHANNEL"] ?? "chrome",
+  channel: process.env["PLAYWRIGHT_CHANNEL"],
 });
 const reports = [];
 try {
@@ -84,7 +84,14 @@ try {
   await writeFile(
     resolve(directory, "provider-status.json"),
     JSON.stringify(
-      { capturedAt: new Date().toISOString(), mocked: false, reports },
+      {
+        capturedAt: new Date().toISOString(),
+        revision: execFileSync("git", ["rev-parse", "HEAD"], {
+          encoding: "utf8",
+        }).trim(),
+        mocked: false,
+        reports,
+      },
       null,
       2
     ) + "\n"

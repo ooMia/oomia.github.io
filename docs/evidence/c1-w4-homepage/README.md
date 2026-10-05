@@ -1,5 +1,7 @@
 # C1-W4 homepage Evidence
 
+Historical snapshot of the pre-review implementation. Current execution policy is in [README Browser validation](../../../README.md#browser-validation); subsequent renders/results are recorded in [PR #55](https://github.com/ooMia/oomia.github.io/pull/55).
+
 Captured 2026-10-05 (Asia/Seoul) against implementation revision [78d9e622](https://github.com/ooMia/oomia.github.io/commit/78d9e622cfef3f9e8b2ed228dca6248df1fd2b5a), with canonical Docs pinned at [feda09af](https://github.com/ooMia/oomia.github.io.docs/commit/feda09afb4343028be4c680fc5ba9dcf267b6366). Docs files and the submodule pointer are unchanged.
 
 Owner: [Issue #37](https://github.com/ooMia/oomia.github.io/issues/37) / [PR #55](https://github.com/ooMia/oomia.github.io/pull/55).

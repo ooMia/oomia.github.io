@@ -31,38 +31,60 @@ async function mockProviders(page: Page, failedHost?: string) {
   }
 }
 
-test("compact homepage hierarchy, contacts and shared theme", async ({
-  page,
-}) => {
-  await mockProviders(page);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto(`${base}/`);
-  await expect(page.locator("#homepage h1")).toHaveText("ooMia");
-  await expect(page.locator("#homepage > header p")).toHaveText(
-    "구조를 고민하고, 작게 실험하며, 오래 쓸 수 있는 소프트웨어를 만듭니다."
-  );
-  await expect(page).toHaveTitle("ooMia — 개발 기록과 실험");
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
-    "content",
-    /ooMia/
-  );
-  expect(
-    await page
-      .locator("#homepage")
-      .evaluate((el) => Array.from(el.children).map((child) => child.tagName))
-  ).toEqual(["HEADER", "SECTION", "SECTION"]);
-  const contacts = page.getByRole("navigation", { name: "연락처" });
-  for (const [name, href] of [
-    ["GitHub", "https://github.com/ooMia"],
-    ["LinkedIn", "https://www.linkedin.com/in/김현학/"],
-    ["Email", "mailto:dev@oomia.click"],
-  ] as const) {
-    const link = contacts.getByRole("link", { name, exact: true });
-    await expect(link).toHaveAttribute("href", href!);
-    await link.focus();
-    await expect(link).toBeFocused();
+test(
+  "compact homepage hierarchy, contacts and shared theme",
+  { tag: "@compat" },
+  async ({ page }) => {
+    await mockProviders(page);
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.goto(`${base}/`);
+    await expect(page.locator("#homepage h1")).toHaveText("ooMia");
+    await expect(page.locator("#homepage > header p")).toHaveText(
+      "구조를 고민하고, 작게 실험하며, 오래 쓸 수 있는 소프트웨어를 만듭니다."
+    );
+    await expect(page).toHaveTitle("ooMia — 개발 기록과 실험");
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      /ooMia/
+    );
+    expect(
+      await page
+        .locator("#homepage")
+        .evaluate((el) => Array.from(el.children).map((child) => child.tagName))
+    ).toEqual(["HEADER", "SECTION", "SECTION"]);
+    const contacts = page.getByRole("navigation", { name: "연락처" });
+    for (const [name, href] of [
+      ["GitHub", "https://github.com/ooMia"],
+      ["LinkedIn", "https://www.linkedin.com/in/김현학/"],
+      ["Email", "mailto:dev@oomia.click"],
+    ] as const) {
+      const link = contacts.getByRole("link", { name, exact: true });
+      await expect(link).toHaveAttribute("href", href!);
+      await link.focus();
+      await expect(link).toBeFocused();
+    }
+    await page.locator(activitySelector).scrollIntoViewIfNeeded();
+    for (const img of await page.locator(`${activitySelector} img`).all()) {
+      await img.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+        .toBe(1400);
+    }
+    await noOverflow(page);
+    await page.getByRole("button", { name: "Toggle Theme" }).click();
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await noOverflow(page);
+    await page.reload();
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    expect(errors).toEqual([]);
   }
+);
+
+test("email keyboard activation", async ({ page }) => {
+  await mockProviders(page);
+  await page.goto(`${base}/`);
+  const contacts = page.getByRole("navigation", { name: "연락처" });
   // Verify activation without leaving the test or opening the OS mail client.
   await contacts.evaluate((el) =>
     el.addEventListener("click", (event) => {
@@ -78,20 +100,6 @@ test("compact homepage hierarchy, contacts and shared theme", async ({
     "data-activated",
     "mailto:dev@oomia.click"
   );
-  await page.locator(activitySelector).scrollIntoViewIfNeeded();
-  for (const img of await page.locator(`${activitySelector} img`).all()) {
-    await img.scrollIntoViewIfNeeded();
-    await expect
-      .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
-      .toBe(1400);
-  }
-  await noOverflow(page);
-  await page.getByRole("button", { name: "Toggle Theme" }).click();
-  await expect(page.locator("html")).toHaveClass(/dark/);
-  await noOverflow(page);
-  await page.reload();
-  await expect(page.locator("html")).toHaveClass(/dark/);
-  expect(errors).toEqual([]);
 });
 
 test("discovery metadata agrees with canonical article pages and ordering", async ({
@@ -145,30 +153,34 @@ test("discovery metadata agrees with canonical article pages and ordering", asyn
 });
 
 for (const host of providers) {
-  test(`activity remains isolated when ${host} fails`, async ({ page }) => {
-    await mockProviders(page, host);
-    await page.goto(`${base}/`);
-    const titles = await page
-      .locator(`${articlesSelector} h3`)
-      .allTextContents();
-    for (const img of await page.locator(`${activitySelector} img`).all()) {
-      await img.scrollIntoViewIfNeeded();
-      await expect
-        .poll(() => img.evaluate((el) => (el as HTMLImageElement).complete))
-        .toBe(true);
-      const failed = (await img.getAttribute("src"))!.includes(host);
+  test(
+    `activity remains isolated when ${host} fails`,
+    { tag: host === providers[0] ? "@compat" : [] },
+    async ({ page }) => {
+      await mockProviders(page, host);
+      await page.goto(`${base}/`);
+      const titles = await page
+        .locator(`${articlesSelector} h3`)
+        .allTextContents();
+      for (const img of await page.locator(`${activitySelector} img`).all()) {
+        await img.scrollIntoViewIfNeeded();
+        await expect
+          .poll(() => img.evaluate((el) => (el as HTMLImageElement).complete))
+          .toBe(true);
+        const failed = (await img.getAttribute("src"))!.includes(host);
+        expect(
+          await img.evaluate((el) => (el as HTMLImageElement).naturalWidth)
+        ).toBe(failed ? 0 : 1400);
+      }
+      await expect(
+        page.locator(`${activitySelector} figcaption a`)
+      ).toHaveCount(3);
       expect(
-        await img.evaluate((el) => (el as HTMLImageElement).naturalWidth)
-      ).toBe(failed ? 0 : 1400);
+        await page.locator(`${articlesSelector} h3`).allTextContents()
+      ).toEqual(titles);
+      await noOverflow(page);
+      await page.locator(`${articlesSelector} a`).first().click();
+      await expect(page.locator("article header h1")).toHaveText(titles[0]!);
     }
-    await expect(page.locator(`${activitySelector} figcaption a`)).toHaveCount(
-      3
-    );
-    expect(
-      await page.locator(`${articlesSelector} h3`).allTextContents()
-    ).toEqual(titles);
-    await noOverflow(page);
-    await page.locator(`${articlesSelector} a`).first().click();
-    await expect(page.locator("article header h1")).toHaveText(titles[0]!);
-  });
+  );
 }
