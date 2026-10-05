@@ -22,8 +22,7 @@ const cardUrl = `${profileUrl}.card`;
     loading="lazy"
     referrerpolicy="no-referrer"
     class="absolute left-0 top-0 block origin-top-left border-0"
-    style="margin: 0; padding: 0;"
-  ></iframe>
+    style="margin: 0; padding: 0;"></iframe>
 </div>
 
 <script>
@@ -33,10 +32,7 @@ const cardUrl = `${profileUrl}.card`;
     const frame = card.querySelector("[data-gravatar-card-frame]");
     if (!(frame instanceof HTMLIFrameElement)) return;
 
-    const scale = Math.min(
-      1,
-      card.getBoundingClientRect().width / CARD_WIDTH,
-    );
+    const scale = Math.min(1, card.getBoundingClientRect().width / CARD_WIDTH);
     frame.style.transform = `scale(${scale})`;
   }
 
