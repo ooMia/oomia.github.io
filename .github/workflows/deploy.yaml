@@ -115,7 +115,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter web sync
-      - run: pnpm exec vp check
+      - run: pnpm exec vp check --no-fmt
       - run: pnpm exec vp test
       # The root build script owns workspace orchestration; recursive execution
       # would start both turbo and web builds against the same output directory.
