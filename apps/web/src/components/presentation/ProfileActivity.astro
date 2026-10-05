@@ -1,4 +1,6 @@
 ---
+import GravatarCard from "@/components/GravatarCard.astro";
+
 // Browser-loaded visual supplements; captions own semantics and provider colors
 // remain theme-independent. Dimensions come from the recorded provider render.
 const profiles = [
@@ -71,4 +73,15 @@ const profiles = [
       ))
     }
   </div>
+  <figure class="mt-5 min-w-0">
+    <figcaption class="mb-2 text-xs text-fd-muted-foreground">
+      <a
+        href="https://gravatar.com/oomia6"
+        class="hover:underline underline-offset-4"
+      >
+        Gravatar profile
+      </a>
+    </figcaption>
+    <GravatarCard username="oomia6" />
+  </figure>
 </section>
