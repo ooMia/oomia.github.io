@@ -62,9 +62,7 @@ try {
       }))
     );
     const gravatarCard = activity.locator("[data-gravatar-card]");
-    const gravatarFrame = gravatarCard.locator(
-      "[data-gravatar-card-frame]"
-    );
+    const gravatarFrame = gravatarCard.locator("[data-gravatar-card-frame]");
     await gravatarCard.scrollIntoViewIfNeeded();
     await gravatarFrame.evaluate(
       (frame) =>
