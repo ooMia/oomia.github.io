@@ -1,0 +1,58 @@
+name: Manual OS compatibility
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          submodules: recursive
+          fetch-depth: 1
+      - name: Expand pinned Docs history
+        run: |
+          set -euo pipefail
+          docs="apps/web/data/articles"
+          docs_head="$(git -C "$docs" rev-parse HEAD)"
+          if [ "$(git -C "$docs" rev-parse --is-shallow-repository)" = "true" ]; then
+            git -C "$docs" fetch --unshallow --no-tags origin
+          fi
+          test "$(git -C "$docs" rev-parse --is-shallow-repository)" = "false"
+          test "$(git -C "$docs" rev-parse HEAD)" = "$docs_head"
+      - uses: pnpm/setup@v3
+        with:
+          cache: false
+          install: false
+          require-lockfile: true
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web sync
+      - name: Build compatibility corpus
+        run: pnpm --filter web build
+        env:
+          BASE_PATH: /
+      - name: Install compatibility browser
+        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Run core compatibility profile
+        run: pnpm --filter web test:e2e:compat
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: compatibility-${{ runner.os }}-${{ github.sha }}
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+          retention-days: 7

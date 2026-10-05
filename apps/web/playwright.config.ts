@@ -3,6 +3,8 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests",
   testMatch: "**/*.e2e.ts",
+  // Selection lives in package scripts; projects only describe viewport/runtime.
+  forbidOnly: Boolean(process.env["CI"]),
   fullyParallel: false,
   workers: 1,
   reporter: [["list"], ["html", { open: "never" }]],

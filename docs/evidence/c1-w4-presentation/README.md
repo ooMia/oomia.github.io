@@ -1,5 +1,7 @@
 # C1-W4 presentation Evidence
 
+Historical revision-bound snapshot. Current browser execution policy is routed through [README Browser validation](../../../README.md#browser-validation).
+
 Validation date: 2026-10-04 (Asia/Seoul). This is a revision-bound validation snapshot, not a session handoff or current-state ledger.
 
 ## Revisions and scope

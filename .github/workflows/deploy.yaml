@@ -117,7 +117,9 @@ jobs:
       - run: pnpm --filter web sync
       - run: pnpm exec vp check
       - run: pnpm exec vp test
-      - run: pnpm exec vp run -r build
+      # The root build script owns workspace orchestration; recursive execution
+      # would start both turbo and web builds against the same output directory.
+      - run: pnpm exec vp run build
 
   deploy:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'

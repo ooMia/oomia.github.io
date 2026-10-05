@@ -10,7 +10,10 @@
     "lint": "eslint",
     "preview": "astro preview",
     "sync": "astro sync",
-    "test:presentation": "playwright test",
+    "test:e2e": "playwright test",
+    "test:e2e:compat": "playwright test --grep @compat",
+    "test:e2e:evidence": "node tests/homepage-render.mjs",
+    "test:presentation": "pnpm run test:e2e",
     "typecheck": "astro check"
   },
   "dependencies": {

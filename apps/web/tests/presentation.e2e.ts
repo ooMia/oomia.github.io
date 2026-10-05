@@ -91,46 +91,53 @@ test("canonical article metadata, sticky TOC, keyboard and active anchors", asyn
   expect(errors).toEqual([]);
 });
 
-test("theme persists across reload and shared homepage navigation", async ({
-  page,
-}, info) => {
-  await page.goto(utility);
-  await page.getByRole("button", { name: "Toggle Theme" }).click();
-  await expect(page.locator("html")).toHaveClass(/dark/);
-  await expect
-    .poll(() => page.evaluate(() => localStorage.getItem("theme")))
-    .toBe("dark");
-  await evidence(page, info, "dark");
-  await page.reload();
-  await expect(page.locator("html")).toHaveClass(/dark/);
-  await page.getByRole("link", { name: "ooMia", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`${base}/$`));
-  await expect(page.locator("html")).toHaveClass(/dark/);
-  await page.getByRole("button", { name: "Toggle Theme" }).click();
-  await expect(page.locator("html")).not.toHaveClass(/dark/);
-  await page.keyboard.press("d");
-  await expect(page.locator("html")).not.toHaveClass(/dark/);
-});
+test(
+  "theme persists across reload and shared homepage navigation",
+  { tag: "@compat" },
+  async ({ page }, info) => {
+    await page.goto(utility);
+    await page.getByRole("button", { name: "Toggle Theme" }).click();
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem("theme")))
+      .toBe("dark");
+    await evidence(page, info, "dark");
+    await page.reload();
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await page
+      .getByRole("navigation", { name: "사이트" })
+      .getByRole("link", { name: "ooMia", exact: true })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`${base}/$`));
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await page.getByRole("button", { name: "Toggle Theme" }).click();
+    await expect(page.locator("html")).not.toHaveClass(/dark/);
+    await page.keyboard.press("d");
+    await expect(page.locator("html")).not.toHaveClass(/dark/);
+  }
+);
 
-test("homepage article links stay within the configured base path", async ({
-  page,
-}) => {
-  await page.goto(`${base}/`);
-  const articleLinks = page.locator('a[href*="/articles/"]');
+test(
+  "homepage article links stay within the configured base path",
+  { tag: "@compat" },
+  async ({ page }) => {
+    await page.goto(`${base}/`);
+    const articleLinks = page.locator('a[href*="/articles/"]');
 
-  expect(await articleLinks.count()).toBeGreaterThan(0);
-  const hrefs = await articleLinks.evaluateAll((links) =>
-    links.map((link) => link.getAttribute("href"))
-  );
-  expect(hrefs.every((href) => href !== null && !href.startsWith("//"))).toBe(
-    true
-  );
+    expect(await articleLinks.count()).toBeGreaterThan(0);
+    const hrefs = await articleLinks.evaluateAll((links) =>
+      links.map((link) => link.getAttribute("href"))
+    );
+    expect(hrefs.every((href) => href !== null && !href.startsWith("//"))).toBe(
+      true
+    );
 
-  await articleLinks.first().click();
-  await expect
-    .poll(() => new URL(page.url()).pathname)
-    .toMatch(new RegExp(`^${base}/articles/`));
-});
+    await articleLinks.first().click();
+    await expect
+      .poll(() => new URL(page.url()).pathname)
+      .toMatch(new RegExp(`^${base}/articles/`));
+  }
+);
 
 test("system dark preference is respected without an explicit saved theme", async ({
   page,

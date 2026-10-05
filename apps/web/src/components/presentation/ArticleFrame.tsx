@@ -15,8 +15,8 @@ interface ArticleFrameProps extends SiteFrameProps {
   title: string;
   description: string;
   author: ArticleAuthor;
-  publishedAt?: string;
-  updatedAt?: string;
+  publishedAt?: string | undefined;
+  updatedAt?: string | undefined;
   tags: string[];
   readingMinutes: number;
   toc: TOCItemType[];

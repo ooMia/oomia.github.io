@@ -317,7 +317,7 @@ Only `fumadocs-core` and `fumadocs-ui` are added as runtime presentation depende
 
 The homepage uses the same SiteFrame; its discovery structure remains #37. Production draft filtering and broader metadata/publication changes remain #36.
 
-Browser regressions and reproducible commands are documented in [C1-W4 Evidence](evidence/c1-w4-presentation/README.md). Build/render evidence applies to the linked revision, not to an assumed deployment.
+Current browser execution policy and commands are routed through [README Browser validation](../README.md#browser-validation), package scripts and Playwright config. [C1-W4 Evidence](evidence/c1-w4-presentation/README.md) and [homepage Evidence](evidence/c1-w4-homepage/README.md) are historical revision-bound snapshots, not current policy or deployment evidence.
 
 ## Revisit rules
 
