@@ -1,0 +1,118 @@
+{
+  "capturedAt": "2026-10-05T00:07:17.384Z",
+  "mocked": false,
+  "reports": [
+    {
+      "viewport": "desktop",
+      "theme": "light",
+      "dimensions": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "providers": [
+        {
+          "src": "https://ghstats.dev/api/sparkline?username=oomia&days=90&width=700",
+          "loaded": true,
+          "width": 700,
+          "height": 80
+        },
+        {
+          "src": "https://streak-stats.demolab.com?user=oomia&theme=dark&card_width=700",
+          "loaded": true,
+          "width": 700,
+          "height": 195
+        },
+        {
+          "src": "https://github-readme-solvedac.hyp3rflow.vercel.app/api/?handle=hs1891179",
+          "loaded": true,
+          "width": 700,
+          "height": 150
+        }
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "theme": "dark",
+      "dimensions": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "providers": [
+        {
+          "src": "https://ghstats.dev/api/sparkline?username=oomia&days=90&width=700",
+          "loaded": true,
+          "width": 700,
+          "height": 80
+        },
+        {
+          "src": "https://streak-stats.demolab.com?user=oomia&theme=dark&card_width=700",
+          "loaded": true,
+          "width": 700,
+          "height": 195
+        },
+        {
+          "src": "https://github-readme-solvedac.hyp3rflow.vercel.app/api/?handle=hs1891179",
+          "loaded": true,
+          "width": 700,
+          "height": 150
+        }
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "theme": "light",
+      "dimensions": {
+        "viewport": 390,
+        "document": 390
+      },
+      "providers": [
+        {
+          "src": "https://ghstats.dev/api/sparkline?username=oomia&days=90&width=700",
+          "loaded": true,
+          "width": 700,
+          "height": 80
+        },
+        {
+          "src": "https://streak-stats.demolab.com?user=oomia&theme=dark&card_width=700",
+          "loaded": true,
+          "width": 700,
+          "height": 195
+        },
+        {
+          "src": "https://github-readme-solvedac.hyp3rflow.vercel.app/api/?handle=hs1891179",
+          "loaded": true,
+          "width": 700,
+          "height": 150
+        }
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "theme": "dark",
+      "dimensions": {
+        "viewport": 390,
+        "document": 390
+      },
+      "providers": [
+        {
+          "src": "https://ghstats.dev/api/sparkline?username=oomia&days=90&width=700",
+          "loaded": true,
+          "width": 700,
+          "height": 80
+        },
+        {
+          "src": "https://streak-stats.demolab.com?user=oomia&theme=dark&card_width=700",
+          "loaded": true,
+          "width": 700,
+          "height": 195
+        },
+        {
+          "src": "https://github-readme-solvedac.hyp3rflow.vercel.app/api/?handle=hs1891179",
+          "loaded": true,
+          "width": 700,
+          "height": 150
+        }
+      ]
+    }
+  ]
+}
