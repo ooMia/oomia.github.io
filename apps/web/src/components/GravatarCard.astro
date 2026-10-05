@@ -1,0 +1,51 @@
+---
+interface Props {
+  username: string;
+}
+
+const { username } = Astro.props;
+const profileUrl = `https://gravatar.com/${encodeURIComponent(username)}`;
+const cardUrl = `${profileUrl}.card`;
+---
+
+<div
+  data-gravatar-card
+  class="relative w-full max-w-[415px] overflow-hidden"
+  style="aspect-ratio: 415 / 228;"
+>
+  <iframe
+    data-gravatar-card-frame
+    src={cardUrl}
+    title={`${username} Gravatar profile`}
+    width="415"
+    height="228"
+    loading="lazy"
+    referrerpolicy="no-referrer"
+    class="absolute left-0 top-0 block origin-top-left border-0"
+    style="margin: 0; padding: 0;"
+  ></iframe>
+</div>
+
+<script>
+  const CARD_WIDTH = 415;
+
+  function fitGravatarCard(card: Element) {
+    const frame = card.querySelector("[data-gravatar-card-frame]");
+    if (!(frame instanceof HTMLIFrameElement)) return;
+
+    const scale = Math.min(
+      1,
+      card.getBoundingClientRect().width / CARD_WIDTH,
+    );
+    frame.style.transform = `scale(${scale})`;
+  }
+
+  const observer = new ResizeObserver((entries) => {
+    for (const entry of entries) fitGravatarCard(entry.target);
+  });
+
+  for (const card of document.querySelectorAll("[data-gravatar-card]")) {
+    fitGravatarCard(card);
+    observer.observe(card);
+  }
+</script>
