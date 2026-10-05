@@ -61,7 +61,21 @@ try {
         fallbackVisible: !img.nextElementSibling.hidden,
       }))
     );
-    const gravatar = await activity.locator("[data-gravatar-card]").evaluate(
+    const gravatarCard = activity.locator("[data-gravatar-card]");
+    const gravatarFrame = gravatarCard.locator("[data-gravatar-card-frame]");
+    await gravatarCard.scrollIntoViewIfNeeded();
+    await gravatarFrame.evaluate(
+      (frame) =>
+        new Promise((done) => {
+          const timer = setTimeout(done, 8000);
+          const finish = () => {
+            clearTimeout(timer);
+            done();
+          };
+          frame.addEventListener("load", finish, { once: true });
+        })
+    );
+    const gravatar = await gravatarCard.evaluate(
       (card) => {
         const frame = card.querySelector("[data-gravatar-card-frame]");
         if (!(frame instanceof HTMLIFrameElement)) return null;
