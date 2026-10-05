@@ -66,7 +66,11 @@ test(
     }
     await page.locator(activitySelector).scrollIntoViewIfNeeded();
     for (const img of await page.locator(`${activitySelector} img`).all()) {
-      await img.scrollIntoViewIfNeeded();
+      await img.locator("..").scrollIntoViewIfNeeded();
+      await expect(img).toHaveAttribute("alt", "");
+      await expect(img).toHaveAttribute("referrerpolicy", "no-referrer");
+      await expect(img).toHaveAttribute("width", "700");
+      await expect(img).toHaveAttribute("height", /^(80|195|150)$/);
       await expect
         .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
         .toBe(1400);
@@ -163,7 +167,7 @@ for (const host of providers) {
         .locator(`${articlesSelector} h3`)
         .allTextContents();
       for (const img of await page.locator(`${activitySelector} img`).all()) {
-        await img.scrollIntoViewIfNeeded();
+        await img.locator("..").scrollIntoViewIfNeeded();
         await expect
           .poll(() => img.evaluate((el) => (el as HTMLImageElement).complete))
           .toBe(true);
@@ -171,6 +175,17 @@ for (const host of providers) {
         expect(
           await img.evaluate((el) => (el as HTMLImageElement).naturalWidth)
         ).toBe(failed ? 0 : 1400);
+        const fallback = img.locator("..");
+        if (failed) {
+          await expect(img).toBeHidden();
+          await expect(fallback.locator("p")).toBeVisible();
+          await expect(fallback).toContainText(
+            "활동 이미지를 불러올 수 없습니다"
+          );
+        } else {
+          await expect(img).toBeVisible();
+          await expect(fallback.locator("p")).toBeHidden();
+        }
       }
       await expect(
         page.locator(`${activitySelector} figcaption a`)
@@ -184,3 +199,49 @@ for (const host of providers) {
     }
   );
 }
+
+test("activity reserves geometry before provider load and failure", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  for (const host of providers) {
+    await page.route(`https://${host}/**`, async (route) => {
+      await pending;
+      if (host === providers[0]) await route.abort();
+      else
+        await route.fulfill({
+          contentType: "image/svg+xml",
+          body: '<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="300"/>',
+        });
+    });
+  }
+  await page.goto(`${base}/`, { waitUntil: "domcontentloaded" });
+  const images = page.locator(`${activitySelector} img`);
+  const geometry = () =>
+    images.evaluateAll((nodes) =>
+      nodes.map((img) => {
+        const box = img.parentElement!.getBoundingClientRect();
+        return { width: box.width, height: box.height };
+      })
+    );
+  try {
+    for (const img of await images.all())
+      await img.locator("..").scrollIntoViewIfNeeded();
+    const before = await geometry();
+    expect(before.every((box) => box.width > 0 && box.height > 0)).toBe(true);
+    release();
+    await expect(images.first()).toBeHidden();
+    for (const img of (await images.all()).slice(1)) {
+      await expect
+        .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+        .toBe(1400);
+    }
+    expect(await geometry()).toEqual(before);
+    await noOverflow(page);
+  } finally {
+    release();
+  }
+});

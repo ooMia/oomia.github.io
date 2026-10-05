@@ -36,7 +36,7 @@ try {
       'section[aria-labelledby="profile-activity"]'
     );
     for (const img of await activity.locator("img").all()) {
-      await img.scrollIntoViewIfNeeded();
+      await img.locator("..").scrollIntoViewIfNeeded();
       await img.evaluate(
         (el) =>
           new Promise((done) => {
@@ -57,6 +57,8 @@ try {
         loaded: img.complete && img.naturalWidth > 0,
         width: img.naturalWidth,
         height: img.naturalHeight,
+        hidden: img.hidden,
+        fallbackVisible: !img.nextElementSibling.hidden,
       }))
     );
     for (const theme of ["light", "dark"]) {
