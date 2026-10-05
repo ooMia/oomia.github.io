@@ -62,7 +62,9 @@ try {
       }))
     );
     const gravatarCard = activity.locator("[data-gravatar-card]");
-    const gravatarFrame = gravatarCard.locator("[data-gravatar-card-frame]");
+    const gravatarFrame = gravatarCard.locator(
+      "[data-gravatar-card-frame]"
+    );
     await gravatarCard.scrollIntoViewIfNeeded();
     await gravatarFrame.evaluate(
       (frame) =>
@@ -75,24 +77,22 @@ try {
           frame.addEventListener("load", finish, { once: true });
         })
     );
-    const gravatar = await gravatarCard.evaluate(
-      (card) => {
-        const frame = card.querySelector("[data-gravatar-card-frame]");
-        if (!(frame instanceof HTMLIFrameElement)) return null;
+    const gravatar = await gravatarCard.evaluate((card) => {
+      const frame = card.querySelector("[data-gravatar-card-frame]");
+      if (!(frame instanceof HTMLIFrameElement)) return null;
 
-        const cardBox = card.getBoundingClientRect();
-        const frameBox = frame.getBoundingClientRect();
-        return {
-          src: frame.getAttribute("src"),
-          card: { width: cardBox.width, height: cardBox.height },
-          frame: { width: frameBox.width, height: frameBox.height },
-          outerFit:
-            Math.abs(cardBox.width - frameBox.width) < 1 &&
-            Math.abs(cardBox.height - frameBox.height) < 1,
-          innerGeometryObservable: false,
-        };
-      }
-    );
+      const cardBox = card.getBoundingClientRect();
+      const frameBox = frame.getBoundingClientRect();
+      return {
+        src: frame.getAttribute("src"),
+        card: { width: cardBox.width, height: cardBox.height },
+        frame: { width: frameBox.width, height: frameBox.height },
+        outerFit:
+          Math.abs(cardBox.width - frameBox.width) < 1 &&
+          Math.abs(cardBox.height - frameBox.height) < 1,
+        innerGeometryObservable: false,
+      };
+    });
     for (const theme of ["light", "dark"]) {
       if (theme === "dark") {
         await page.getByRole("button", { name: "Toggle Theme" }).click();
