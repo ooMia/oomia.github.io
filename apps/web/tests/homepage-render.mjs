@@ -61,6 +61,24 @@ try {
         fallbackVisible: !img.nextElementSibling.hidden,
       }))
     );
+    const gravatar = await activity.locator("[data-gravatar-card]").evaluate(
+      (card) => {
+        const frame = card.querySelector("[data-gravatar-card-frame]");
+        if (!(frame instanceof HTMLIFrameElement)) return null;
+
+        const cardBox = card.getBoundingClientRect();
+        const frameBox = frame.getBoundingClientRect();
+        return {
+          src: frame.getAttribute("src"),
+          card: { width: cardBox.width, height: cardBox.height },
+          frame: { width: frameBox.width, height: frameBox.height },
+          outerFit:
+            Math.abs(cardBox.width - frameBox.width) < 1 &&
+            Math.abs(cardBox.height - frameBox.height) < 1,
+          innerGeometryObservable: false,
+        };
+      }
+    );
     for (const theme of ["light", "dark"]) {
       if (theme === "dark") {
         await page.getByRole("button", { name: "Toggle Theme" }).click();
@@ -79,7 +97,13 @@ try {
       }));
       if (dimensions.document > dimensions.viewport)
         throw new Error(`${name}/${theme}: horizontal overflow`);
-      reports.push({ viewport: name, theme, dimensions, providers });
+      reports.push({
+        viewport: name,
+        theme,
+        dimensions,
+        providers,
+        gravatar,
+      });
     }
     await context.close();
   }
