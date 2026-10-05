@@ -102,7 +102,10 @@ test("Gravatar profile card fits its responsive embed boundary", async ({
   const frame = card.locator("[data-gravatar-card-frame]");
   await card.scrollIntoViewIfNeeded();
 
-  await expect(frame).toHaveAttribute("src", "https://gravatar.com/oomia6.card");
+  await expect(frame).toHaveAttribute(
+    "src",
+    "https://gravatar.com/oomia6.card"
+  );
   await expect(frame).toHaveAttribute("width", "415");
   await expect(frame).toHaveAttribute("height", "228");
   await expect(frame).toHaveAttribute("referrerpolicy", "no-referrer");
