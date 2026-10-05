@@ -19,6 +19,13 @@ async function noOverflow(page: Page) {
 
 // Deterministic layout stress; these fixtures do not establish provider availability.
 async function mockProviders(page: Page, failedHost?: string) {
+  await page.route("https://gravatar.com/oomia6.card", (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: '<!doctype html><style>html,body{margin:0;width:415px;height:228px;overflow:hidden}body{background:#eee}</style><main style="width:415px;height:228px"></main>',
+    })
+  );
+
   for (const host of providers) {
     await page.route(`https://${host}/**`, (route) =>
       host === failedHost
@@ -84,6 +91,39 @@ test(
     expect(errors).toEqual([]);
   }
 );
+
+test("Gravatar profile card fits its responsive embed boundary", async ({
+  page,
+}) => {
+  await mockProviders(page);
+  await page.goto(`${base}/`);
+
+  const card = page.locator("[data-gravatar-card]");
+  const frame = card.locator("[data-gravatar-card-frame]");
+  await card.scrollIntoViewIfNeeded();
+
+  await expect(frame).toHaveAttribute("src", "https://gravatar.com/oomia6.card");
+  await expect(frame).toHaveAttribute("width", "415");
+  await expect(frame).toHaveAttribute("height", "228");
+  await expect(frame).toHaveAttribute("referrerpolicy", "no-referrer");
+
+  await expect
+    .poll(async () => {
+      const [cardBox, frameBox] = await Promise.all([
+        card.boundingBox(),
+        frame.boundingBox(),
+      ]);
+      if (!cardBox || !frameBox) return false;
+
+      return (
+        Math.abs(cardBox.width - frameBox.width) < 1 &&
+        Math.abs(cardBox.height - frameBox.height) < 1
+      );
+    })
+    .toBe(true);
+
+  await noOverflow(page);
+});
 
 test("email keyboard activation", async ({ page }) => {
   await mockProviders(page);
@@ -189,7 +229,7 @@ for (const host of providers) {
       }
       await expect(
         page.locator(`${activitySelector} figcaption a`)
-      ).toHaveCount(3);
+      ).toHaveCount(4);
       expect(
         await page.locator(`${articlesSelector} h3`).allTextContents()
       ).toEqual(titles);
