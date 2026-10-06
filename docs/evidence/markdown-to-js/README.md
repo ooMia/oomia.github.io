@@ -93,7 +93,7 @@ Engine #79 and Docs #16 were still open when checked. They do not block this spi
 ## Validation obtained
 
 - `vp run --filter web spike:markdown`: 9 standalone/observation tests, network-guarded Astro build and Chromium DOM proof passed.
-- `vp check --no-fmt`: 0 warnings/errors.
+- `vp check --no-fmt`: 0 warnings/errors, including a clean probe with the spike `.astro` directory absent. The first PR CI run exposed that this fixture had relied on generated ambient types; its own tsconfig now explicitly loads the public `astro/client` types. Remote CI results remain revision-bound in PR #59.
 - `vp test`: 49 tests passed across 11 files.
 - Normal Site `typecheck`, UI `typecheck`, and spike Astro `check`: passed; Astro reported no diagnostics.
 - Normal Site build: passed, 11 pages. Local canonical image cache entries were reused.
