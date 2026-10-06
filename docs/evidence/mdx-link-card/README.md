@@ -20,7 +20,7 @@ Trust boundary: MDX remains executable, repository-trusted source through Astro'
 
 Site implementation no longer waits for Docs #16 to materialize real v2 data. `apps/web/tests/link-card/manifest.json` is the **producer-compatible golden manifest** for this slice and is pinned to the Engine producer contract on main revision `ae94012c0a74d1069aabda1c09df7c5f9acfa093` ([contract](https://github.com/ooMia/oomia.github.io.engine/blob/ae94012c0a74d1069aabda1c09df7c5f9acfa093/docs/external-link-records.md)). It includes the producer-owned core/provenance fields that Site intentionally projects away: `generatedAt`, `lilys`, preview `resolvedUrl/fetchedAt`, presentation `maxCharactersPerLine/method`, and optional semantic/full-summary data.
 
-The golden file contains only records valid under that provisional v2 interface: a fully rich record, a text-only rich record with an attempted unavailable preview, and a first-slice-compatible basic record. `manifest-invalid.json` is deliberately **not** producer-compatible; it is isolated negative input used only to verify that malformed optional presentation data degrades to a basic card instead of breaking the build.
+The golden file contains only records valid under that provisional v2 interface: a fully rich record, a text-only rich record with an attempted unavailable preview, a first-slice-compatible basic record, and a long-metadata basic record with an available text preview. `manifest-invalid.json` is deliberately **not** producer-compatible; it is isolated negative input verifying malformed optional presentation/basic fallback and unusable core metadata/original-link fallback.
 
 The current consumer baseline is intentionally revision-bound rather than permanently versioned in the payload. Future Engine contract changes remain allowed; a breaking change requires an explicit fixture/Site migration instead of silently changing this test input. Docs #16 remains responsible for real validation/merge/persistence and later replacement of this golden fixture with revision-bound real manifest evidence.
 
@@ -62,3 +62,32 @@ Recommend `maxCharactersPerLine: 14` for the corresponding Engine ko-KR preparat
 Engine #79 and Docs #16 were live/open during recovery. The pinned manifest remains v1; the rich inputs are explicit fixtures derived from the current producer field contract. No real Ollama output, Docs v2 preparation/backfill, real-v2 provenance, merge or Pages delivery is claimed by these local results. CI is reported separately against the current PR head. Site #54's desktop hover/focus contextual sidebar remains deferred; the single-anchor DOM and ordinary inline links preserve its future interaction boundary. No mobile drawer/sheet/detail button is added.
 
 Maintenance follow-up: move stable DOM/navigation regression assertions from `verify.mjs` into Playwright-native tests and separate evidence/calibration generation; this is not a cleanup merge blocker.
+
+
+## Consumer completion follow-up (2026-10-07)
+
+Implementation/test source: `29a7866f84a8f9681e0ed62b75067bb62b4ecfc7`. Engine baseline and Docs gitlink remain the revisions above. [Machine-readable validation](followup-validation.json) binds this clean Site revision to the SHA-256 of both fixture inputs and the actual local Chromium runtime. Golden input remains synthetic producer-compatible data; the negative input intentionally violates the contract.
+
+The fixture split at `ca1726a297ff026a0bf8b0786dd861bc3daab85e` introduced a reproducible fixture integration regression: compilation read golden + negative records, while the component read only golden records. The isolated browser check failed with **9 cards instead of 10**; malformed presentation became a URL-only anchor. Both phases now import one fixture resolver. The malformed presentation renders a basic card with its metadata title, with no summary rows. Production already shares its local resolver between the processor and component; this fix aligns the fixture with that architecture.
+
+Card text now naturally wraps long unbroken titles, site names and descriptions, preserving mobile containment without shortening producer text. A separate `/resilience/` fixture renders one long-metadata basic card and verifies that unusable core metadata preserves both CommonMark and JSX labels, formatting and authored attributes. No new schema, policy or public interface decision was required.
+
+The verifier now compares every rich card's exact row order and locale against the golden manifest. It waits for provider hydration before applying and asserting each light/dark theme, avoiding a theme reset after route changes. Browser network remains blocked except for local SVG preview bytes; no real target-page metadata or provider runtime is used.
+
+| Current check | Result |
+| --- | --- |
+| `vp check --no-fmt`, `vp test` | PASS; 92 unit tests in 8 files |
+| `vp exec --filter web -- astro sync` | PASS |
+| Web/UI typechecks, isolated-fixture `astro check` | PASS; no diagnostics |
+| `BASE_PATH=/ vp run --filter web build:offline` | PASS; 11 pinned-corpus pages, Node fetch/http(s) forbidden |
+| `vp run --filter web test:link-card` (fixture build + verifier) | PASS; 5 fixture pages; `/mdx/`: 10 cards (8 rich, 2 basic), 24 ordered rows; `/markdown/`: 0 cards |
+| 320/390/768/1440px × light/dark | PASS; 14-code-point rows remain single-line; long metadata remains contained |
+| Keyboard Enter, touch first tap, missing/invalid metadata | PASS; ordinary navigation and safe fallbacks |
+| `vp run --filter web test:e2e` | PASS; all 30 desktop/mobile tests |
+| `git diff --check` | PASS |
+
+Tests ran against the same renderer/fixture bytes committed in the named implementation revision. The final verifier ran with that exact clean HEAD. Subsequent evidence-only commits do not change the tested code or fixture inputs. Browser checks ran locally on macOS, not in automatic PR CI or an OS matrix. Remote CI is reported separately in PR #60 against its final head.
+
+![Current 1440px dark fixture](followup-1440-dark.png)
+
+Site #53 component/projection/MDX implementation has no remaining implementation blocker under this fixture-based acceptance boundary. Real Docs v2 persistence/backfill and exact-Docs-revision integration remain Docs #16's follow-up responsibility; #54 detail interaction, merge and Pages delivery remain separate work.

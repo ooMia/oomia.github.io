@@ -1,0 +1,13 @@
+{
+  "validatedAt": "2026-10-06T19:44:58.856Z",
+  "platform": "darwin",
+  "browserVersion": "153.0.8010.12",
+  "siteRevision": "29a7866f84a8f9681e0ed62b75067bb62b4ecfc7",
+  "workingTreeDirty": false,
+  "engineContractRevision": "ae94012c0a74d1069aabda1c09df7c5f9acfa093",
+  "docsRevision": "feda09afb4343028be4c680fc5ba9dcf267b6366",
+  "goldenManifestSha256": "c294fb6ed15ff7c9faa9ec2bb2a46fdd080dc68262b654534998e7dbbf5ecdd3",
+  "negativeManifestSha256": "559d36ec6af759fef6a87352c964cb0fab4131d39ee30dec17d0a0cf8a28c93c",
+  "dataSource": "Site-local contract-compatible fixture; real Docs v2 integration deferred to Docs #16",
+  "result": "PASS"
+}
