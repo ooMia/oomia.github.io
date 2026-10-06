@@ -82,3 +82,57 @@ describe("LinkCard derived manifest adapter", () => {
     expect(parseExternalLinkManifest("{")).toEqual([]);
   });
 });
+
+describe("v2 optional presentation projection", () => {
+  const basic = { url: "https://example.com/article", title: "Article" };
+  const presentation = {
+    locale: "ko-KR",
+    summaryLines: ["이해의 출발점", "핵심 개념의 연결", "실제 적용의 의미"],
+  };
+  test("projects ordered rich rows and safe remote preview without producer internals", () => {
+    expect(
+      projectExternalLinkRecord({
+        ...basic,
+        summary: "Full summary is separate",
+        presentation: {
+          ...presentation,
+          method: "inference",
+          maxCharactersPerLine: 16,
+        },
+        preview: {
+          state: "available",
+          image: "https://images.example.com/preview.png",
+          siteName: "Example",
+          fetchedAt: "private provenance",
+        },
+      })
+    ).toEqual({
+      ...basic,
+      image: "https://images.example.com/preview.png",
+      siteName: "Example",
+      presentation,
+    });
+  });
+  test.each([
+    null,
+    {},
+    { ...presentation, locale: "invalid_locale" },
+    { ...presentation, summaryLines: ["one", "two"] },
+    { ...presentation, summaryLines: ["one", "", "three"] },
+    { ...presentation, summaryLines: ["one\ntwo", "two", "three"] },
+    { ...presentation, summaryLines: [" one", "two", "three"] },
+  ])("malformed presentation %j keeps the basic card", (value) => {
+    expect(
+      projectExternalLinkRecord({ ...basic, presentation: value })
+    ).toEqual(basic);
+  });
+  test("invalid image and unavailable preview do not break otherwise valid rich rows", () => {
+    for (const preview of [
+      { state: "available", image: "javascript:alert(1)" },
+      { state: "unavailable", image: "https://example.com/image" },
+    ])
+      expect(
+        projectExternalLinkRecord({ ...basic, presentation, preview })
+      ).toEqual({ ...basic, presentation });
+  });
+});

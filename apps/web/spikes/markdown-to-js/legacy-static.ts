@@ -1,6 +1,6 @@
 import { linkCard } from "@workspace/md";
 
-import type { LinkCardResolver } from "./link-card";
+import type { LinkCardResolver } from "../../src/lib/content/link-card";
 
 function textElement(className: string, value: string) {
   return {

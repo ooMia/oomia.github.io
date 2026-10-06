@@ -1,0 +1,15 @@
+---
+import LinkCard from "../../../../../src/components/LinkCard.astro";
+import { createLinkCardResolver } from "../../../../../src/lib/content/link-card";
+import records from "../../../manifest.json";
+interface Props {
+  href: string;
+}
+const resolve = createLinkCardResolver(records);
+---
+
+<LinkCard
+  {...Astro.props}
+  href={Astro.props.href}
+  card={resolve(Astro.props.href)}
+/>

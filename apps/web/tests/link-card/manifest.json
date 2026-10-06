@@ -1,0 +1,46 @@
+[
+  {
+    "url": "https://example.com/rich",
+    "title": "Rich <title> & literal {braces}",
+    "summary": "Full local provider summary, never compact props",
+    "preview": {
+      "state": "available",
+      "image": "https://images.example.com/preview.png",
+      "siteName": "Example site"
+    },
+    "presentation": {
+      "locale": "ko-KR",
+      "maxCharactersPerLine": 14,
+      "summaryLines": [
+        "가나다라마바사아자차카타파하",
+        "WWWWWWWWWWWWWW",
+        "🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍"
+      ]
+    }
+  },
+  {
+    "url": "https://example.com/text",
+    "title": "Text only rich card",
+    "presentation": {
+      "locale": "ko-KR",
+      "summaryLines": [
+        "개념을 먼저 이해하고",
+        "연결된 원리를 살펴",
+        "실제 적용으로 이어간다"
+      ]
+    }
+  },
+  {
+    "url": "https://example.com/basic",
+    "title": "Basic <title>",
+    "description": "v1 description"
+  },
+  {
+    "url": "https://example.com/malformed",
+    "title": "Malformed presentation stays basic",
+    "presentation": {
+      "locale": "ko-KR",
+      "summaryLines": ["one", "two"]
+    }
+  }
+]

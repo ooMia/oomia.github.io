@@ -1,14 +1,22 @@
+import { externalHttpUrl } from "@workspace/md";
 import { readFileSync } from "node:fs";
 
-export interface LinkCardData {
+export interface LinkCardProps {
   readonly url: string;
   readonly title: string;
   readonly description?: string;
   readonly image?: string;
   readonly siteName?: string;
+  readonly presentation?: {
+    readonly locale: string;
+    readonly summaryLines: readonly [string, string, string];
+  };
 }
 
-export type LinkCardResolver = (url: string) => LinkCardData | undefined;
+/** Historical spike compatibility; production uses LinkCardProps. */
+export type LinkCardData = LinkCardProps;
+
+export type LinkCardResolver = (url: string) => LinkCardProps | undefined;
 
 const manifestUrl = new URL(
   "../../../data/articles/derived/external-links.json",
@@ -16,7 +24,7 @@ const manifestUrl = new URL(
 );
 
 export function createLinkCardResolver(records: unknown): LinkCardResolver {
-  const metadata = new Map<string, LinkCardData>();
+  const metadata = new Map<string, LinkCardProps>();
 
   if (Array.isArray(records)) {
     for (const record of records) {
@@ -29,14 +37,14 @@ export function createLinkCardResolver(records: unknown): LinkCardResolver {
   }
 
   return (value) => {
-    const url = normalizeExternalHttpUrl(value);
+    const url = externalHttpUrl(value);
     return url ? metadata.get(url) : undefined;
   };
 }
 
 export function projectExternalLinkRecord(
   value: unknown
-): LinkCardData | undefined {
+): LinkCardProps | undefined {
   if (!isRecord(value)) {
     return undefined;
   }
@@ -45,8 +53,7 @@ export function projectExternalLinkRecord(
   const rawTitle = value["title"];
   const rawDescription = value["description"];
 
-  const url =
-    typeof rawUrl === "string" ? normalizeExternalHttpUrl(rawUrl) : undefined;
+  const url = typeof rawUrl === "string" ? externalHttpUrl(rawUrl) : undefined;
   const title = typeof rawTitle === "string" ? rawTitle.trim() : "";
 
   if (!url || !title) {
@@ -58,12 +65,53 @@ export function projectExternalLinkRecord(
   }
 
   const description = rawDescription?.trim();
+  const preview =
+    isRecord(value["preview"]) && value["preview"]["state"] === "available"
+      ? value["preview"]
+      : undefined;
+  const image =
+    preview && typeof preview["image"] === "string"
+      ? externalHttpUrl(preview["image"])
+      : undefined;
+  const siteName =
+    preview && typeof preview["siteName"] === "string"
+      ? preview["siteName"].trim()
+      : undefined;
+  const presentation = projectPresentation(value["presentation"]);
 
   return {
     url,
     title,
     ...(description ? { description } : {}),
+    ...(image ? { image } : {}),
+    ...(siteName ? { siteName } : {}),
+    ...(presentation ? { presentation } : {}),
   };
+}
+
+function projectPresentation(value: unknown): LinkCardProps["presentation"] {
+  if (!isRecord(value) || typeof value["locale"] !== "string") return;
+  const lines = value["summaryLines"];
+  if (
+    !Array.isArray(lines) ||
+    lines.length !== 3 ||
+    !lines.every(
+      (line): line is string =>
+        typeof line === "string" &&
+        !!line.trim() &&
+        line === line.trim() &&
+        !/[\r\n]/.test(line)
+    )
+  )
+    return;
+  try {
+    const locale = Intl.getCanonicalLocales(value["locale"])[0];
+    if (locale)
+      return { locale, summaryLines: [lines[0]!, lines[1]!, lines[2]!] };
+  } catch {
+    /* Malformed optional presentation leaves the basic card usable. */
+  }
+  return undefined;
 }
 
 export function parseExternalLinkManifest(source: string): unknown {
@@ -79,20 +127,6 @@ function loadExternalLinkManifest(): unknown {
     return parseExternalLinkManifest(readFileSync(manifestUrl, "utf8"));
   } catch {
     return [];
-  }
-}
-
-function normalizeExternalHttpUrl(value: string): string | undefined {
-  try {
-    const url = new URL(value);
-
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
-      return undefined;
-    }
-
-    return url.href;
-  } catch {
-    return undefined;
   }
 }
 

@@ -1,9 +1,9 @@
 import { markdownToHtml } from "satteri";
 import { describe, expect, test } from "vite-plus/test";
 
-import type { LinkCardResolver } from "./link-card";
+import type { LinkCardResolver } from "../../src/lib/content/link-card";
 
-import linkCard from "./link-card-static";
+import linkCard from "./legacy-static";
 
 const url = "https://example.com/article";
 

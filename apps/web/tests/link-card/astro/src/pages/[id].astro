@@ -1,0 +1,36 @@
+---
+import type { InferGetStaticPropsType } from "astro";
+import { getCollection, render } from "astro:content";
+import { ArticleFrame } from "../../../../../src/components/presentation/ArticleFrame";
+import RootLayout from "../../../../../src/layouts/RootLayout.astro";
+import { SITE_AUTHOR } from "../../../../../src/lib/content/article-metadata";
+import FixtureCard from "../components/FixtureCard.astro";
+export async function getStaticPaths() {
+  return (await getCollection("fixtures")).map((entry) => ({
+    params: { id: entry.id },
+    props: { entry },
+  }));
+}
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<RootLayout
+  title="LinkCard native article fixture"
+  description="Site-owned contract fixture"
+>
+  <ArticleFrame
+    pathname={Astro.url.pathname}
+    homeUrl="/"
+    title={entry.id}
+    description="Fixture, not real v2 delivery"
+    author={SITE_AUTHOR}
+    tags={[]}
+    readingMinutes={1}
+    toc={[]}
+    client:load
+  >
+    <Content components={{ LinkCard: FixtureCard }} />
+  </ArticleFrame>
+</RootLayout>

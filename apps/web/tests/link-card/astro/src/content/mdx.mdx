@@ -1,0 +1,52 @@
+---
+title: Native MDX
+---
+
+# Native MDX
+
+[Inline form](https://example.com/rich)
+
+[Full reference][rich]
+
+[rich][]
+
+[rich]
+
+[rich]: https://example.com/rich
+
+<a
+  href="https://example.com/rich"
+  target="_blank"
+  rel="noopener"
+  className="authored"
+>
+  JSX label
+</a>
+
+<a href={"https://example.com/rich"}>Literal expression</a>
+
+<a href="https://example.com/rich">Multiline JSX</a>
+
+[Text only](https://example.com/text)
+
+[Basic](https://example.com/basic)
+
+[Bad presentation](https://example.com/malformed)
+
+[Original **fallback**](https://example.com/missing)
+
+Inline [source label](https://example.com/rich) sentence.
+
+Inline <a href="https://example.com/rich">JSX source label</a> sentence.
+
+[Internal](/internal)
+
+[Mail](mailto:reader@example.com)
+
+https://example.com/rich
+
+[[https://example.com/rich]]
+
+[One](https://example.com/rich) [Two](https://example.com/basic)
+
+<a href={"https://example.com/" + "rich"}>Dynamic expression stays native</a>

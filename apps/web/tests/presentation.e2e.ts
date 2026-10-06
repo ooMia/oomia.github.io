@@ -147,7 +147,7 @@ test("system dark preference is respected without an explicit saved theme", asyn
   await expect(page.locator("html")).toHaveClass(/dark/);
 });
 
-test("Callout and metadata-backed LinkCard retain their semantics", async ({
+test("Callout and native Markdown links retain their semantics", async ({
   page,
 }, info) => {
   await page.goto(route("tech/log/woowa-precourse-parameterized-test"));
@@ -162,13 +162,16 @@ test("Callout and metadata-backed LinkCard retain their semantics", async ({
   await expect(page.locator("html")).toHaveClass(/dark/);
   await evidence(page, info, "callout-dark");
   await page.goto(route("tech/log/tdd-dev-flow"));
-  const card = page.locator("a.link-card");
+  await expect(page.locator("a.link-card")).toHaveCount(0);
+  const card = page.locator(
+    'a[href="https://www.jetbrains.com/help/idea/working-with-source-code.html"]'
+  );
   await expect(card).toHaveAttribute(
     "href",
     "https://www.jetbrains.com/help/idea/working-with-source-code.html"
   );
-  await expect(card).toHaveAttribute("data-link-card", "true");
-  await expect(card).toContainText("Write and edit source code");
+  await expect(card).not.toHaveAttribute("data-link-card", "true");
+  await expect(card).toContainText("jetbrains.com");
   await card.evaluate((el) =>
     window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - 128)
   );

@@ -1,5 +1,6 @@
 ---
 import Callout from "@/components/Callout.astro";
+import LinkCard from "@/components/LinkCard.astro";
 import { ArticleFrame } from "@/components/presentation/ArticleFrame";
 import RootLayout from "@/layouts/RootLayout.astro";
 import { getArticleRecords } from "@/lib/content/articles";
@@ -43,6 +44,6 @@ const toc = article.headings.map((heading) => ({
     {toc}
     client:load
   >
-    <article.Content components={{ Callout }} />
+    <article.Content components={{ Callout, LinkCard }} />
   </ArticleFrame>
 </RootLayout>

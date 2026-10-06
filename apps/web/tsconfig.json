@@ -6,7 +6,8 @@
     "playwright-report",
     "test-results",
     "data/articles/**",
-    "spikes/**"
+    "spikes/**",
+    "tests/link-card/astro/**"
   ],
   "compilerOptions": {
     "jsx": "react-jsx",
