@@ -3,9 +3,11 @@ import type { AstroUserConfig } from "astro";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
-import { linkCard, mdx, readingTime, satteri } from "@workspace/md";
+import { mdx, readingTime, satteri } from "@workspace/md";
 import { defineConfig } from "astro/config";
 import { mergeWith } from "es-toolkit";
+
+import staticLinkCard from "./src/lib/content/link-card-static";
 
 import resolveLinkCardData from "@/lib/content/link-card";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
@@ -41,7 +43,7 @@ const markdownExConfig: AstroUserConfig = {
         smartPunctuation: false,
       },
       mdastPlugins: [readingTime],
-      hastPlugins: [linkCard(resolveLinkCardData)],
+      hastPlugins: [staticLinkCard(resolveLinkCardData)],
     }),
   },
   // https://docs.astro.build/ko/guides/integrations-guide/mdx

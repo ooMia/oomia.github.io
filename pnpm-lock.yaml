@@ -240,6 +240,9 @@ importers:
       prettier-plugin-astro-organize-imports:
         specifier: ^0.4.13
         version: 0.4.13(prettier-plugin-astro@0.14.1)(prettier@3.9.6)
+      satteri:
+        specifier: 0.10.5
+        version: 0.10.5
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

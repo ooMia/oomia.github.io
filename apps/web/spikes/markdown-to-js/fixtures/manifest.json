@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://example.com/article",
+    "title": "Fixture <title> & \"quotes\" {literal}",
+    "description": "Basic card projection",
+    "summary": "DO NOT PROJECT",
+    "preview": { "siteName": "not a v1 field" }
+  },
+  {
+    "url": "https://www.jetbrains.com/help/idea/working-with-source-code.html",
+    "title": "Working with source code",
+    "description": "Local fixture for canonical TDD article"
+  }
+]

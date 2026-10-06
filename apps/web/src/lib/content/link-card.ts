@@ -1,6 +1,14 @@
-import type { LinkCardData, LinkCardResolver } from "@workspace/md";
-
 import { readFileSync } from "node:fs";
+
+export interface LinkCardData {
+  readonly url: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly image?: string;
+  readonly siteName?: string;
+}
+
+export type LinkCardResolver = (url: string) => LinkCardData | undefined;
 
 const manifestUrl = new URL(
   "../../../data/articles/derived/external-links.json",

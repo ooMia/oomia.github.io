@@ -1,79 +1,36 @@
 import { markdownToHtml } from "satteri";
-import { describe, expect, test } from "vite-plus/test";
+import { describe, expect, test, vi } from "vite-plus/test";
 
-import linkCard, { type LinkCardResolver } from ".";
+import linkCard from ".";
 
-const url = "https://example.com/article";
-
-const resolve: LinkCardResolver = (value) =>
-  value === url
-    ? {
-        url,
-        title: "Example article",
-        description: "Example description",
-        siteName: "Example",
-      }
-    : undefined;
-
-async function render(source: string): Promise<string> {
-  const result = await markdownToHtml(source, {
-    features: { gfm: true },
-    hastPlugins: [linkCard(resolve)],
-  });
-
-  return result.html;
-}
-
-describe("link card", () => {
-  test("renders a metadata-backed autolink paragraph as a card", async () => {
-    const html = await render(`<${url}>`);
-
-    expect(html).toContain('class="link-card"');
-    expect(html).toContain('data-link-card="true"');
-    expect(html).toContain("Example article");
-    expect(html).toContain("Example description");
-    expect(html).toContain("Example");
-  });
-
-  test("renders a standalone Markdown link as a card", async () => {
-    const html = await render(`[Read more](${url})`);
-
-    expect(html).toContain('class="link-card"');
-    expect(html).toContain("Example article");
-  });
-
-  test("keeps an inline external link as an ordinary anchor", async () => {
-    const html = await render(`Read [this article](${url}) for details.`);
-
-    expect(html).not.toContain('class="link-card"');
-    expect(html).toContain(`href="${url}"`);
-    expect(html).toContain("this article");
-  });
-
-  test("keeps missing metadata as an ordinary anchor", async () => {
-    const html = await render("<https://example.org/unknown>");
-
-    expect(html).not.toContain('class="link-card"');
-    expect(html).toContain('href="https://example.org/unknown"');
-  });
-
-  test("keeps an internal link as an ordinary anchor", async () => {
-    const html = await render("[Local](/articles/local)");
-
-    expect(html).not.toContain('class="link-card"');
-    expect(html).toContain('href="/articles/local"');
-  });
-
-  test("renders with only the required metadata", async () => {
-    const minimal = linkCard((value) =>
-      value === url ? { url, title: "Minimal" } : undefined
+describe("standalone external-link semantics", () => {
+  test("only paragraph-singleton HTTP(S) anchors are offered to Site", async () => {
+    const target = vi.fn((_href: string) => undefined);
+    await markdownToHtml(
+      "<https://example.com/card>\n\nInline [link](https://example.com/inline) text.\n\n[Local](/local)\n\n[Email](mailto:test@example.com)\n\n[One](https://example.com/one) [Two](https://example.com/two)\n\n```md\n<https://example.com/code>\n```",
+      { hastPlugins: [linkCard(target)] }
     );
-
-    const result = await markdownToHtml(`<${url}>`, {
-      hastPlugins: [minimal],
+    expect(target).toHaveBeenCalledTimes(1);
+    expect(target.mock.calls[0]?.[0]).toBe("https://example.com/card");
+  });
+  test("Site can decline projection or supply its own target without plugin markup", async () => {
+    const fallback = await markdownToHtml("<https://example.com/card>", {
+      hastPlugins: [linkCard(() => undefined)],
     });
-
-    expect(result.html).toContain('class="link-card"');
-    expect(result.html).toContain("Minimal");
+    expect(fallback.html).toContain('<a href="https://example.com/card">');
+    const target = await markdownToHtml("<https://example.com/card>", {
+      hastPlugins: [
+        linkCard((href) => ({
+          type: "element",
+          tagName: "span",
+          properties: { dataHref: href },
+          children: [],
+        })),
+      ],
+    });
+    expect(target.html).toContain(
+      '<span data-href="https://example.com/card"></span>'
+    );
+    expect(target.html).not.toContain("link-card");
   });
 });

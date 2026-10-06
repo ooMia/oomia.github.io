@@ -109,3 +109,9 @@ Turbo는 즉시 삭제하지 않지만 새 workflow가 Turbo dependency를 확�
 - [Site Issue #10](https://github.com/ooMia/oomia.github.io/issues/10)
 - [Knowledge coordination](https://github.com/ooMia/oomia.github.io.knowledge/issues/10)
 - 초기 이관 내용의 provenance는 관련 PR/Git history에 남긴다. 현재 소비 계약의 원본은 이 문서와 실제 Site code/package다.
+
+## Markdown semantic / presentation boundary
+
+`@workspace/md` owns standalone external HTTP(S) anchor detection. Site supplies the render target (or declines projection for ordinary-link fallback), owns local manifest projection and `LinkCardData`, and owns card presentation. Producer schema and card visual DOM are not package-level Markdown responsibilities.
+
+The normal consumer continues to use the Site-owned static presentation adapter. The [Site #53 executable spike](evidence/markdown-to-js/README.md) separately proves public Sätteri component compilation and Astro static rendering. Its experimental processor is not the production consumer contract; its raw-HTML, metadata, assets and compile-cost limitations must be resolved before adoption. `.md` remains Markdown grammar and `.mdx` remains MDX grammar; no Docs source conversion is required.
