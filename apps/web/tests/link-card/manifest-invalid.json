@@ -17,5 +17,17 @@
       "sourceId": 44,
       "noteId": 444
     }
+  },
+  {
+    "url": "https://example.com/missing-title",
+    "title": " ",
+    "presentation": {
+      "locale": "ko-KR",
+      "summaryLines": [
+        "one",
+        "two",
+        "three"
+      ]
+    }
   }
 ]

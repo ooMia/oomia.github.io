@@ -1,7 +1,9 @@
 import { chromium } from "@playwright/test";
 import { preview } from "astro";
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("./astro/", import.meta.url));
@@ -14,7 +16,34 @@ const server = await preview({
   logLevel: "error",
 });
 const browser = await chromium.launch({ headless: true });
+async function openFixture(page, route) {
+  await page.goto(`http://127.0.0.1:4322/${route}/`);
+  // The provider must finish hydration before a fixture applies a theme.
+  await page.waitForFunction(
+    () => !document.querySelector("astro-island[ssr]")
+  );
+}
+
+async function applyTheme(page, theme) {
+  await page.evaluate((theme) => {
+    localStorage.setItem("theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, theme);
+  await page.evaluate(() => document.fonts.ready);
+  assert.equal(
+    await page.locator("html").evaluate((el) => el.classList.contains("dark")),
+    theme === "dark"
+  );
+}
+
 const observations = [];
+const goldenSource = await readFile(
+  new URL("./manifest.json", import.meta.url)
+);
+const negativeSource = await readFile(
+  new URL("./manifest-invalid.json", import.meta.url)
+);
+const goldenRecords = JSON.parse(goldenSource);
 try {
   await mkdir(output, { recursive: true });
   const page = await browser.newPage();
@@ -33,7 +62,7 @@ try {
   });
   const commonContracts = [];
   for (const route of ["common-markdown", "common-mdx"]) {
-    await page.goto(`http://127.0.0.1:4322/${route}/`);
+    await openFixture(page, route);
     commonContracts.push(
       await page.locator("[data-heading-contract]").evaluate((el) => ({
         headings: JSON.parse(el.getAttribute("data-heading-contract")),
@@ -49,7 +78,7 @@ try {
   assert.ok(commonContracts[0].reading.words.en > 0);
   assert.ok(commonContracts[0].reading.words.ko > 0);
   assert.ok(commonContracts[0].reading.minutes > 0);
-  await page.goto("http://127.0.0.1:4322/markdown/");
+  await openFixture(page, "markdown");
   assert.equal(await page.locator("a.link-card").count(), 0);
   assert.equal(
     await page.locator('a[href="https://example.com/rich"]').textContent(),
@@ -63,11 +92,32 @@ try {
     await page.locator(".article-body").innerText(),
     /export const remainsText/
   );
-  await page.goto("http://127.0.0.1:4322/mdx/");
+  await openFixture(page, "mdx");
   assert.equal(await page.locator("a.link-card").count(), 10);
   assert.equal(await page.locator('[data-link-card-kind="rich"]').count(), 8);
   assert.equal(await page.locator('[data-link-card-kind="basic"]').count(), 2);
   assert.equal(await page.locator(".link-card__row").count(), 24);
+  const malformed = page.locator('a[href="https://example.com/malformed"]');
+  assert.equal(await malformed.getAttribute("data-link-card-kind"), "basic");
+  assert.equal(
+    await malformed.locator(".link-card__title").textContent(),
+    "Malformed presentation stays basic"
+  );
+  assert.equal(await malformed.locator(".link-card__row").count(), 0);
+  for (const record of goldenRecords.filter((record) => record.presentation)) {
+    for (const card of await page
+      .locator(`a.link-card[href="${record.url}"]`)
+      .all()) {
+      assert.deepEqual(
+        await card.locator(".link-card__row").allTextContents(),
+        record.presentation.summaryLines
+      );
+      assert.equal(
+        await card.locator(".link-card__summary").getAttribute("lang"),
+        record.presentation.locale
+      );
+    }
+  }
   assert.equal(
     await page
       .locator(".link-card button, .link-card a, p > .link-card")
@@ -141,12 +191,7 @@ try {
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const theme of ["light", "dark"]) {
-      await page.evaluate(
-        (theme) =>
-          document.documentElement.classList.toggle("dark", theme === "dark"),
-        theme
-      );
-      await page.evaluate(() => document.fonts.ready);
+      await applyTheme(page, theme);
       const rows = await page
         .locator(".link-card__row")
         .evaluateAll((elements) =>
@@ -183,6 +228,50 @@ try {
           path: `${output}/${width}-${theme}.png`,
           fullPage: true,
         });
+      await openFixture(page, "resilience");
+      await applyTheme(page, theme);
+      assert.equal(await page.locator("a.link-card").count(), 1);
+      assert.equal(
+        await page
+          .locator('a[href="https://example.com/missing-title"] strong')
+          .first()
+          .textContent(),
+        "missing title"
+      );
+      assert.equal(
+        await page.locator("a.missing-core strong").textContent(),
+        "JSX missing title"
+      );
+      assert.equal(
+        await page.locator("a.missing-core").getAttribute("title"),
+        "Authored tooltip"
+      );
+      assert.equal(
+        await page.locator("a.missing-core").getAttribute("data-link-card"),
+        null
+      );
+      const metadata = await page
+        .locator(".link-card__title, .link-card__site, .link-card__description")
+        .evaluateAll((elements) =>
+          elements.map((el) => ({
+            text: el.textContent,
+            width: el.clientWidth,
+            scrollWidth: el.scrollWidth,
+          }))
+        );
+      assert.equal(metadata.length, 3);
+      for (const item of metadata)
+        assert.ok(
+          item.scrollWidth <= item.width + 1,
+          `Metadata overflow at ${width}/${theme}: ${JSON.stringify(item)}`
+        );
+      assert.ok(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth
+        )
+      );
+      observations.push({ width, theme, metadata });
+      await openFixture(page, "mdx");
     }
   }
   // Overlong producer output stays readable instead of clipping or ellipsis.
@@ -219,7 +308,7 @@ try {
       ? route.continue()
       : route.abort()
   );
-  await touchPage.goto("http://127.0.0.1:4322/mdx/");
+  await openFixture(touchPage, "mdx");
   assert.equal(
     await touchPage.locator("[role=dialog], [data-link-detail]").count(),
     0
@@ -236,6 +325,39 @@ try {
   await writeFile(
     `${output}/observations.json`,
     JSON.stringify(observations, null, 2)
+  );
+  await writeFile(
+    `${output}/validation.json`,
+    JSON.stringify(
+      {
+        validatedAt: new Date().toISOString(),
+        platform: process.platform,
+        browserVersion: browser.version(),
+        siteRevision: execFileSync("git", ["rev-parse", "HEAD"], {
+          encoding: "utf8",
+        }).trim(),
+        workingTreeDirty: !!execFileSync("git", ["status", "--porcelain"], {
+          encoding: "utf8",
+        }).trim(),
+        engineContractRevision: "ae94012c0a74d1069aabda1c09df7c5f9acfa093",
+        docsRevision: execFileSync(
+          "git",
+          ["-C", "data/articles", "rev-parse", "HEAD"],
+          { encoding: "utf8" }
+        ).trim(),
+        goldenManifestSha256: createHash("sha256")
+          .update(goldenSource)
+          .digest("hex"),
+        negativeManifestSha256: createHash("sha256")
+          .update(negativeSource)
+          .digest("hex"),
+        dataSource:
+          "Site-local contract-compatible fixture; real Docs v2 integration deferred to Docs #16",
+        result: "PASS",
+      },
+      null,
+      2
+    )
   );
   console.log(
     JSON.stringify(

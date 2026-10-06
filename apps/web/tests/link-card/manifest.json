@@ -68,5 +68,22 @@
       "sourceId": 33,
       "noteId": 333
     }
+  },
+  {
+    "url": "https://example.com/long-metadata",
+    "title": "LongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitleLongUnbrokenTitle",
+    "description": "LongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescriptionLongUnbrokenDescription",
+    "generatedAt": "2026-10-07T00:00:00.000Z",
+    "preview": {
+      "state": "available",
+      "siteName": "LongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteNameLongUnbrokenSiteName",
+      "resolvedUrl": "https://example.com/long-metadata",
+      "fetchedAt": "2026-10-07T00:00:03.000Z"
+    },
+    "lilys": {
+      "projectId": 5,
+      "sourceId": 55,
+      "noteId": 555
+    }
   }
 ]
