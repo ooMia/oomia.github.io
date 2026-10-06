@@ -1,12 +1,12 @@
 # Native MDX LinkCard evidence
 
-Source tree: `0beb85f03251050bc20653769ec6dbb57903328a`. Docs gitlink: `feda09afb4343028be4c680fc5ba9dcf267b6366`. Local validation: 2026-10-07, macOS, Playwright Chromium. This record names the implementation tree validated locally; the evidence-only commit does not change that implementation.
+Source tree: `05991c6c0bc52150ebf79d5f0843a5aa602ed98e`. Docs gitlink: `feda09afb4343028be4c680fc5ba9dcf267b6366`. Local validation: 2026-10-07, macOS, Playwright Chromium. This record names the implementation tree validated locally; the evidence-only commit does not change that implementation.
 
 ## Outcome and owning decisions
 
-Site #53 production core is implemented. Native `.md` keeps ordinary anchors; native `.mdx` maps standalone standard links to a Site-owned Astro component. No canonical Docs bytes/gitlink were changed. PR #59's earlier spike remains on its original branch and in the isolated investigation directory; the old visual HAST adapter has moved into that directory. Production imports no experimental processor, generated function-body evaluator or React static SSR bridge.
+Site #53 production core is implemented. Native `.md` keeps ordinary anchors; native `.mdx` maps standalone standard links to a Site-owned Astro component. No canonical Docs bytes/gitlink were changed. PR #59 remains revision-bound investigation history. This branch removes the executable spike tree/script, web's spike-only Sätteri dependency, legacy HAST LinkCard implementation/tests/exports, and historical `LinkCardData` alias. The rejected renderer is absent from the final diff and normal test discovery.
 
-`@workspace/md` owns normalized MDAST/MDX detection and an independent standalone predicate; Site owns local producer projection, typed compact props, component target and visual DOM. Standard inline/full/collapsed/shortcut references and lowercase JSX anchors normalize identically. Static JSX string/parenthesized/template-literal hrefs use parser-provided ESTree, with a small non-evaluating JS parser fallback for adapters lacking it. Dynamic hrefs, spreads, uppercase components and ambiguous attributes remain native. Authored target/rel/class/title attributes are retained. Inline/internal/non-HTTP/multiple-content/vendor-only links are not cards.
+`@workspace/md` owns normalized MDAST/MDX detection and an independent standalone predicate; Site owns local producer projection, typed compact props, component target and visual DOM. Standard inline/full/collapsed/shortcut references and lowercase JSX anchors normalize identically. Static JSX string/parenthesized/template-literal hrefs use parser-provided ESTree only; missing metadata fails closed. The Acorn fallback and its direct dependency are removed. Production remark adapters use standard MDAST/MDX ecosystem types, not Sätteri AST types. CommonMark label matching/first-definition precedence belongs to the parser plus declared `mdast-util-definitions`, without custom label normalization or definition collection. Dynamic hrefs, spreads, uppercase components and ambiguous attributes remain native. Authored target/rel/class/title attributes are retained. Standalone root/blockquote/list-item blocks are eligible; traversal stays inside these block containers and lists. Tables, footnotes (including nested blockquotes), and authored JSX containers retain native rendering. Inline/internal/non-HTTP/multiple-content/vendor-only links are not cards. External absolute HTTP(S) URLs follow WHATWG URL semantics; internal/file destinations stay authored in native nodes, with no path-case/Unicode/encoding repair or document/Git lineage identity.
 
 ## Public processor choice and trade-offs
 
@@ -18,21 +18,24 @@ Trust boundary: MDX remains executable, repository-trusted source through Astro'
 
 ## Validation
 
-| Check                                                                    | Result                                                                      |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| `vp check`                                                               | PASS, formatting/lint/types, 0 diagnostics                                  |
-| `vp test`                                                                | PASS, 91 tests in 12 files, including existing isolated spike tests         |
-| `vp run --filter web typecheck`                                          | PASS, 42 files, 0 errors/warnings/hints                                     |
-| `vp run --filter @workspace/ui typecheck`                                | PASS                                                                        |
-| `vp exec --filter web -- astro check --root tests/link-card/astro`       | PASS, 5 files, 0 diagnostics                                                |
-| `vp run --filter web build:offline` | PASS, pinned canonical corpus; fetch/http(s) forbidden in build workers     |
-| `vp run --filter web test:link-card`                                     | PASS, same production processors/component in isolated native Astro fixture |
-| `vp run --filter web test:e2e`                                           | PASS, full 30 desktop/mobile tests                                          |
-| `git diff --check`                                                       | PASS                                                                        |
+| Check                                                              | Result                                                                      |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `vp check --no-fmt`                                                | PASS, lint/types, 0 diagnostics                                             |
+| `vp test`                                                          | PASS, 92 tests in 8 files; no spike/legacy HAST tests                       |
+| `vp run --filter web typecheck`                                    | PASS, 42 files, 0 errors/warnings/hints                                     |
+| `vp run --filter @workspace/ui typecheck`                          | PASS                                                                        |
+| `vp exec --filter web -- astro check --root tests/link-card/astro` | PASS, 5 files, 0 diagnostics                                                |
+| `vp run --filter web build:offline`                                | PASS, pinned canonical corpus; fetch/http(s) forbidden in build workers     |
+| `vp run --filter web test:link-card`                               | PASS, same production processors/component in isolated native Astro fixture |
+| `vp run --filter web test:e2e`                                     | PASS, full 30 desktop/mobile tests                                          |
+| `vp install --frozen-lockfile`                                     | PASS, current lockfile                                                      |
+| `git diff --check`                                                 | PASS                                                                        |
 
 The no-network preload is a build probe blocking Node fetch/http(s), not an OS network security sandbox. Standard local static-asset optimization is unchanged. Full canonical E2E permits existing optional image/provider loading; the isolated LinkCard fixture blocks external traffic and uses only local synthetic image bytes. Neither result claims cross-OS execution or deployment.
 
 Canonical rendered routes: `/articles/tech/log/tdd-dev-flow/` demonstrates `.md` ordinary-link regression and `/articles/tech/log/woowa-precourse-parameterized-test/` demonstrates native MDX/Callout preservation. Synthetic v2 fixture routes are `/markdown/` and `/mdx/` in `apps/web/tests/link-card/astro/dist`; they are not canonical Docs articles or deployed routes.
+
+Shared native processor fixture routes `/common-markdown/` and `/common-mdx/` render identical standard headings/slugs and English/Korean reading-time statistics from the same source. This is a shared output contract, not extension feature parity.
 
 Fixture outcomes: Markdown cards **0**; MDX cards **10** (rich **8**, basic **2**); ordered summary rows **24**. It covers standard link forms, original-label missing-metadata fallback, malformed optional presentation/basic fallback, remote-image props, text-only rich card, inline native labels and navigation attributes. No nested links/buttons or paragraph-wrapped cards. Keyboard focus/Enter and mobile touch first tap keep external navigation; no sidebar/dialog is present.
 
@@ -48,4 +51,6 @@ Recommend `maxCharactersPerLine: 14` for the corresponding Engine ko-KR preparat
 
 ## Remaining owner boundaries
 
-Engine #79 and Docs #16 were live/open during recovery. The pinned manifest remains v1; the rich inputs are explicit fixtures derived from the current producer field contract. No real Ollama output, Docs v2 preparation/backfill, real-v2 provenance, merge, CI or Pages delivery is claimed by these local results. Site #54's desktop hover/focus contextual sidebar remains deferred; the single-anchor DOM and ordinary inline links preserve its future interaction boundary. No mobile drawer/sheet/detail button is added.
+Engine #79 and Docs #16 were live/open during recovery. The pinned manifest remains v1; the rich inputs are explicit fixtures derived from the current producer field contract. No real Ollama output, Docs v2 preparation/backfill, real-v2 provenance, merge or Pages delivery is claimed by these local results. CI is reported separately against the current PR head. Site #54's desktop hover/focus contextual sidebar remains deferred; the single-anchor DOM and ordinary inline links preserve its future interaction boundary. No mobile drawer/sheet/detail button is added.
+
+Maintenance follow-up: move stable DOM/navigation regression assertions from `verify.mjs` into Playwright-native tests and separate evidence/calibration generation; this is not a cleanup merge blocker.
