@@ -2,11 +2,17 @@
   {
     "url": "https://example.com/rich",
     "title": "Rich <title> & literal {braces}",
+    "generatedAt": "2026-10-07T00:00:00.000Z",
     "summary": "Full local provider summary, never compact props",
     "preview": {
       "state": "available",
+      "title": "Rich preview title",
+      "description": "Preview metadata stays producer-owned",
       "image": "https://images.example.com/preview.png",
-      "siteName": "Example site"
+      "siteName": "Example site",
+      "resolvedUrl": "https://example.com/rich",
+      "fetchedAt": "2026-10-07T00:00:01.000Z",
+      "etag": "\"fixture-rich-v2\""
     },
     "presentation": {
       "locale": "ko-KR",
@@ -15,32 +21,52 @@
         "가나다라마바사아자차카타파하",
         "WWWWWWWWWWWWWW",
         "🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍🔍"
-      ]
+      ],
+      "method": "inference"
+    },
+    "lilys": {
+      "projectId": 1,
+      "sourceId": 11,
+      "noteId": 111
     }
   },
   {
     "url": "https://example.com/text",
     "title": "Text only rich card",
+    "generatedAt": "2026-10-07T00:00:00.000Z",
+    "summary": "Text-only rich fixture with an attempted unavailable preview.",
+    "preview": {
+      "state": "unavailable",
+      "resolvedUrl": "https://example.com/text",
+      "fetchedAt": "2026-10-07T00:00:02.000Z",
+      "failure": "http"
+    },
     "presentation": {
       "locale": "ko-KR",
+      "maxCharactersPerLine": 14,
       "summaryLines": [
         "개념을 먼저 이해하고",
         "연결된 원리를 살펴",
         "실제 적용으로 이어간다"
-      ]
+      ],
+      "method": "fallback"
+    },
+    "lilys": {
+      "projectId": 2,
+      "sourceId": 22,
+      "noteId": 222
     }
   },
   {
     "url": "https://example.com/basic",
     "title": "Basic <title>",
-    "description": "v1 description"
-  },
-  {
-    "url": "https://example.com/malformed",
-    "title": "Malformed presentation stays basic",
-    "presentation": {
-      "locale": "ko-KR",
-      "summaryLines": ["one", "two"]
+    "description": "v1 description",
+    "generatedAt": "2026-10-07T00:00:00.000Z",
+    "summary": "First-slice compatible semantic record without optional v2 capabilities.",
+    "lilys": {
+      "projectId": 3,
+      "sourceId": 33,
+      "noteId": 333
     }
   }
 ]

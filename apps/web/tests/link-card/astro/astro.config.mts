@@ -6,8 +6,11 @@ import { fileURLToPath } from "node:url";
 
 import { articleProcessors } from "../../../src/lib/content/article-processors";
 import { createLinkCardResolver } from "../../../src/lib/content/link-card";
+import invalidRecords from "../manifest-invalid.json";
 import records from "../manifest.json";
-const processors = articleProcessors(createLinkCardResolver(records));
+const processors = articleProcessors(
+  createLinkCardResolver([...records, ...invalidRecords])
+);
 export default defineConfig({
   output: "static",
   markdown: { processor: processors.markdown },

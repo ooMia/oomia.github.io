@@ -16,6 +16,14 @@ Benefits: actual standard multiline JSX support, parser ESTree metadata, public 
 
 Trust boundary: MDX remains executable, repository-trusted source through Astro's existing native build, not a sandbox for arbitrary untrusted documents. Metadata is local untrusted data projected into escaped text and credential-free HTTP(S) URLs. Compact props exclude provider full summary, provenance and model/fetch internals. No network lookup enriches a record at build or render time. Remote image URLs are output directly for the browser; no download/optimization/self-hosting was introduced. Fixture browser image requests are fulfilled with local SVG test data; other external fixture requests are aborted.
 
+## Fixture contract boundary
+
+Site implementation no longer waits for Docs #16 to materialize real v2 data. `apps/web/tests/link-card/manifest.json` is the **producer-compatible golden manifest** for this slice and is pinned to the Engine producer contract on main revision `ae94012c0a74d1069aabda1c09df7c5f9acfa093` ([contract](https://github.com/ooMia/oomia.github.io.engine/blob/ae94012c0a74d1069aabda1c09df7c5f9acfa093/docs/external-link-records.md)). It includes the producer-owned core/provenance fields that Site intentionally projects away: `generatedAt`, `lilys`, preview `resolvedUrl/fetchedAt`, presentation `maxCharactersPerLine/method`, and optional semantic/full-summary data.
+
+The golden file contains only records valid under that provisional v2 interface: a fully rich record, a text-only rich record with an attempted unavailable preview, and a first-slice-compatible basic record. `manifest-invalid.json` is deliberately **not** producer-compatible; it is isolated negative input used only to verify that malformed optional presentation data degrades to a basic card instead of breaking the build.
+
+The current consumer baseline is intentionally revision-bound rather than permanently versioned in the payload. Future Engine contract changes remain allowed; a breaking change requires an explicit fixture/Site migration instead of silently changing this test input. Docs #16 remains responsible for real validation/merge/persistence and later replacement of this golden fixture with revision-bound real manifest evidence.
+
 ## Validation
 
 | Check                                                              | Result                                                                      |

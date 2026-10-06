@@ -1,0 +1,21 @@
+[
+  {
+    "url": "https://example.com/malformed",
+    "title": "Malformed presentation stays basic",
+    "generatedAt": "2026-10-07T00:00:00.000Z",
+    "presentation": {
+      "locale": "ko-KR",
+      "maxCharactersPerLine": 14,
+      "summaryLines": [
+        "one",
+        "two"
+      ],
+      "method": "inference"
+    },
+    "lilys": {
+      "projectId": 4,
+      "sourceId": 44,
+      "noteId": 444
+    }
+  }
+]
