@@ -9,7 +9,7 @@ import type { LinkCardResolver } from "./link-card";
 
 import { linkCardBinding } from "./link-card-binding";
 
-const features = {
+const markdownFeatures = {
   gfm: true,
   frontmatter: true,
   math: true,
@@ -24,7 +24,10 @@ const features = {
 /** Public Astro integration: native Markdown stays separate from MDX enhancement. */
 export function articleProcessors(resolve: LinkCardResolver) {
   return {
-    markdown: satteri({ features, mdastPlugins: [readingTime] }),
+    markdown: satteri({
+      features: markdownFeatures,
+      mdastPlugins: [readingTime],
+    }),
     mdx: unified({
       gfm: true,
       smartypants: false,

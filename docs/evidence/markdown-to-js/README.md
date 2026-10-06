@@ -1,4 +1,6 @@
-# Site #53 — executable Markdown component spike
+# Site #53 — historical Markdown component investigation
+
+Historical evidence for [PR #59](https://github.com/ooMia/oomia.github.io/pull/59), frozen at investigation revision [`68d2c9f`](https://github.com/ooMia/oomia.github.io/tree/68d2c9f). The executable spike, script and legacy HAST path have been removed from PR #60. Commands and implementation descriptions below apply only to that revision, not the current checkout.
 
 Local evidence collected 2026-10-06 (Asia/Seoul). This completes the first investigation slice of [Site #53](https://github.com/ooMia/oomia.github.io/issues/53), not the rich v2 LinkCard feature or a production rendering migration.
 

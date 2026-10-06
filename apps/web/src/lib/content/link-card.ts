@@ -13,9 +13,6 @@ export interface LinkCardProps {
   };
 }
 
-/** Historical spike compatibility; production uses LinkCardProps. */
-export type LinkCardData = LinkCardProps;
-
 export type LinkCardResolver = (url: string) => LinkCardProps | undefined;
 
 const manifestUrl = new URL(
@@ -134,6 +131,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-const resolveLinkCardData = createLinkCardResolver(loadExternalLinkManifest());
+const resolveLinkCardProps = createLinkCardResolver(loadExternalLinkManifest());
 
-export default resolveLinkCardData;
+export default resolveLinkCardProps;

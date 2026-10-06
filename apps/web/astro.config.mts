@@ -7,14 +7,14 @@ import { mdx } from "@workspace/md";
 import { defineConfig } from "astro/config";
 import { mergeWith } from "es-toolkit";
 
-import resolveLinkCardData from "@/lib/content/link-card";
+import resolveLinkCardProps from "@/lib/content/link-card";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
 import { articleProcessors } from "./src/lib/content/article-processors";
 
 const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
 const base = normalizeBasePath(process.env["BASE_PATH"]);
-const processors = articleProcessors(resolveLinkCardData);
+const processors = articleProcessors(resolveLinkCardProps);
 
 // https://docs.astro.build/ko/guides/integrations-guide/sitemap/#구성
 const sitemapConfig: AstroUserConfig = {

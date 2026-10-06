@@ -1,7 +1,8 @@
-import type { MdastNode } from "satteri";
+import type { Nodes, Root, RootContent } from "mdast";
+
+import { definitions } from "mdast-util-definitions";
 
 import {
-  collectDefinitions,
   normalizeExternalLinkCandidate,
   standaloneLinkContent,
   type ExternalLinkCandidate,
@@ -9,26 +10,22 @@ import {
 
 export type ExternalLinkTarget = (
   candidate: ExternalLinkCandidate
-) => MdastNode | undefined;
+) => RootContent | undefined;
 
 /** Public remark adapter; normalization/policy are independent of Site presentation. */
 export default function externalLink(target: ExternalLinkTarget) {
-  return () => (root: MdastNode) => {
-    const definitions = collectDefinitions(root);
-    function walk(parent: MdastNode) {
+  return () => (root: Root) => {
+    const resolveDefinition = definitions(root);
+    function walk(parent: Nodes) {
       if (!("children" in parent)) return;
-      const children = parent.children as MdastNode[];
-      children.forEach((block, index) => {
-        const eligibleBlock =
-          block.type === "paragraph" ||
-          (block.type === "mdxJsxFlowElement" &&
-            ["root", "blockquote", "listItem"].includes(parent.type));
-        const node = eligibleBlock && standaloneLinkContent(block);
+      parent.children.forEach((block, index) => {
+        const node = standaloneLinkContent(block, parent);
         const candidate =
-          node && normalizeExternalLinkCandidate(node, definitions);
+          node && normalizeExternalLinkCandidate(node, resolveDefinition);
         const replacement = candidate && target(candidate);
-        if (replacement) children[index] = replacement;
-        else walk(block);
+        if (replacement) parent.children[index] = replacement;
+        else if (["blockquote", "list", "listItem"].includes(block.type))
+          walk(block);
       });
     }
     walk(root);

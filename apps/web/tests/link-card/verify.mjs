@@ -31,6 +31,24 @@ try {
       });
     return route.abort();
   });
+  const commonContracts = [];
+  for (const route of ["common-markdown", "common-mdx"]) {
+    await page.goto(`http://127.0.0.1:4322/${route}/`);
+    commonContracts.push(
+      await page.locator("[data-heading-contract]").evaluate((el) => ({
+        headings: JSON.parse(el.getAttribute("data-heading-contract")),
+        reading: JSON.parse(el.getAttribute("data-reading-contract")),
+      }))
+    );
+  }
+  assert.deepEqual(commonContracts[0], commonContracts[1]);
+  assert.deepEqual(commonContracts[0].headings, [
+    { depth: 1, slug: "shared-heading", text: "Shared heading" },
+    { depth: 2, slug: "shared-detail", text: "Shared detail" },
+  ]);
+  assert.ok(commonContracts[0].reading.words.en > 0);
+  assert.ok(commonContracts[0].reading.words.ko > 0);
+  assert.ok(commonContracts[0].reading.minutes > 0);
   await page.goto("http://127.0.0.1:4322/markdown/");
   assert.equal(await page.locator("a.link-card").count(), 0);
   assert.equal(

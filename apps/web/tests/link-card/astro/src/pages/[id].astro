@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 }
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 ---
 
 <RootLayout
@@ -31,6 +31,11 @@ const { Content } = await render(entry);
     toc={[]}
     client:load
   >
-    <Content components={{ LinkCard: FixtureCard }} />
+    <section
+      data-heading-contract={JSON.stringify(headings)}
+      data-reading-contract={JSON.stringify(remarkPluginFrontmatter["readingTime"])}
+    >
+      <Content components={{ LinkCard: FixtureCard }} />
+    </section>
   </ArticleFrame>
 </RootLayout>

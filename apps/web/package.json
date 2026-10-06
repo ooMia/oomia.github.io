@@ -10,7 +10,6 @@
     "format": "prettier -w '**/*.astro' --cache --cache-strategy metadata | awk '!/(unchanged)/'",
     "lint": "eslint",
     "preview": "astro preview",
-    "spike:markdown": "vp test spikes/markdown-to-js --reporter verbose && node spikes/markdown-to-js/build.mjs && node spikes/markdown-to-js/verify.mjs",
     "sync": "astro sync",
     "test:e2e": "playwright test",
     "test:e2e:compat": "playwright test --grep @compat",
@@ -47,7 +46,6 @@
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-astro-organize-imports": "^0.4.13",
-    "satteri": "0.10.5",
     "typescript": "catalog:",
     "typescript-eslint": "^8.69.0"
   }

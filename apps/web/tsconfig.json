@@ -6,7 +6,6 @@
     "playwright-report",
     "test-results",
     "data/articles/**",
-    "spikes/**",
     "tests/link-card/astro/**"
   ],
   "compilerOptions": {
