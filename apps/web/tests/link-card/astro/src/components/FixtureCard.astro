@@ -1,0 +1,13 @@
+---
+import LinkCard from "../../../../../src/components/LinkCard.astro";
+import resolveFixtureCard from "../../../resolver";
+interface Props {
+  href: string;
+}
+---
+
+<LinkCard
+  {...Astro.props}
+  href={Astro.props.href}
+  card={resolveFixtureCard(Astro.props.href)}
+/>

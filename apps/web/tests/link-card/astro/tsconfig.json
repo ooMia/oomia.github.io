@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": [".astro/types.d.ts", "src/**/*", "astro.config.mts"],
+  "compilerOptions": {
+    "types": ["astro/client"],
+    "paths": {
+      "@/*": ["../../../src/*"],
+      "@workspace/ui/*": ["../../../../../packages/ui/src/*"]
+    }
+  },
+  "exclude": ["dist"]
+}

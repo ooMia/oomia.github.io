@@ -3,15 +3,18 @@ import type { AstroUserConfig } from "astro";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
-import { linkCard, mdx, readingTime, satteri } from "@workspace/md";
+import { mdx } from "@workspace/md";
 import { defineConfig } from "astro/config";
 import { mergeWith } from "es-toolkit";
 
-import resolveLinkCardData from "@/lib/content/link-card";
+import resolveLinkCardProps from "@/lib/content/link-card";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
+
+import { articleProcessors } from "./src/lib/content/article-processors";
 
 const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
 const base = normalizeBasePath(process.env["BASE_PATH"]);
+const processors = articleProcessors(resolveLinkCardProps);
 
 // https://docs.astro.build/ko/guides/integrations-guide/sitemap/#구성
 const sitemapConfig: AstroUserConfig = {
@@ -28,24 +31,10 @@ const sitemapConfig: AstroUserConfig = {
 const markdownExConfig: AstroUserConfig = {
   // https://docs.astro.build/ko/guides/markdown-content/#markdown-플러그인
   markdown: {
-    processor: satteri({
-      features: {
-        gfm: true,
-        frontmatter: true,
-        math: true,
-        headingAttributes: true,
-        directive: true,
-        superscript: true,
-        subscript: true,
-        wikilinks: true,
-        smartPunctuation: false,
-      },
-      mdastPlugins: [readingTime],
-      hastPlugins: [linkCard(resolveLinkCardData)],
-    }),
+    processor: processors.markdown,
   },
   // https://docs.astro.build/ko/guides/integrations-guide/mdx
-  integrations: [mdx()],
+  integrations: [mdx({ processor: processors.mdx })],
 };
 
 // https://docs.astro.build/en/guides/integrations-guide/react/

@@ -1,0 +1,63 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import resolveLinkCardProps, {
+  type LinkCardProps,
+} from "../lib/content/link-card";
+import "../styles/link-card.css";
+
+type Props = HTMLAttributes<"a"> & {
+  href: string;
+  card?: LinkCardProps | undefined;
+  className?: string | undefined;
+};
+const {
+  href,
+  card = resolveLinkCardProps(href),
+  class: authoredClass,
+  className,
+  ...anchor
+} = Astro.props;
+---
+
+{
+  card ? (
+    <a
+      {...anchor}
+      href={href}
+      class:list={["link-card", authoredClass, className]}
+      data-link-card="true"
+      data-link-card-kind={card.presentation ? "rich" : "basic"}
+    >
+      {card.image && (
+        <img
+          class="link-card__image"
+          src={card.image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          referrerpolicy="no-referrer"
+        />
+      )}
+      <span class="link-card__body">
+        {card.siteName && <span class="link-card__site">{card.siteName}</span>}
+        <span class="link-card__title">{card.title}</span>
+        {card.presentation ? (
+          <span class="link-card__summary" lang={card.presentation.locale}>
+            {card.presentation.summaryLines.map((line) => (
+              <span class="link-card__row">{line}</span>
+            ))}
+          </span>
+        ) : (
+          card.description && (
+            <span class="link-card__description">{card.description}</span>
+          )
+        )}
+      </span>
+    </a>
+  ) : (
+    <a {...anchor} href={href} class:list={[authoredClass, className]}>
+      <slot />
+      {!Astro.slots.has("default") && href}
+    </a>
+  )
+}

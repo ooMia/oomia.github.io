@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "astro build",
+    "build:offline": "node tests/link-card/build.mjs",
     "dev": "astro dev",
     "format": "prettier -w '**/*.astro' --cache --cache-strategy metadata | awk '!/(unchanged)/'",
     "lint": "eslint",
@@ -13,6 +14,7 @@
     "test:e2e": "playwright test",
     "test:e2e:compat": "playwright test --grep @compat",
     "test:e2e:evidence": "node tests/homepage-render.mjs",
+    "test:link-card": "node tests/link-card/build.mjs --fixture && node tests/link-card/verify.mjs",
     "test:presentation": "pnpm run test:e2e",
     "typecheck": "astro check"
   },
