@@ -15,7 +15,7 @@ export function articleSocial(
   previewHash?: string
 ) {
   if (!/^[a-f0-9]{40}$/.test(docsRevision))
-    throw new Error("Missing pinned Docs revision");
+    throw new Error("Missing Docs checkout revision");
   const url = publicSiteUrl(`/articles/${metadata.id}/`, site, base);
   const image = previewHash
     ? publicSiteUrl(`/social-previews/${previewHash}.png`, site, base)

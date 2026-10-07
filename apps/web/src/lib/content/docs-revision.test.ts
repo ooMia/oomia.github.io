@@ -7,7 +7,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { resolvedDocsRevision } from "./docs-revision";
 
 describe("Docs checkout provenance", () => {
-  it("accepts fetched main without changing the pin and retains strict default/release validation", () => {
+  it("accepts immutable production snapshots despite a stale gitlink or moving main", () => {
     const root = mkdtempSync(join(tmpdir(), "site-docs-provenance-"));
     const web = join(root, "apps/web");
     const docs = join(web, "data/articles");
@@ -57,10 +57,21 @@ describe("Docs checkout provenance", () => {
       const latest = git(docs, "rev-parse", "HEAD");
       git(docs, "update-ref", "refs/remotes/origin/main", latest);
       expect(resolvedDocsRevision(web, "main")).toBe(latest);
+      expect(resolvedDocsRevision(web, "resolved", latest)).toBe(latest);
+      // A later movement of main cannot invalidate or replace a resolved release.
+      git(docs, "update-ref", "refs/remotes/origin/main", pin);
+      expect(resolvedDocsRevision(web, "resolved", latest)).toBe(latest);
+      expect(() => resolvedDocsRevision(web, "resolved", pin)).toThrow(
+        /resolved production SHA/
+      );
+      expect(() => resolvedDocsRevision(web, "resolved", "main")).toThrow(
+        /resolved production SHA/
+      );
       expect(() => resolvedDocsRevision(web, "pinned")).toThrow(
         /pinned Site gitlink/
       );
       expect(git(root, "ls-files", "--stage")).toContain(pin);
+      git(docs, "update-ref", "refs/remotes/origin/main", latest);
       git(docs, "checkout", "--detach", pin);
       expect(() => resolvedDocsRevision(web, "main")).toThrow(
         /fetched Docs main/

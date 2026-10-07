@@ -11,11 +11,15 @@ import resolveLinkCardProps from "@/lib/content/link-card";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
 import { articleProcessors } from "./src/lib/content/article-processors";
+import { verifyDocsConsumption } from "./src/lib/content/docs-consumption";
 import { resolvedDocsRevision } from "./src/lib/content/docs-revision";
 
 const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
 const base = normalizeBasePath(process.env["BASE_PATH"]);
 const processors = articleProcessors(resolveLinkCardProps);
+if (process.env["DOCS_CHECKOUT_MODE"] === "resolved") {
+  console.log("Prepared Docs snapshot:", verifyDocsConsumption());
+}
 
 // https://docs.astro.build/ko/guides/integrations-guide/sitemap/#구성
 const sitemapConfig: AstroUserConfig = {

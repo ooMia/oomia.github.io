@@ -11,6 +11,7 @@
     "lint": "eslint",
     "preview": "astro preview",
     "sync": "astro sync",
+    "test:docs-snapshot": "node tests/docs-snapshot-build.mjs",
     "test:e2e": "playwright test",
     "test:e2e:compat": "playwright test --grep @compat",
     "test:e2e:evidence": "node tests/homepage-render.mjs",
