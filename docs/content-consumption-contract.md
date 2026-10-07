@@ -127,3 +127,13 @@ Build/render only reads the pinned local Docs manifest. It does not fetch target
 Cards contain one navigation anchor and no nested interactive controls. Desktop detail sidebar behavior remains deferred under Site #54; no sidebar or intercepted first tap is introduced on mobile. This DOM also leaves ordinary inline links available for future delegated hover/focus interaction.
 
 The earlier [Markdown component spike](evidence/markdown-to-js/README.md) and Draft PR #59 remain investigation history. Its executable tree, script, spike-only dependencies and legacy HAST LinkCard implementation have been removed from this branch; the revision-bound investigation document links to immutable history.
+
+## Article social metadata and derived previews
+
+Article title/description/author/dates/tags project through one Site-owned social metadata adapter. Standard meta description, Open Graph, X and Article JSON-LD share the same Article description; no summary or social-only frontmatter is required. Canonical and image URLs use configured Site URL/base. Optional dates/tags are omitted when unavailable; screenshots are social assets and do not automatically become JSON-LD representative images.
+
+Every article exposes `meta[name="oomia:docs-revision"]` from the actual pinned `apps/web/data/articles` gitlink. Build rejects a Docs checkout that differs from that gitlink. Engine validates this fixed marker against the expected Docs SHA before capture.
+
+Docs owns `derived/article-previews.json` (`schemaVersion: 1`, `records`). Each record uses `sourcePath` under `content/articles/` as stable source identity, independent of its deployed URL. It includes `imagePath: derived/article-previews/<sha256>.png`, SHA-256, byte count, `mediaType: image/png`, width 1200 and height 630, plus producer/persistence provenance documented in Docs. Site validates identity, namespace containment, PNG header/dimensions and bytes/hash, then includes that binary at `/social-previews/<sha256>.png` and emits absolute `og:image` and `twitter:image`. Unsupported/corrupt preview data fails closed. A missing manifest or missing record remains a valid non-image article. Existing previews remain stable; Site does not trigger freshness or capture.
+
+`@workspace/md/runtime` exposes lightweight render schema and URL normalization separately from build-time processors/native bindings. Site does not run a browser during build. Preview-present/absent output is covered by `apps/web/tests/article-preview-build.mjs`; full local E2E includes rendered article head assertions.

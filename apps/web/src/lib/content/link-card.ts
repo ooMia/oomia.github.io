@@ -1,4 +1,4 @@
-import { externalHttpUrl } from "@workspace/md";
+import { externalHttpUrl } from "@workspace/md/runtime";
 import { readFileSync } from "node:fs";
 
 export interface LinkCardProps {

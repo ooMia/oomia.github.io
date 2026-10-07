@@ -1,0 +1,48 @@
+---
+import type { articleSocial } from "@/lib/content/article-social";
+interface Props {
+  social: ReturnType<typeof articleSocial>;
+}
+const { social } = Astro.props;
+---
+
+<link rel="canonical" href={social.url} />
+<meta name="oomia:docs-revision" content={social.docsRevision} />
+<meta property="og:title" content={social.title} />
+<meta property="og:description" content={social.description} />
+<meta property="og:url" content={social.url} />
+<meta property="og:site_name" content={social.siteName} />
+<meta property="og:type" content="article" />
+<meta property="og:locale" content="ko_KR" />
+<meta property="article:author" content={social.author} />
+{
+  social.published && (
+    <meta property="article:published_time" content={social.published} />
+  )
+}
+{
+  social.modified && (
+    <meta property="article:modified_time" content={social.modified} />
+  )
+}
+{social.tags.map((tag) => <meta property="article:tag" content={tag} />)}
+<meta
+  name="twitter:card"
+  content={social.image ? "summary_large_image" : "summary"}
+/>
+<meta name="twitter:title" content={social.title} />
+<meta name="twitter:description" content={social.description} />
+{
+  social.image && (
+    <>
+      <meta property="og:image" content={social.image} />
+      <meta property="og:image:type" content="image/png" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={social.title} />
+      <meta name="twitter:image" content={social.image} />
+      <meta name="twitter:image:alt" content={social.title} />
+    </>
+  )
+}
+<script is:inline type="application/ld+json" set:html={social.jsonLd} />
