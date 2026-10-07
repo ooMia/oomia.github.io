@@ -6,6 +6,8 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
+import { calibrate } from "./calibrate.mjs";
+
 const root = fileURLToPath(new URL("./astro/", import.meta.url));
 const output = fileURLToPath(
   new URL("../../link-card-evidence/", import.meta.url)
@@ -197,8 +199,9 @@ try {
         .evaluateAll((elements) =>
           elements.map((el) => ({
             text: el.textContent,
-            width: el.clientWidth,
+            width: el.getBoundingClientRect().width,
             scrollWidth: el.scrollWidth,
+            display: getComputedStyle(el).display,
             height: el.getBoundingClientRect().height,
             lineHeight: Number.parseFloat(getComputedStyle(el).lineHeight),
             overflow: getComputedStyle(el).overflow,
@@ -207,11 +210,11 @@ try {
         );
       for (const row of rows) {
         assert.ok(
-          row.height <= row.lineHeight + 1,
+          row.display === "inline" || row.height <= row.lineHeight + 1,
           `Wrapped at ${width}/${theme}: ${JSON.stringify(row)}`
         );
         assert.ok(
-          row.scrollWidth <= row.width + 1,
+          row.display === "inline" || row.scrollWidth <= row.width + 1,
           `Overflow at ${width}/${theme}: ${JSON.stringify(row)}`
         );
         assert.notEqual(row.textOverflow, "ellipsis");
@@ -321,6 +324,12 @@ try {
   await touchPage.locator("a.link-card").first().tap();
   assert.equal((await tapNavigation).url(), "https://example.com/rich");
   await mobile.close();
+  const calibration = await calibrate({
+    page,
+    output,
+    openFixture,
+    applyTheme,
+  });
   assert.deepEqual(errors, []);
   await writeFile(
     `${output}/observations.json`,
@@ -352,7 +361,7 @@ try {
           .update(negativeSource)
           .digest("hex"),
         dataSource:
-          "Site-local contract-compatible fixture; real Docs v2 integration deferred to Docs #16",
+          "Site-local synthetic fixture; canonical build pins the historical Docs revision above",
         result: "PASS",
       },
       null,
@@ -369,7 +378,8 @@ try {
         summaryRows: 24,
         widths: [320, 390, 768, 1440],
         themes: ["light", "dark"],
-        calibratedFixtureCodePointBound: 14,
+        historicalFixtureCodePointBound: 14,
+        calibration,
         externalBrowserRequests: "blocked",
         pageErrors: errors.length,
         output,

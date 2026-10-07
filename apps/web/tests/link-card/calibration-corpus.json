@@ -1,0 +1,121 @@
+{
+  "sourceRevision": "3adda2d9440d4c3566bee9d4a513c484d41aa261",
+  "authorship": "Hand-authored Site comparison fixtures grounded in the cached Docs semantic summaries; not Ollama output.",
+  "topics": [
+    {
+      "id": "terminal",
+      "title": "VS Code 터미널 실행 문제",
+      "sourceUrl": "https://code.visualstudio.com/docs/supporting/troubleshoot-terminal-launch",
+      "support": "터미널 실행 실패의 원인을 셸, 작업 디렉터리, 로그로 진단한다.",
+      "candidates": {
+        "18": [
+          "오류 메시지로 원인을 확인한다",
+          "다른 셸과 작업 폴더를 점검한다",
+          "추적 로그를 수집해 문제를 좁힌다"
+        ],
+        "24": [
+          "실행 실패 메시지와 종료 코드를 확인한다",
+          "다른 셸과 작업 디렉터리를 비교해 본다",
+          "추적 로그로 재현 조건을 좁혀 문제를 보고"
+        ],
+        "30": [
+          "터미널 실행 실패 메시지와 종료 코드를 먼저 확인한다",
+          "다른 셸을 시도하고 작업 디렉터리와 셸 설정을 점검한다",
+          "추적 로그와 재현 조건을 모아 미해결 문제를 보고한다"
+        ]
+      }
+    },
+    {
+      "id": "obsidian",
+      "title": "Obsidian 내부 링크",
+      "sourceUrl": "https://obsidian.md/help/links",
+      "support": "위키링크와 Markdown 링크는 노트·제목·블록 연결 및 표시 이름 변경을 지원한다.",
+      "candidates": {
+        "18": [
+          "위키링크와 마크다운을 지원한다",
+          "노트와 제목과 블록을 연결한다",
+          "표시 이름을 바꿔 문맥을 더한다"
+        ],
+        "24": [
+          "위키링크와 마크다운으로 노트를 연결한다",
+          "제목과 블록을 지정해 세부 위치로 이동한다",
+          "표시 이름을 바꿔 링크를 읽는 문맥에 맞춘다"
+        ],
+        "30": [
+          "위키링크와 마크다운 두 형식으로 노트 사이를 연결한다",
+          "노트 전체뿐 아니라 특정 제목과 블록으로 바로 이동한다",
+          "표시 이름을 바꾸고 반복되는 이름은 별칭으로 관리한다"
+        ]
+      }
+    },
+    {
+      "id": "idea",
+      "title": "IntelliJ 코드 편집",
+      "sourceUrl": "https://www.jetbrains.com/help/idea/working-with-source-code.html",
+      "support": "플로팅 툴바, 코드 선택·복제·이동 단축키, 코드 접기로 편집한다.",
+      "candidates": {
+        "18": [
+          "선택한 코드에 툴바를 활용한다",
+          "단축키로 줄을 복제하고 옮긴다",
+          "코드 접기로 필요한 부분을 본다"
+        ],
+        "24": [
+          "선택한 코드의 플로팅 툴바를 활용한다",
+          "단축키로 코드 줄을 복제하고 위치를 옮긴다",
+          "코드를 접고 펼쳐 필요한 부분에 집중한다"
+        ],
+        "30": [
+          "선택한 코드의 플로팅 툴바에서 주석과 재정렬을 실행한다",
+          "단축키로 코드 줄을 복제하고 코드 요소의 위치를 옮긴다",
+          "코드를 접고 펼치고 사용자 정의 영역으로 묶어 탐색한다"
+        ]
+      }
+    },
+    {
+      "id": "missing",
+      "title": "GitHub 파일 찾기 실패",
+      "sourceUrl": "https://github.com/microsoft/vscode/blob/c5e84e2798708a87aa69332afde68ea05002a612/src/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh",
+      "support": "캐시된 semantic summary는 특정 revision의 요청 경로가 없는 File not found 결과다. 성공한 현재 페이지로 재해석하지 않는다.",
+      "candidates": {
+        "18": [
+          "요청한 파일을 찾을 수 없다",
+          "지정한 리비전과 경로를 살핀다",
+          "없는 경로에 오류 페이지가 뜬다"
+        ],
+        "24": [
+          "요청한 파일이 없어 오류 페이지가 표시된다",
+          "지정한 리비전에서 해당 경로가 있는지 살핀다",
+          "리비전과 경로를 확인해 누락 원인을 좁힌다"
+        ],
+        "30": [
+          "요청한 파일을 찾을 수 없어 오류 페이지가 표시된다",
+          "지정한 리비전에서 요청한 파일 경로가 존재하는지 살핀다",
+          "리비전과 경로를 함께 확인해 파일 누락의 원인을 좁힌다"
+        ]
+      }
+    },
+    {
+      "id": "project",
+      "title": "Publishing Platform 작업 현황",
+      "sourceUrl": "https://github.com/users/ooMia/projects/11",
+      "support": "2026-10-07 캐시 summary의 백로그·진행·완료·취소 상태와 흐름을 설명한다. 현재 상태를 보장하지 않는다.",
+      "candidates": {
+        "18": [
+          "작업을 상태별로 나누어 본다",
+          "진행 중인 일과 백로그를 구분한다",
+          "완료와 취소로 전체 흐름을 읽는다"
+        ],
+        "24": [
+          "백로그와 진행 중인 작업을 상태별로 살핀다",
+          "완료된 일과 취소된 일을 따로 구분한다",
+          "상태의 흐름을 통해 프로젝트 진행을 파악한다"
+        ],
+        "30": [
+          "백로그와 진행 중인 작업을 나누어 해야 할 일을 살핀다",
+          "완료와 취소된 작업을 구분해 처리 결과를 확인한다",
+          "상태별 작업 흐름을 보며 프로젝트 전체 진행을 파악한다"
+        ]
+      }
+    }
+  ]
+}

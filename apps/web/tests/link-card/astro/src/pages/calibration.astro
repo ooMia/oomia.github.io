@@ -1,0 +1,72 @@
+---
+import LinkCard from "../../../../../src/components/LinkCard.astro";
+import { ArticleFrame } from "../../../../../src/components/presentation/ArticleFrame";
+import RootLayout from "../../../../../src/layouts/RootLayout.astro";
+import { SITE_AUTHOR } from "../../../../../src/lib/content/article-metadata";
+import {
+  projectExternalLinkRecord,
+  type LinkCardProps,
+} from "../../../../../src/lib/content/link-card";
+import corpus from "../../../calibration-corpus.json";
+const budgets = [18, 24, 30] as const;
+const topics = [
+  ...corpus.topics,
+  {
+    id: "glyphs",
+    title: "Glyph boundary / long token",
+    sourceUrl: "https://example.com/glyphs",
+    candidates: Object.fromEntries(
+      budgets.map((budget) => [
+        budget,
+        ["가".repeat(budget), "W".repeat(budget), "🔍".repeat(budget)],
+      ]),
+    ),
+  },
+];
+const cards = topics.flatMap((topic) =>
+  budgets.map((budget) => ({
+    topic: topic.id,
+    budget,
+    card: projectExternalLinkRecord({
+      url: topic.sourceUrl,
+      title: topic.title,
+      presentation: {
+        locale: "ko-KR",
+        summaryLines:
+          topic.candidates[String(budget) as keyof typeof topic.candidates],
+      },
+    }) as LinkCardProps,
+  })),
+);
+---
+
+<RootLayout
+  title="LinkCard density comparison"
+  description="Hand-authored comparison fixtures"
+>
+  <ArticleFrame
+    pathname={Astro.url.pathname}
+    homeUrl="/"
+    title="18 / 24 / 30"
+    description="Site fixtures, not model output"
+    author={SITE_AUTHOR}
+    tags={[]}
+    readingMinutes={1}
+    toc={[]}
+    client:load
+  >
+    {
+      cards.map(({ topic, budget, card }) => (
+        <section
+          data-calibration-topic={topic}
+          data-calibration-budget={budget}
+        >
+          <h2>
+            {topic} · {budget}
+          </h2>
+          <LinkCard href={card.url} card={card} />
+        </section>
+      ))
+    }
+  </ArticleFrame>
+</RootLayout>
