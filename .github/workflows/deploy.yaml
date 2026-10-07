@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+env:
+  SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
+  BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
+
 jobs:
   build:
     if: >-
@@ -70,6 +74,9 @@ jobs:
           SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
           BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
 
+      - name: Verify built article social URLs
+        run: node apps/web/tests/verify-article-social.mjs
+
   promotion:
     name: Promotion validation
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
@@ -120,6 +127,8 @@ jobs:
       # The root build script owns workspace orchestration; recursive execution
       # would start both turbo and web builds against the same output directory.
       - run: pnpm exec vp run build
+      - name: Verify built article social URLs
+        run: node apps/web/tests/verify-article-social.mjs
 
   deploy:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
