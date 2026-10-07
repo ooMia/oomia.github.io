@@ -11,7 +11,7 @@ import resolveLinkCardProps from "@/lib/content/link-card";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
 import { articleProcessors } from "./src/lib/content/article-processors";
-import { pinnedDocsRevision } from "./src/lib/content/docs-revision";
+import { resolvedDocsRevision } from "./src/lib/content/docs-revision";
 
 const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
 const base = normalizeBasePath(process.env["BASE_PATH"]);
@@ -48,7 +48,7 @@ const integrations = [sitemapConfig, markdownExConfig, reactConfig];
 const vite: AstroUserConfig["vite"] = {
   plugins: [tailwindcss()],
   define: {
-    "import.meta.env.DOCS_REVISION": JSON.stringify(pinnedDocsRevision()),
+    "import.meta.env.DOCS_REVISION": JSON.stringify(resolvedDocsRevision()),
   },
 };
 
