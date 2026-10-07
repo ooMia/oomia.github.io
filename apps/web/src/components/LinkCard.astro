@@ -43,8 +43,16 @@ const {
         <span class="link-card__title">{card.title}</span>
         {card.presentation ? (
           <span class="link-card__summary" lang={card.presentation.locale}>
-            {card.presentation.summaryLines.map((line) => (
-              <span class="link-card__row">{line}</span>
+            {card.presentation.summaryLines.map((line, index) => (
+              <>
+                {index > 0 && (
+                  <span class="link-card__separator" aria-hidden="true">
+                    {" "}
+                    ·{" "}
+                  </span>
+                )}
+                <span class="link-card__row">{line}</span>
+              </>
             ))}
           </span>
         ) : (
