@@ -2,6 +2,8 @@
 
 Local validation: 2026-10-07, macOS, Playwright Chromium. Exact tested implementation revision and fixture hash are recorded in `validation.json` and `calibration.json`. Evidence commits only add reports/images after the tested implementation commit.
 
+Production component/contract revision: `8d45c366d41ba7ca3911d530aa65f04bec99294d` (offline canonical build and full 30-test regression passed at that clean revision). Final comparison revision: `3199d807ffd68e0b473461173ab9ee834a8da18e` (only a test-corpus phrase changed; fixture build/verifier passed with `workingTreeDirty: false`). Static/unit/type checks passed against these implementation bytes; remote CI is tracked in the PR rather than inferred from local results.
+
 ## Decision
 
 Use **24 Unicode code points per semantic fragment, ko-KR**, as the Site recommendation for Engine's explicit `maxCharactersPerLine` preparation input. Keep summary typography at **14px / 21px line height**, with 1rem padding. No renderer rejection, shortening, schema rename or permanent producer default is introduced.
