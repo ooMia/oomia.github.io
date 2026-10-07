@@ -15,12 +15,25 @@ env:
 jobs:
   build:
     env:
-      DOCS_CHECKOUT_MODE: ${{ github.event_name == 'pull_request' && 'main' || 'pinned' }}
+      DOCS_CHECKOUT_MODE: ${{ github.event_name == 'pull_request' && 'main' || 'resolved' }}
     if: >-
       (github.event_name == 'pull_request' && github.base_ref == 'develop') ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve latest Docs main once for production
+        if: github.event_name == 'workflow_dispatch'
+        id: docs
+        env:
+          GH_TOKEN: ${{ secrets.PRIVATES_GITHUB_PAT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          docs_sha="$(gh api repos/ooMia/oomia.github.io.docs/git/ref/heads/main --jq '.object.sha')"
+          [[ "$docs_sha" =~ ^[a-f0-9]{40}$ ]]
+          printf 'sha=%s\n' "$docs_sha" >> "$GITHUB_OUTPUT"
+          printf 'DOCS_CHECKOUT_REVISION=%s\n' "$docs_sha" >> "$GITHUB_ENV"
+
       - name: Checkout pull request revision
         if: github.event_name == 'pull_request'
         uses: actions/checkout@v7
@@ -34,7 +47,6 @@ jobs:
         with:
           ref: main
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          submodules: recursive
           fetch-depth: 1
 
       - name: Checkout current Docs main for PR validation
@@ -47,22 +59,15 @@ jobs:
           path: apps/web/data/articles
           fetch-depth: 0
 
-      - name: Expand pinned Docs history
+      - name: Checkout resolved Docs production snapshot
         if: github.event_name == 'workflow_dispatch'
-        shell: bash
-        run: |
-          set -euo pipefail
-          docs="apps/web/data/articles"
-          docs_head="$(git -C "$docs" rev-parse HEAD)"
-
-          test "$(git rev-parse --is-shallow-repository)" = "true"
-
-          if [ "$(git -C "$docs" rev-parse --is-shallow-repository)" = "true" ]; then
-            git -C "$docs" fetch --unshallow --no-tags origin
-          fi
-
-          test "$(git -C "$docs" rev-parse --is-shallow-repository)" = "false"
-          test "$(git -C "$docs" rev-parse HEAD)" = "$docs_head"
+        uses: actions/checkout@v7
+        with:
+          repository: ooMia/oomia.github.io.docs
+          ref: ${{ steps.docs.outputs.sha }}
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          path: apps/web/data/articles
+          fetch-depth: 0
 
       - name: Record content revisions
         shell: bash
@@ -125,6 +130,8 @@ jobs:
       - run: pnpm --filter web sync
       - run: pnpm exec vp check --no-fmt
       - run: pnpm exec vp test
+      - name: Verify immutable Docs rendering and fallback offline
+        run: pnpm --filter web test:docs-snapshot
       # The root build script owns workspace orchestration; recursive execution
       # would start both turbo and web builds against the same output directory.
       - run: pnpm exec vp run build
