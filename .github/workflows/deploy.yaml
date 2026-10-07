@@ -14,6 +14,8 @@ env:
 
 jobs:
   build:
+    env:
+      DOCS_CHECKOUT_MODE: ${{ github.event_name == 'pull_request' && 'main' || 'pinned' }}
     if: >-
       (github.event_name == 'pull_request' && github.base_ref == 'develop') ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
@@ -24,7 +26,6 @@ jobs:
         uses: actions/checkout@v7
         with:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          submodules: recursive
           fetch-depth: 1
 
       - name: Checkout canonical main release revision
@@ -36,20 +37,18 @@ jobs:
           submodules: recursive
           fetch-depth: 1
 
-      - name: Record production release revision
-        if: github.event_name == 'workflow_dispatch'
-        shell: bash
-        run: |
-          set -euo pipefail
-          release_sha="$(git rev-parse HEAD)"
-          echo "Release-SHA=$release_sha"
-          {
-            echo "## Production release"
-            echo
-            echo "- Site revision: `$release_sha`"
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Checkout current Docs main for PR validation
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v7
+        with:
+          repository: ooMia/oomia.github.io.docs
+          ref: main
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          path: apps/web/data/articles
+          fetch-depth: 0
 
       - name: Expand pinned Docs history
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           set -euo pipefail
@@ -64,6 +63,10 @@ jobs:
 
           test "$(git -C "$docs" rev-parse --is-shallow-repository)" = "false"
           test "$(git -C "$docs" rev-parse HEAD)" = "$docs_head"
+
+      - name: Record content revisions
+        shell: bash
+        run: bash .github/scripts/record-content-revisions.sh
 
       - uses: withastro/action@v6
         with:
@@ -79,30 +82,28 @@ jobs:
 
   promotion:
     name: Promotion validation
+    env:
+      DOCS_CHECKOUT_MODE: main
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          submodules: recursive
           fetch-depth: 1
 
-      - name: Expand pinned Docs history
+      - name: Checkout current Docs main for PR validation
+        uses: actions/checkout@v7
+        with:
+          repository: ooMia/oomia.github.io.docs
+          ref: main
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          path: apps/web/data/articles
+          fetch-depth: 0
+
+      - name: Record content revisions
         shell: bash
-        run: |
-          set -euo pipefail
-          docs="apps/web/data/articles"
-          docs_head="$(git -C "$docs" rev-parse HEAD)"
-
-          test "$(git rev-parse --is-shallow-repository)" = "true"
-
-          if [ "$(git -C "$docs" rev-parse --is-shallow-repository)" = "true" ]; then
-            git -C "$docs" fetch --unshallow --no-tags origin
-          fi
-
-          test "$(git -C "$docs" rev-parse --is-shallow-repository)" = "false"
-          test "$(git -C "$docs" rev-parse HEAD)" = "$docs_head"
+        run: bash .github/scripts/record-content-revisions.sh
 
       - uses: pnpm/setup@v3
         with:
