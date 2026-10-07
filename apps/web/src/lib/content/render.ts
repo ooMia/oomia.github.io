@@ -1,4 +1,4 @@
-import { schema } from "@workspace/md";
+import { schema } from "@workspace/md/runtime";
 import { render as astroRender } from "astro:content";
 
 import type { DataEntry, RenderResult } from "./types";
