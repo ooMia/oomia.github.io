@@ -1,5 +1,13 @@
 # Responsive LinkCard density — Site #61
 
+> **Authority:** RECORD\
+> **Owner:** Site #61 responsive LinkCard calibration evidence\
+> **Scope:** the implementation and comparison revisions named below\
+> **Read when:** inspecting the measurements and rationale behind the ko-KR generation-budget recommendation\
+> **Evidence scope:** local macOS/Playwright Chromium validation on 2026-10-07; no current CI or deployment claim
+
+The [content consumption contract](../../content-consumption-contract.md#markdown--mdx-linkcard-boundary) owns the current Site recommendation. This record preserves the revision-bound comparison and its limits.
+
 Local validation: 2026-10-07, macOS, Playwright Chromium. Exact tested implementation revision and fixture hash are recorded in `validation.json` and `calibration.json`. Evidence commits only add reports/images after the tested implementation commit.
 
 Production component/contract revision: `8d45c366d41ba7ca3911d530aa65f04bec99294d` (offline canonical build and full 30-test regression passed at that clean revision). Final comparison revision: `3199d807ffd68e0b473461173ab9ee834a8da18e` (only a test-corpus phrase changed; fixture build/verifier passed with `workingTreeDirty: false`). Static/unit/type checks passed against these implementation bytes; remote CI is tracked in the PR rather than inferred from local results.
