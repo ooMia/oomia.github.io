@@ -1,5 +1,11 @@
 # Content consumption contract
 
+> **Authority:** POLICY\
+> **Owner:** Site content input, rendering, and publishability boundary\
+> **Scope:** canonical Docs content and derived artifacts consumed by Site\
+> **Read when:** changing or verifying Site content discovery, rendering, validation, or revision linkage\
+> **Enforced by:** Site parser/schema/renderer implementation, tests, and build workflows
+
 Site가 소유하는 콘텐츠 입력·렌더링·publishability 계약이다. Engine의 파일 수정 계약과 분리한다. 이 문서는 관찰 가능한 소비 경계와 검증 원칙을 설명하며, 실제 지원 syntax·component·schema의 세부 정의는 Site가 사용하는 코드와 package가 소유한다.
 
 Site의 layout·typography·theme·navigation 같은 presentation 정책은 [Site presentation foundation](presentation-foundation.md)이 소유한다. 소비 계약은 특정 presentation library나 visual layout을 publishability의 선행 조건으로 만들지 않는다.
@@ -120,13 +126,13 @@ Site owns the local derived-manifest adapter, `LinkCardProps`, component mapping
 
 `summaryLines` are exactly three ordered semantic fragments, not a guarantee of three physical lines at every width. Narrow cards render one flowing summary with visual separators and natural wrapping. Cards with at least `36rem` of content width render three ordered rows. The component preserves every fragment verbatim, including out-of-budget output, without ellipsis, clipping or horizontal overflow; typography stays `0.875rem`. Container width, rather than viewport width, also accommodates cards inside narrow lists/columns.
 
-The [responsive density evidence](evidence/link-card-density/README.md) selects **24 Unicode code points per fragment for ko-KR** as the current Site calibration recommendation for Engine's explicit `maxCharactersPerLine` input. That field name and `summaryLines` schema remain unchanged. This is a generation budget, not a consumer rejection/truncation threshold or a universal physical-line guarantee. The earlier 14-code-point measurement belongs to #53's historical single-line first slice. Real producer quality and re-preparation of persisted records remain Engine/Docs responsibilities.
+Site recommends **24 Unicode code points per fragment for ko-KR** for Engine's explicit `maxCharactersPerLine` input. That field name and `summaryLines` schema remain unchanged. This is a generation budget, not a consumer rejection/truncation threshold or a universal physical-line guarantee. The [responsive density evidence](evidence/link-card-density/README.md) records the calibration; the earlier single-line first slice is preserved only as [revision-bound #53 evidence](evidence/mdx-link-card/README.md#typography-calibration-historical). Real producer quality and re-preparation of persisted records remain Engine/Docs responsibilities.
 
-Build/render only reads the local Docs manifest at the revision selected by the owning workflow. It does not fetch target URLs, call LilysAI/Ollama, or download/optimize remote preview images. Browser images use the producer's absolute HTTP(S) URL directly. Summary rows use plain escaped text and natural wrapping for overlong input; clipping/ellipsis never hides producer length problems. The measured ko-KR typography fixture bound is **14 Unicode code points per row**, at 320/390/768/1440px with the current 14px typography. See [revision-bound evidence and limitations](evidence/mdx-link-card/README.md); this does not silently change Engine constraints or claim real v2 delivery.
+Build/render only reads the local Docs manifest at the revision selected by the owning workflow. It does not fetch target URLs, call LilysAI/Ollama, or download/optimize remote preview images. Browser images use the producer's absolute HTTP(S) URL directly. Summary rows use plain escaped text and natural wrapping for overlong input; clipping/ellipsis never hides producer length problems.
 
 Cards contain one navigation anchor and no nested interactive controls. Desktop detail sidebar behavior remains deferred under Site #54; no sidebar or intercepted first tap is introduced on mobile. This DOM also leaves ordinary inline links available for future delegated hover/focus interaction.
 
-The earlier [Markdown component spike](evidence/markdown-to-js/README.md) and Draft PR #59 remain investigation history. Its executable tree, script, spike-only dependencies and legacy HAST LinkCard implementation have been removed from this branch; the revision-bound investigation document links to immutable history.
+The earlier [Markdown component spike](evidence/markdown-to-js/README.md) remains revision-bound investigation history. That record links to the immutable implementation and findings; it does not define the current consumer path.
 
 ## Article social metadata and derived previews
 

@@ -1,5 +1,13 @@
 # Native MDX LinkCard evidence
 
+> **Authority:** RECORD\
+> **Owner:** Site #53 local native MDX LinkCard validation evidence\
+> **Scope:** the implementation and follow-up revisions named below\
+> **Read when:** inspecting historical #53 implementation, fixture measurements, and validation limits\
+> **Evidence scope:** local macOS/Playwright Chromium validation on 2026-10-07; no current CI or deployment claim
+
+Current consumer behavior and the current generation-budget recommendation are owned by the [content consumption contract](../../content-consumption-contract.md#markdown--mdx-linkcard-boundary). The measurements and recommendations below describe only the named revisions.
+
 Source tree: `05991c6c0bc52150ebf79d5f0843a5aa602ed98e`. Docs gitlink: `feda09afb4343028be4c680fc5ba9dcf267b6366`. Local validation: 2026-10-07, macOS, Playwright Chromium. This record names the implementation tree validated locally; the evidence-only commit does not change that implementation.
 
 ## Outcome and owning decisions
@@ -47,11 +55,11 @@ Shared native processor fixture routes `/common-markdown/` and `/common-mdx/` re
 
 Fixture outcomes: Markdown cards **0**; MDX cards **10** (rich **8**, basic **2**); ordered summary rows **24**. It covers standard link forms, original-label missing-metadata fallback, malformed optional presentation/basic fallback, remote-image props, text-only rich card, inline native labels and navigation attributes. No nested links/buttons or paragraph-wrapped cards. Keyboard focus/Enter and mobile touch first tap keep external navigation; no sidebar/dialog is present.
 
-## Typography calibration
+## Typography calibration (historical)
 
-The current 14px summary typography and 1rem card padding were measured at **320, 390, 768 and 1440px**, in both light and dark themes, after fonts settled. The 320px fixture has **254px** of summary-row width. All 24 rows remain one line without overflow, clipping or ellipsis at the tested bound: **14 Unicode code points per row**, locale **ko-KR**. Boundary fixtures include Hangul, wide `W` glyphs and emoji. The initial 16-emoji row wrapped at 320px; 14 passed. Ordinary Korean semantic fragments also passed.
+The named revision's 14px summary typography and 1rem card padding were measured at **320, 390, 768 and 1440px**, in both light and dark themes, after fonts settled. The 320px fixture had **254px** of summary-row width. All 24 rows remained one line without overflow, clipping or ellipsis at the tested bound: **14 Unicode code points per row**, locale **ko-KR**. Boundary fixtures included Hangul, wide `W` glyphs and emoji. The initial 16-emoji row wrapped at 320px; 14 passed. Ordinary Korean semantic fragments also passed.
 
-Recommend `maxCharactersPerLine: 14` for the corresponding Engine ko-KR preparation constraint. This value is tied to this typography, viewport range, fixture glyphs and local font environment; it is not a universal width guarantee across arbitrary scripts/fonts/zoom. Recalibrate on font/card/breakpoint changes or another locale. Site preserves overlong producer rows with natural wrapping rather than clipping or inventing shortened text; an 80-Hangul-row probe verifies this behavior. Engine's default remains deliberately uncalibrated until its owner applies the constraint; this Site change does not edit the producer.
+This first slice recommended `maxCharactersPerLine: 14` for the corresponding Engine ko-KR preparation constraint. That recommendation was superseded by the [responsive density calibration](../link-card-density/README.md); use the [current consumption contract](../../content-consumption-contract.md#markdown--mdx-linkcard-boundary) for the current recommendation. The historical value was tied to this typography, viewport range, fixture glyphs and local font environment, with no universal width guarantee across arbitrary scripts/fonts/zoom. An 80-Hangul-row probe verified natural wrapping instead of clipping or shortening producer text. The slice did not edit the producer or establish its current default.
 
 ![320px light fixture](320-light.png)
 

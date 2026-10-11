@@ -1,5 +1,11 @@
 # Publishing Site
 
+> **Authority:** REFERENCE\
+> **Owner:** Site repository task and operation routing\
+> **Scope:** `ooMia/oomia.github.io` development, content consumption, and delivery\
+> **Read when:** finding the owning Site contract, implementation, or verification entry point\
+> **Source of truth:** Site code/configuration and live GitHub state; shared policy owners routed by Knowledge CONTEXT
+
 Astro-based presentation and delivery repository for the Publishing Platform.
 
 The Site consumes canonical content from `ooMia/oomia.github.io.docs` through the submodule mounted at `apps/web/data/articles`. The Article collection is intentionally limited to `content/articles/**/*.{md,mdx}`; other canonical Docs content is not treated as an Article implicitly.
@@ -7,6 +13,8 @@ The Site consumes canonical content from `ooMia/oomia.github.io.docs` through th
 ## Task routing
 
 Read the owning source for the task; this README routes policy and operations rather than duplicating them.
+
+Project context and shared policy start at [Knowledge CONTEXT](https://github.com/ooMia/oomia.github.io.knowledge/blob/main/CONTEXT.md). Follow its task routing, including `agent-conventions.md` for user/Agent interaction, approval, tool failure, capability fallback, and remote-state interpretation. The [Site Agent entry point](AGENTS.md) connects that shared routing to the local sources below.
 
 | Task                                                  | Owning source / next reference                                                                                                                                                                                                |
 | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
