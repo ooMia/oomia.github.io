@@ -17,7 +17,7 @@ const server = await preview({
   server: { host: "127.0.0.1", port: 4322 },
   logLevel: "error",
 });
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL });
 async function openFixture(page, route) {
   await page.goto(`http://127.0.0.1:4322/${route}/`);
   // The provider must finish hydration before a fixture applies a theme.

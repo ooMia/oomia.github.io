@@ -377,6 +377,10 @@
   text-align-last: start;
   text-indent: 1em;
 }
+/* Let long code wrap naturally without expanding its internal word spaces. */
+.article-body p:has(code) {
+  text-align: start;
+}
 .article-body :is(blockquote, li, td, th, figcaption, .callout, .link-card) p {
   text-indent: 0;
 }
