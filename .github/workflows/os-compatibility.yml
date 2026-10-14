@@ -2,6 +2,15 @@ name: Manual OS compatibility
 
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: Browser regression profile
+        type: choice
+        required: false
+        default: compat
+        options:
+          - compat
+          - full
 
 permissions:
   contents: read
@@ -10,6 +19,11 @@ jobs:
   compatibility:
     env:
       DOCS_CHECKOUT_MODE: main
+      SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
+      BASE_PATH: /
+      # BASE_PATH is a URL prefix, so Git Bash must preserve it for native Windows tools.
+      # https://www.msys2.org/docs/filesystem-paths/#environment-variables
+      MSYS2_ENV_CONV_EXCL: BASE_PATH
     strategy:
       fail-fast: false
       matrix:
@@ -43,12 +57,14 @@ jobs:
       - run: pnpm --filter web sync
       - name: Build compatibility corpus
         run: pnpm --filter web build
-        env:
-          BASE_PATH: /
       - name: Install compatibility browser
         run: pnpm --filter web exec playwright install --with-deps chromium
       - name: Run core compatibility profile
+        if: inputs.profile != 'full'
         run: pnpm --filter web test:e2e:compat
+      - name: Run full browser regression
+        if: inputs.profile == 'full'
+        run: pnpm --filter web test:e2e
       - uses: actions/upload-artifact@v7
         if: always()
         with:

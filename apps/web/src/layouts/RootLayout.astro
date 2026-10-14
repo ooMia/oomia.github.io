@@ -1,14 +1,16 @@
 ---
+import { documentLanguage, type SiteLocale } from "@/lib/presentation/locale";
 import "@/styles/global.css";
 import HeadLayout from "./HeadLayout.astro";
 interface Props {
   title: string;
   description: string;
+  locale?: SiteLocale;
 }
-const { title, description } = Astro.props;
+const { title, description, locale = "ko" } = Astro.props;
 ---
 
-<html lang="ko-KR">
+<html lang={documentLanguage(locale)}>
   <HeadLayout>
     <title>{title}</title>
     <meta name="description" content={description} />

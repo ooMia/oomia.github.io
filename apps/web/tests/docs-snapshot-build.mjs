@@ -52,7 +52,7 @@ try {
     cpSync(join(originalWeb, path), join(web, path), { recursive: true });
   mkdirSync(join(web, "node_modules"));
   for (const entry of readdirSync(join(originalWeb, "node_modules"))) {
-    if (entry !== ".cache")
+    if (![".cache", ".astro", ".vite"].includes(entry))
       symlinkSync(
         join(originalWeb, "node_modules", entry),
         join(web, "node_modules", entry),

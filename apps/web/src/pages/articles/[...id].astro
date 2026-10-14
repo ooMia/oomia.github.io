@@ -9,7 +9,15 @@ import Callout from "@/components/Callout.astro";
 import LinkCard from "@/components/LinkCard.astro";
 import { ArticleFrame } from "@/components/presentation/ArticleFrame";
 import RootLayout from "@/layouts/RootLayout.astro";
+import { getCollection } from "astro:content";
+import { articleSourcePath } from "@/lib/content/article-source";
 import { getArticleRecords } from "@/lib/content/articles";
+import {
+  articleVisual,
+  buildTagIndex,
+  sortedTags,
+} from "@/lib/presentation/articles";
+import { localizedArticleUrl } from "@/lib/presentation/locale";
 import render from "@/lib/content/render";
 import "@/styles/link-card.css";
 import type { InferGetStaticPropsType } from "astro";
@@ -17,12 +25,17 @@ import type { InferGetStaticPropsType } from "astro";
 export async function getStaticPaths() {
   const articles = await getArticleRecords();
   const previews = readArticlePreviews();
+  const translations = await getCollection("articleTranslations");
 
   return articles.map(({ entry, metadata }) => ({
     params: { id: entry.id },
     props: {
       post: entry,
+      translated: translations.some(
+        (x) => x.data.sourcePath === articleSourcePath(entry.filePath),
+      ),
       metadata,
+      tagIndex: buildTagIndex(articles.map(({ metadata }) => metadata)),
       previewHash: previewForArticle(entry.filePath, previews)?.sha256,
     },
   }));
@@ -30,7 +43,8 @@ export async function getStaticPaths() {
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
-const { post, metadata, previewHash } = Astro.props as Props;
+const { post, metadata, previewHash, tagIndex, translated } =
+  Astro.props as Props;
 const article = await render(post);
 const social = articleSocial(
   metadata,
@@ -48,6 +62,26 @@ const toc = article.headings.map((heading) => ({
 
 <RootLayout title={metadata.title} description={metadata.description}>
   <ArticleSocialHead slot="head" {social} />
+  {
+    translated && (
+      <>
+        <>
+          <link slot="head" rel="alternate" hreflang="ko" href={social.url} />
+          <link
+            slot="head"
+            rel="alternate"
+            hreflang="en"
+            href={
+              new URL(
+                localizedArticleUrl(post.id, "en", import.meta.env.BASE_URL),
+                Astro.site,
+              ).href
+            }
+          />
+        </>
+      </>
+    )
+  }
   <ArticleFrame
     pathname={Astro.url.pathname}
     homeUrl={import.meta.env.BASE_URL}
@@ -56,7 +90,10 @@ const toc = article.headings.map((heading) => ({
     author={metadata.author}
     publishedAt={metadata.publishedAt?.toISOString()}
     updatedAt={metadata.updatedAt?.toISOString()}
-    tags={[...metadata.tags]}
+    articleId={post.id}
+    visual={articleVisual(metadata)}
+    localeUrl={localizedArticleUrl(post.id, "en", import.meta.env.BASE_URL)}
+    tags={sortedTags(metadata.tags, tagIndex)}
     readingMinutes={Math.ceil(
       article.remarkPluginFrontmatter.readingTime.minutes,
     )}

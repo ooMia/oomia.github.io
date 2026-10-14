@@ -10,6 +10,7 @@ export {
   standaloneLinkContent,
 } from "./plugins/mdast/external-link/normalize";
 export { default as schema } from "./plugins/schema";
+export { assertTranslationIntegrity } from "./translation-integrity";
 
 export type {
   AstroFileData,

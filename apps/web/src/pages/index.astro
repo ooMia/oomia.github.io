@@ -1,108 +1,52 @@
 ---
+import { HomeFrame } from "@/components/presentation/HomeFrame";
 import ProfileActivity from "@/components/presentation/ProfileActivity.astro";
-import { SiteFrame } from "@/components/presentation/SiteFrame";
 import RootLayout from "@/layouts/RootLayout.astro";
-import { formatArticleDate } from "@/lib/content/article-metadata";
 import { getArticleRecords } from "@/lib/content/articles";
 import render from "@/lib/content/render";
+import {
+  articleVisual,
+  buildTagIndex,
+  type HomeStory,
+  sortedTags,
+} from "@/lib/presentation/articles";
 import { withBasePath } from "@/lib/utils";
 
-const articles = await getArticleRecords();
-
-async function getReadingTime(entry: (typeof articles)[number]["entry"]) {
-  const post = await render(entry);
-  return Math.ceil(post.remarkPluginFrontmatter.readingTime.minutes);
-}
+const records = await getArticleRecords();
+const tagIndex = buildTagIndex(records.map(({ metadata }) => metadata));
+const stories: HomeStory[] = await Promise.all(
+  records.map(async ({ entry, metadata }) => {
+    const rendered = await render(entry);
+    return {
+      id: entry.id,
+      title: metadata.title,
+      description: metadata.description,
+      url: withBasePath(`/articles/${entry.id}/`, import.meta.env.BASE_URL),
+      ...(metadata.publishedAt
+        ? { publishedAt: metadata.publishedAt.toISOString() }
+        : {}),
+      readingMinutes: Math.ceil(
+        rendered.remarkPluginFrontmatter.readingTime.minutes,
+      ),
+      tags: sortedTags(metadata.tags, tagIndex),
+      visual: articleVisual(metadata),
+    };
+  }),
+);
 ---
 
 <RootLayout
   title="ooMia — 개발 기록과 실험"
   description="구조를 고민하고, 작게 실험하며, 오래 쓸 수 있는 소프트웨어를 만듭니다. ooMia의 개발 기록과 실험을 읽어보세요."
 >
-  <SiteFrame
+  <HomeFrame
     pathname={Astro.url.pathname}
     homeUrl={import.meta.env.BASE_URL}
+    localeUrl={withBasePath("/en/", import.meta.env.BASE_URL)}
+    {stories}
+    {tagIndex}
     client:load
   >
-    <div
-      id="homepage"
-      class="mx-auto w-full min-w-0 max-w-3xl px-4 py-12 md:px-6 md:py-16"
-    >
-      <header class="border-b border-fd-border pb-10">
-        <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">ooMia</h1>
-        <p
-          class="mt-4 max-w-xl text-base leading-relaxed text-fd-muted-foreground md:text-lg"
-        >
-          구조를 고민하고, 작게 실험하며, 오래 쓸 수 있는 소프트웨어를 만듭니다.
-        </p>
-        <nav
-          aria-label="연락처"
-          class="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm"
-        >
-          <a
-            href="https://github.com/ooMia"
-            class="hover:underline underline-offset-4">GitHub</a
-          >
-          <a
-            href="https://www.linkedin.com/in/김현학/"
-            class="hover:underline underline-offset-4">LinkedIn</a
-          >
-          <a
-            href="mailto:dev@oomia.click"
-            class="hover:underline underline-offset-4">Email</a
-          >
-        </nav>
-      </header>
-
-      <section aria-labelledby="recent-articles" class="mt-10">
-        <h2 id="recent-articles" class="text-xl font-semibold tracking-tight">
-          최근 글
-        </h2>
-        <ul class="mt-2 divide-y divide-fd-border">
-          {
-            articles.map(async ({ entry, metadata }) => {
-              const readingMinutes = await getReadingTime(entry);
-              const publishedAt = formatArticleDate(metadata.publishedAt);
-
-              return (
-                <li class="min-w-0 space-y-2 py-6 [overflow-wrap:anywhere]">
-                  <h3 class="text-lg font-medium leading-snug">
-                    <a
-                      class="hover:underline underline-offset-4"
-                      href={withBasePath(
-                        `/articles/${entry.id}/`,
-                        import.meta.env.BASE_URL,
-                      )}
-                    >
-                      {metadata.title}
-                    </a>
-                  </h3>
-                  <p class="text-sm text-fd-muted-foreground">
-                    {metadata.description}
-                  </p>
-                  <div class="flex flex-wrap gap-x-2 text-xs text-fd-muted-foreground">
-                    {metadata.publishedAt && (
-                      <>
-                        <time datetime={metadata.publishedAt.toISOString()}>
-                          {publishedAt}
-                        </time>
-                        <span aria-hidden="true">·</span>
-                      </>
-                    )}
-                    <span>{readingMinutes} min read</span>
-                  </div>
-                  {metadata.tags.length > 0 ? (
-                    <p class="text-xs text-fd-muted-foreground">
-                      {metadata.tags.map((tag) => `#${tag}`).join(" ")}
-                    </p>
-                  ) : null}
-                </li>
-              );
-            })
-          }
-        </ul>
-      </section>
-      <ProfileActivity />
-    </div>
-  </SiteFrame>
+    <ProfileActivity />
+  </HomeFrame>
 </RootLayout>

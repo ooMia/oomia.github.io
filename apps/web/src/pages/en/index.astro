@@ -1,0 +1,61 @@
+---
+import { HomeFrame } from "@/components/presentation/HomeFrame";
+import ProfileActivity from "@/components/presentation/ProfileActivity.astro";
+import RootLayout from "@/layouts/RootLayout.astro";
+import { getArticleRecords } from "@/lib/content/articles";
+import { articleSourcePath } from "@/lib/content/article-source";
+import { getCollection } from "astro:content";
+import render from "@/lib/content/render";
+import {
+  articleVisual,
+  buildTagIndex,
+  sortedTags,
+  type HomeStory,
+} from "@/lib/presentation/articles";
+import {
+  localizedArticleUrl,
+  localizedHomeUrl,
+} from "@/lib/presentation/locale";
+const records = await getArticleRecords();
+const localized = await getCollection("articleTranslations");
+const tagIndex = buildTagIndex(records.map(({ metadata }) => metadata));
+const stories: HomeStory[] = await Promise.all(
+  records.map(async ({ entry, metadata }) => {
+    const translated = localized.find(
+      (x) => x.data.sourcePath === articleSourcePath(entry.filePath),
+    );
+    const rendered = await render(translated ?? entry);
+    return {
+      id: entry.id,
+      title: translated?.data.title ?? metadata.title,
+      description: translated?.data.description ?? metadata.description,
+      url: localizedArticleUrl(entry.id, "en", import.meta.env.BASE_URL),
+      ...(metadata.publishedAt
+        ? { publishedAt: metadata.publishedAt.toISOString() }
+        : {}),
+      readingMinutes: Math.ceil(
+        rendered.remarkPluginFrontmatter.readingTime.minutes,
+      ),
+      tags: sortedTags(metadata.tags, tagIndex),
+      visual: articleVisual(metadata),
+      language: translated ? "en" : "ko",
+    };
+  }),
+);
+---
+
+<RootLayout
+  title="ooMia — Notes and experiments"
+  description="Software, writing and small experiments by ooMia."
+  locale="en"
+>
+  <HomeFrame
+    pathname={Astro.url.pathname}
+    homeUrl={localizedHomeUrl("en", import.meta.env.BASE_URL)}
+    locale="en"
+    localeUrl={localizedHomeUrl("ko", import.meta.env.BASE_URL)}
+    {stories}
+    {tagIndex}
+    client:load><ProfileActivity /></HomeFrame
+  >
+</RootLayout>
