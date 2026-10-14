@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 
 import { expect, test } from "@playwright/test";
+import { readdir } from "node:fs/promises";
 
 const base = (process.env["PRESENTATION_BASE"] ?? "").replace(/\/$/, "");
 const providers = [
@@ -13,7 +14,7 @@ const articlesSelector = 'section[aria-labelledby="recent-articles"]';
 
 async function noOverflow(page: Page) {
   expect(
-    await page.evaluate(() => document.documentElement.scrollWidth)
+    await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(await page.evaluate(() => innerWidth));
 }
 
@@ -26,38 +27,46 @@ async function mockProviders(page: Page, failedHost?: string) {
         : route.fulfill({
             contentType: "image/svg+xml",
             body: '<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="300"><rect width="1400" height="300" fill="#282828"/></svg>',
-          })
+          }),
     );
   }
 }
 
 test(
-  "compact homepage hierarchy, contacts and shared theme",
+  "editorial homepage keeps discovery primary, contacts and shared theme",
   { tag: "@compat" },
   async ({ page }) => {
     await mockProviders(page);
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(`${base}/`);
-    await expect(page.locator("#homepage h1")).toHaveText("ooMia");
-    await expect(page.locator("#homepage > header p")).toHaveText(
-      "구조를 고민하고, 작게 실험하며, 오래 쓸 수 있는 소프트웨어를 만듭니다."
+    await expect(page.locator("#homepage h1")).toHaveText(
+      /Ideas into\s*systems\./,
+    );
+    await expect(page.locator(".home-profile-intro")).toHaveText(
+      "구조를 고민하고, 작게 실험하며, 오래 쓸 수 있는 소프트웨어를 만듭니다.",
     );
     await expect(page).toHaveTitle("ooMia — 개발 기록과 실험");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       "content",
-      /ooMia/
+      /ooMia/,
     );
+    const recent = page.getByRole("heading", { name: "최근 글", exact: true });
+    await expect(recent).toBeVisible();
     expect(
-      await page
-        .locator("#homepage")
-        .evaluate((el) => Array.from(el.children).map((child) => child.tagName))
-    ).toEqual(["HEADER", "SECTION", "SECTION"]);
+      await recent.evaluate((el) =>
+        Boolean(
+          el.compareDocumentPosition(
+            document.getElementById("profile-activity")!,
+          ) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
+      ),
+    ).toBe(true);
     const contacts = page.getByRole("navigation", { name: "연락처" });
     for (const [name, href] of [
       ["GitHub", "https://github.com/ooMia"],
       ["LinkedIn", "https://www.linkedin.com/in/김현학/"],
-      ["Email", "mailto:dev@oomia.click"],
+      ["이메일 보내기", "mailto:dev@oomia.click"],
     ] as const) {
       const link = contacts.getByRole("link", { name, exact: true });
       await expect(link).toHaveAttribute("href", href!);
@@ -82,7 +91,7 @@ test(
     await page.reload();
     await expect(page.locator("html")).toHaveClass(/dark/);
     expect(errors).toEqual([]);
-  }
+  },
 );
 
 test("Gravatar profile card is present without affecting discovery", async ({
@@ -105,16 +114,17 @@ test("email keyboard activation", async ({ page }) => {
   await contacts.evaluate((el) =>
     el.addEventListener("click", (event) => {
       event.preventDefault();
-      const target = event.target as HTMLAnchorElement;
-      el.setAttribute("data-activated", target.getAttribute("href") ?? "");
-    })
+      const target =
+        event.target instanceof Element ? event.target.closest("a") : null;
+      el.setAttribute("data-activated", target?.getAttribute("href") ?? "");
+    }),
   );
   await contacts
-    .getByRole("link", { name: "Email", exact: true })
+    .getByRole("link", { name: "이메일 보내기", exact: true })
     .press("Enter");
   await expect(contacts).toHaveAttribute(
     "data-activated",
-    "mailto:dev@oomia.click"
+    "mailto:dev@oomia.click",
   );
 });
 
@@ -124,22 +134,36 @@ test("discovery metadata agrees with canonical article pages and ordering", asyn
   await mockProviders(page);
   await page.goto(`${base}/`);
   const entries = await page
-    .locator(`${articlesSelector} li`)
+    .locator(".home-featured-copy, .home-story-copy")
     .evaluateAll((nodes) =>
       nodes.map((node) => ({
-        href: node.querySelector("a")!.getAttribute("href")!,
-        title: node.querySelector("h3")!.textContent!.trim(),
-        description: node.querySelector("p")!.textContent!.trim(),
+        href: node.querySelector(".home-story-title a")!.getAttribute("href")!,
+        title: node.querySelector(".home-story-title")!.textContent!.trim(),
+        description: node
+          .querySelector(".home-story-description")!
+          .textContent!.trim(),
         date: node.querySelector("time")?.getAttribute("datetime"),
-        reading: node.textContent!.match(/\d+ min read/)![0],
-        tags: Array.from(node.querySelectorAll("p"))
-          .slice(1)
-          .map((p) => p.textContent!.trim()),
-      }))
+        reading: Number(
+          node.textContent!.match(/(\d+)\s*(?:min read|분 읽기)/)![1],
+        ),
+        tags: [
+          ...new Set(
+            Array.from(
+              node.querySelectorAll<HTMLAnchorElement>('a[href*="?tag="]'),
+            ).map((link) => new URL(link.href).searchParams.get("tag")),
+          ),
+        ],
+      })),
     );
   expect(entries.length).toBeGreaterThan(0);
+  const builtArticles = (
+    await readdir("dist/articles", { recursive: true })
+  ).filter((file) => file.endsWith("index.html"));
+  expect(new Set(entries.map((entry) => entry.href)).size).toBe(
+    builtArticles.length,
+  );
   expect(await page.locator(`${articlesSelector} [rel="author"]`).count()).toBe(
-    0
+    0,
   );
   await expect(page.locator(articlesSelector)).not.toContainText("Updated");
   const expected = [...entries].sort((a, b) => {
@@ -153,20 +177,129 @@ test("discovery metadata agrees with canonical article pages and ordering", asyn
     await page.goto(entry.href);
     const header = page.locator("article header");
     await expect(header.locator("h1")).toHaveText(entry.title);
-    await expect(header.locator("p")).toHaveText(entry.description);
-    await expect(header).toContainText(entry.reading);
+    await expect(header.locator(".article-description")).toHaveText(
+      entry.description,
+    );
+    expect(
+      Number(
+        (await header.textContent())!.match(/(\d+)\s*(?:min read|분 읽기)/)![1],
+      ),
+    ).toBe(entry.reading);
     if (entry.date)
       await expect(header.locator("time").first()).toHaveAttribute(
         "datetime",
-        entry.date
+        entry.date,
       );
     const tags = await header
-      .getByRole("list", { name: "Tags" })
-      .locator("li")
-      .allTextContents();
-    expect(tags.join(" ")).toBe(entry.tags.join(" "));
+      .locator('a[href*="?tag="]')
+      .evaluateAll((links) => [
+        ...new Set(
+          links.map((link) =>
+            new URL((link as HTMLAnchorElement).href).searchParams.get("tag"),
+          ),
+        ),
+      ]);
+    expect(tags).toEqual(entry.tags);
   }
 });
+
+test(
+  "shared tag URLs survive reload and image links open the article",
+  { tag: "@compat" },
+  async ({ page }) => {
+    await mockProviders(page);
+    await page.goto(`${base}/?tag=%20java%20#recent-articles`);
+    await expect(
+      page.getByRole("heading", { name: "#JAVA", exact: true }),
+    ).toBeVisible();
+    const picker = page.locator(".home-tag-picker");
+    const summary = picker.locator("summary");
+    await summary.press("ArrowDown");
+    const options = picker
+      .getByRole("group", { name: "태그별 글 모아보기", exact: true })
+      .getByRole("button");
+    await expect(options.first()).toBeFocused();
+    await options.first().press("End");
+    await expect(options.last()).toBeFocused();
+    await options.last().press("Escape");
+    await expect(summary).toBeFocused();
+    await expect(picker).not.toHaveAttribute("open", "");
+    await summary.press("Enter");
+    const java = picker.getByRole("button", { name: /^#JAVA\s*\(\d+\)$/ });
+    const expected = Number((await java.textContent())!.match(/\((\d+)\)/)![1]);
+    await java.click();
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get("tag"))
+      .toBe("JAVA");
+    await expect(
+      page.locator(articlesSelector).getByRole("heading", { level: 3 }),
+    ).toHaveCount(expected);
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { name: "#JAVA", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.locator(articlesSelector).getByRole("heading", { level: 3 }),
+    ).toHaveCount(expected);
+    const first = page.locator(".home-story").first();
+    const href = await first
+      .getByRole("heading", { level: 3 })
+      .getByRole("link")
+      .getAttribute("href");
+    const cover = first.locator(".home-cover");
+    await expect(cover).toHaveAttribute("href", href!);
+    await cover.click();
+    await expect.poll(() => new URL(page.url()).pathname).toBe(href);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(page.locator("article header h1")).not.toBeEmpty();
+  },
+);
+
+test(
+  "locale navigation opens the same article and returns to its original",
+  { tag: "@compat" },
+  async ({ page }) => {
+    await mockProviders(page);
+    await page.goto(`${base}/`);
+    const originalTitle = await page.locator(".home-featured h2").textContent();
+    const originalUrl = await page
+      .locator(".home-featured h2 a")
+      .getAttribute("href");
+    await page
+      .getByRole("link", { name: "Switch to English", exact: true })
+      .press("Enter");
+    await expect.poll(() => new URL(page.url()).pathname).toBe(`${base}/en/`);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.locator(".home-language-notice")).toContainText(
+      /English translations/i,
+    );
+    const title = page.locator(".home-featured h2");
+    const language = await title.getAttribute("lang");
+    expect(["ko", "en"]).toContain(language);
+    const localizedTitle = await title.textContent();
+    const cover = page.locator(".home-featured .home-cover");
+    await expect(cover).toHaveAttribute("lang", language!);
+    await expect(cover).toHaveAttribute(
+      "href",
+      originalUrl!.replace(`${base}/articles/`, `${base}/en/articles/`),
+    );
+    await cover.click();
+    await expect(page.locator("article header h1")).toHaveText(localizedTitle!);
+    await expect(page.locator("[data-reading-body]")).toHaveAttribute(
+      "lang",
+      language!,
+    );
+    await expect(page.locator(".article-translation-notice")).toContainText(
+      /AI-translated|English translation is not available/,
+    );
+    await page
+      .getByRole("link", { name: "View original", exact: true })
+      .click();
+    await expect.poll(() => new URL(page.url()).pathname).toBe(originalUrl);
+    await expect(page.locator("html")).toHaveAttribute("lang", "ko-KR");
+    await expect(page.locator("article header h1")).toHaveText(originalTitle!);
+  },
+);
 
 for (const host of providers) {
   test(
@@ -185,14 +318,14 @@ for (const host of providers) {
           .toBe(true);
         const failed = (await img.getAttribute("src"))!.includes(host);
         expect(
-          await img.evaluate((el) => (el as HTMLImageElement).naturalWidth)
+          await img.evaluate((el) => (el as HTMLImageElement).naturalWidth),
         ).toBe(failed ? 0 : 1400);
         const fallback = img.locator("..");
         if (failed) {
           await expect(img).toBeHidden();
           await expect(fallback.locator("p")).toBeVisible();
           await expect(fallback).toContainText(
-            "활동 이미지를 불러올 수 없습니다"
+            "활동 이미지를 불러올 수 없습니다",
           );
         } else {
           await expect(img).toBeVisible();
@@ -200,15 +333,15 @@ for (const host of providers) {
         }
       }
       await expect(
-        page.locator(`${activitySelector} figcaption a`)
+        page.locator(`${activitySelector} figcaption a`),
       ).toHaveCount(4);
       expect(
-        await page.locator(`${articlesSelector} h3`).allTextContents()
+        await page.locator(`${articlesSelector} h3`).allTextContents(),
       ).toEqual(titles);
       await noOverflow(page);
-      await page.locator(`${articlesSelector} a`).first().click();
+      await page.locator(`${articlesSelector} h3 a`).first().click();
       await expect(page.locator("article header h1")).toHaveText(titles[0]!);
-    }
+    },
   );
 }
 
@@ -237,7 +370,7 @@ test("activity reserves geometry before provider load and failure", async ({
       nodes.map((img) => {
         const box = img.parentElement!.getBoundingClientRect();
         return { width: box.width, height: box.height };
-      })
+      }),
     );
   try {
     for (const img of await images.all())

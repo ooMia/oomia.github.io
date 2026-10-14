@@ -2,6 +2,15 @@ name: Manual OS compatibility
 
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: Browser regression profile
+        type: choice
+        required: false
+        default: compat
+        options:
+          - compat
+          - full
 
 permissions:
   contents: read
@@ -48,7 +57,11 @@ jobs:
       - name: Install compatibility browser
         run: pnpm --filter web exec playwright install --with-deps chromium
       - name: Run core compatibility profile
+        if: inputs.profile != 'full'
         run: pnpm --filter web test:e2e:compat
+      - name: Run full browser regression
+        if: inputs.profile == 'full'
+        run: pnpm --filter web test:e2e
       - uses: actions/upload-artifact@v7
         if: always()
         with:

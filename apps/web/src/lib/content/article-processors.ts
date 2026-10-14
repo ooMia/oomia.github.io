@@ -9,7 +9,7 @@ import type { LinkCardResolver } from "./link-card";
 
 import { linkCardBinding } from "./link-card-binding";
 
-const markdownFeatures = {
+export const markdownFeatures = {
   gfm: true,
   frontmatter: true,
   math: true,

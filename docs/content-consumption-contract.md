@@ -20,7 +20,7 @@ public article model은 다음 의미를 사용한다.
 - `updatedAt`: explicit `updatedDate`가 우선이며, 없을 때만 Docs Git history의 latest non-merge author revision을 fallback으로 사용한다.
 - Git fallback은 full/reliable Docs history를 읽을 수 있을 때만 사용하고, 불가능하면 값을 만들지 않는다.
 - author source value는 single-author Site identity로 case-insensitive하게 매핑한다. 현재 canonical corpus의 `oomia`와 article template의 `ooMia`를 같은 author로 취급한다.
-- authored tag casing/order와 aliases는 보존한다. aliases는 현재 public route를 만들지 않는다.
+- authored tag casing/order와 aliases는 보존한다. Site의 태그 탐색은 별도 presentation index에서 NFKC + trim + uppercase identity와 distinct original-article count를 사용한다. KO/EN 렌더링을 별개 글로 중복 집계하거나 canonical tags를 수정하지 않는다. aliases는 현재 public route를 만들지 않는다.
 - reading time/headings는 canonical frontmatter가 아니라 기존 Astro + `@workspace/md` render result에서 파생한다.
 
 Article route와 homepage collection access는 [articles.ts](../apps/web/src/lib/content/articles.ts)의 동일한 visibility/order policy를 소비한다. `FILTER_DRAFT_ARTICLES=true`일 때만 `draft: true` entry를 제외하며, unset/false에서는 draft를 계속 포함한다. 현재 Pages/default는 filtering OFF다.
@@ -147,3 +147,7 @@ The live consumer graph includes Article Markdown/MDX, their Docs Git history, `
 Docs owns `derived/article-previews.json` (`schemaVersion: 1`, `records`). Each record uses `sourcePath` under `content/articles/` as stable source identity, independent of its deployed URL. It includes `imagePath: derived/article-previews/<sha256>.png`, SHA-256, byte count, `mediaType: image/png`, width 1200 and height 630, plus producer/persistence provenance documented in Docs. Site validates identity, namespace containment, PNG header/dimensions and bytes/hash, then includes that binary at `/social-previews/<sha256>.png` and emits absolute `og:image` and `twitter:image`. Unsupported/corrupt preview data fails closed. A missing manifest or missing record remains a valid non-image article. Existing previews remain stable; Site does not trigger freshness or capture.
 
 `@workspace/md/runtime` exposes lightweight render schema and URL normalization separately from build-time processors/native bindings. Site does not run a browser during build. Preview-present/absent output is covered by `apps/web/tests/article-preview-build.mjs`; full local E2E includes rendered article head assertions.
+
+## Optional article translations
+
+검증된 Docs-owned 번역 산출물이 있는 경우에만 영어 본문을 기존 native Markdown/MDX 경로로 소비한다. 검증은 content sync에서 수행하며 페이지는 검증된 collection DTO만 사용한다. 입력 형식, hash/ancestry, 자산 범위와 실패 동작은 [번역 소비 경로](article-translations.md) 및 owning code/tests를 따른다. Site는 번역을 생성하거나 provider를 호출하지 않는다. 산출물이 없으면 영어 UI에서 원문 fallback을 명시하고 원문 접근을 유지한다.

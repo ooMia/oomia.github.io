@@ -2,8 +2,9 @@
 import type { articleSocial } from "@/lib/content/article-social";
 interface Props {
   social: ReturnType<typeof articleSocial>;
+  locale?: "ko" | "en";
 }
-const { social } = Astro.props;
+const { social, locale = "ko" } = Astro.props;
 ---
 
 <link rel="canonical" href={social.url} />
@@ -13,7 +14,7 @@ const { social } = Astro.props;
 <meta property="og:url" content={social.url} />
 <meta property="og:site_name" content={social.siteName} />
 <meta property="og:type" content="article" />
-<meta property="og:locale" content="ko_KR" />
+<meta property="og:locale" content={locale === "en" ? "en_US" : "ko_KR"} />
 <meta property="article:author" content={social.author} />
 {
   social.published && (

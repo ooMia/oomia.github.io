@@ -1,3 +1,139 @@
 @import "@workspace/ui/globals.css";
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
+@import "@fontsource/gowun-batang/400.css";
+@import "@fontsource/gowun-batang/700.css";
+@import "@fontsource/noto-sans-kr/400.css";
+@import "@fontsource/noto-sans-kr/600.css";
+@import "@fontsource-variable/literata/index.css";
+@import "@fontsource-variable/literata/wght-italic.css";
+@font-face {
+  font-family: "Workshop Display";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("../assets/space-grotesk-latin.woff2") format("woff2");
+}
+:root {
+  --hue: 145;
+  --paper: oklch(0.972 0.008 var(--hue));
+  --surface: oklch(0.936 0.012 var(--hue));
+  --ink: oklch(0.25 0.025 var(--hue));
+  --muted-foreground: oklch(0.45 0.025 var(--hue));
+  --line: oklch(0.83 0.02 var(--hue));
+  --focus: oklch(0.44 0.1 var(--hue));
+  --accent: oklch(0.87 0.1 var(--hue));
+  --code-ink: oklch(0.45 0.09 calc(var(--hue) - 80));
+  --code-bg: oklch(0.94 0.012 calc(var(--hue) - 80));
+  --sb-track: var(--paper);
+  --sb-thumb: oklch(0.67 0.035 var(--hue));
+  --article-family: "Literata Variable", "Gowun Batang", serif;
+  --article-bold: 700;
+  --latin-tracking: 0.015em;
+  color-scheme: light;
+}
+:root.dark {
+  --paper: oklch(0.19 0.012 var(--hue));
+  --surface: oklch(0.235 0.016 var(--hue));
+  --ink: oklch(0.94 0.014 var(--hue));
+  --muted-foreground: oklch(0.76 0.025 var(--hue));
+  --line: oklch(0.36 0.025 var(--hue));
+  --focus: oklch(0.81 0.08 var(--hue));
+  --accent: oklch(0.78 0.09 var(--hue));
+  --code-ink: var(--focus);
+  --code-bg: oklch(0.29 0.025 var(--hue));
+  --sb-thumb: oklch(0.46 0.025 var(--hue));
+  color-scheme: dark;
+}
+:root,
+:root.dark {
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--focus);
+  --primary-foreground: var(--paper);
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface);
+  --accent-foreground: var(--ink);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--focus);
+  --font-sans: "Noto Sans KR", sans-serif;
+  --color-fd-muted: var(--surface);
+}
+html {
+  background: var(--paper);
+  scrollbar-color: var(--sb-thumb) var(--paper);
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+[hidden] {
+  display: none !important;
+}
+button,
+select {
+  font: inherit;
+}
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  cursor: pointer;
+}
+button,
+a,
+summary {
+  touch-action: manipulation;
+}
+a {
+  overflow-wrap: anywhere;
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+* {
+  scrollbar-color: var(--sb-thumb) var(--sb-track, var(--paper));
+}
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sb-track, var(--paper));
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb);
+  border: 2px solid var(--sb-track, var(--paper));
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+::-webkit-scrollbar-corner {
+  background: var(--sb-track, var(--paper));
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
