@@ -1,79 +1,65 @@
-name: Deploy to GitHub Pages
-
+name: Publish Site
+run-name: Publish Site from ${{ github.event_name }} (Docs ${{ inputs.docs_revision || 'latest prepared main' }})
 on:
-  pull_request:
-    branches: [develop, main]
+  push:
+    branches: [main]
   workflow_dispatch:
-
+    inputs:
+      docs_revision:
+        description: Expected consumable Docs main SHA (empty resolves current main)
+        type: string
+        required: false
+        default: ""
 permissions:
   contents: read
-
+# Serialize selection, build and delivery together to prevent older builds
+# overwriting a newer delivery. Pending runs may be coalesced by GitHub.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 env:
   SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
   BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
-
+  DOCS_CHECKOUT_MODE: resolved
 jobs:
   build:
-    env:
-      DOCS_CHECKOUT_MODE: ${{ github.event_name == 'pull_request' && 'main' || 'resolved' }}
-    if: >-
-      (github.event_name == 'pull_request' && github.base_ref == 'develop') ||
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.publication.outputs.publish }}
     steps:
-      - name: Resolve latest Docs main once for production
-        if: github.event_name == 'workflow_dispatch'
-        id: docs
+      - name: Checkout exact canonical Site revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - name: Setup publication selector runtime
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.20.0
+          package-manager-cache: false
+      - name: Resolve immutable Docs snapshot and skip stale or duplicate requests
+        id: publication
         env:
-          GH_TOKEN: ${{ secrets.PRIVATES_GITHUB_PAT }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          docs_sha="$(gh api repos/ooMia/oomia.github.io.docs/git/ref/heads/main --jq '.object.sha')"
-          [[ "$docs_sha" =~ ^[a-f0-9]{40}$ ]]
-          printf 'sha=%s\n' "$docs_sha" >> "$GITHUB_OUTPUT"
-          printf 'DOCS_CHECKOUT_REVISION=%s\n' "$docs_sha" >> "$GITHUB_ENV"
-
-      - name: Checkout pull request revision
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v7
-        with:
-          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          fetch-depth: 1
-
-      - name: Checkout canonical main release revision
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v7
-        with:
-          ref: main
-          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          fetch-depth: 1
-
-      - name: Checkout current Docs main for PR validation
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v7
-        with:
-          repository: ooMia/oomia.github.io.docs
-          ref: main
-          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          path: apps/web/data/articles
-          fetch-depth: 0
-
+          DOCS_READ_TOKEN: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REQUESTED_DOCS_REVISION: ${{ inputs.docs_revision }}
+        run: node .github/scripts/publication.mjs select
       - name: Checkout resolved Docs production snapshot
-        if: github.event_name == 'workflow_dispatch'
+        if: steps.publication.outputs.publish == 'true'
         uses: actions/checkout@v7
         with:
           repository: ooMia/oomia.github.io.docs
-          ref: ${{ steps.docs.outputs.sha }}
+          ref: ${{ steps.publication.outputs.docs_revision }}
           token: ${{ secrets.PRIVATES_GITHUB_PAT }}
           path: apps/web/data/articles
           fetch-depth: 0
-
       - name: Record content revisions
+        if: steps.publication.outputs.publish == 'true'
         shell: bash
         run: bash .github/scripts/record-content-revisions.sh
-
       - uses: withastro/action@v6
+        if: steps.publication.outputs.publish == 'true'
         with:
           cache: false
           cache-dir: apps/web/node_modules/.astro
@@ -82,77 +68,13 @@ jobs:
             pnpm --filter web exec playwright install --with-deps chromium
             pnpm run build
             pnpm --filter web test:built-site
-        env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
-          BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
-
-  promotion:
-    name: Promotion validation
-    env:
-      DOCS_CHECKOUT_MODE: main
-    if: github.event_name == 'pull_request' && github.base_ref == 'main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          fetch-depth: 1
-
-      - name: Checkout current Docs main for PR validation
-        uses: actions/checkout@v7
-        with:
-          repository: ooMia/oomia.github.io.docs
-          ref: main
-          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
-          path: apps/web/data/articles
-          fetch-depth: 0
-
-      - name: Record content revisions
-        shell: bash
-        run: bash .github/scripts/record-content-revisions.sh
-
-      - uses: pnpm/setup@v3
-        with:
-          cache: false
-          install: false
-          require-lockfile: true
-
-      - name: Use isolated pnpm store
-        run: pnpm config set store-dir "${{ runner.temp }}/pnpm-store"
-
-      - uses: actions/cache@v6.1.0
-        with:
-          path: ${{ runner.temp }}/pnpm-store
-          key: pnpm-store-v1-${{ runner.os }}-${{ runner.arch }}-pnpm12-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-store-v1-${{ runner.os }}-${{ runner.arch }}-pnpm12-
-
-      - run: pnpm install --frozen-lockfile
-      - name: Install offline diagram and regression browser
-        run: pnpm --filter web exec playwright install --with-deps chromium
-      - run: pnpm --filter web sync
-      - run: pnpm exec vp check --no-fmt
-      - run: pnpm exec vp test
-      - name: Verify immutable Docs rendering and fallback offline
-        run: pnpm --filter web test:docs-snapshot
-      - name: Verify native Markdown and MDX diagrams, source and static controls
-        run: pnpm --filter web test:native-rendering
-      # The root build script owns workspace orchestration; recursive execution
-      # would start both turbo and web builds against the same output directory.
-      - run: pnpm exec vp run build
-      - name: Verify built article routes, assets and metadata
-        run: pnpm --filter web test:built-site
-
   deploy:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    if: needs.build.outputs.publish == 'true'
     needs: build
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
-    concurrency:
-      group: pages
-      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -1,0 +1,70 @@
+name: Site CI
+on:
+  pull_request:
+    branches: [develop, main]
+permissions:
+  contents: read
+concurrency:
+  group: site-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+env:
+  SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
+  BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
+  DOCS_CHECKOUT_MODE: main
+jobs:
+  validation:
+    name: ${{ github.base_ref == 'main' && 'Promotion validation' || 'Develop validation' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          fetch-depth: 1
+
+      - name: Validate publication orchestration
+        run: node --test .github/scripts/*.node-test.mjs
+
+      - name: Checkout current Docs main for PR validation
+        uses: actions/checkout@v7
+        with:
+          repository: ooMia/oomia.github.io.docs
+          ref: main
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          path: apps/web/data/articles
+          fetch-depth: 0
+
+      - name: Record content revisions
+        shell: bash
+        run: bash .github/scripts/record-content-revisions.sh
+
+      - uses: pnpm/setup@v3
+        with:
+          cache: false
+          install: false
+          require-lockfile: true
+
+      - name: Use isolated pnpm store
+        run: pnpm config set store-dir "${{ runner.temp }}/pnpm-store"
+
+      - uses: actions/cache@v6.1.0
+        with:
+          path: ${{ runner.temp }}/pnpm-store
+          key: pnpm-store-v1-${{ runner.os }}-${{ runner.arch }}-pnpm12-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-v1-${{ runner.os }}-${{ runner.arch }}-pnpm12-
+
+      - run: pnpm install --frozen-lockfile
+      - name: Install offline diagram and regression browser
+        run: pnpm --filter web exec playwright install --with-deps chromium
+      - run: pnpm --filter web sync
+      - run: pnpm exec vp check --no-fmt
+      - run: pnpm exec vp test
+      - name: Verify immutable Docs rendering and fallback offline
+        run: pnpm --filter web test:docs-snapshot
+      - name: Verify native Markdown and MDX diagrams, source and static controls
+        run: pnpm --filter web test:native-rendering
+      # The root build script owns workspace orchestration; recursive execution
+      # would start both turbo and web builds against the same output directory.
+      - run: pnpm exec vp run build
+      - name: Verify built article routes, assets and metadata
+        run: pnpm --filter web test:built-site
