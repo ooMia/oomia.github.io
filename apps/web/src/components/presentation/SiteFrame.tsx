@@ -76,7 +76,7 @@ export function SiteFrame({
     <RootProvider
       pathname={pathname}
       search={{ enabled: false }}
-      theme={{ hotKey: false }}
+      theme={{ hotKey: false, scriptProps: { "data-site-theme": "bootstrap" } }}
       i18n={{
         locale,
         defaultLanguage: "ko",
@@ -149,8 +149,25 @@ export function SiteFooter({ locale = "ko" }: { locale?: SiteLocale }) {
       </nav>
       <small>
         Powered by ooMia Publishing Platform ·{" "}
-        <a href="https://astro.build/">Astro</a> ·{" "}
-        <a href="https://fumadocs.dev/">Fumadocs</a>
+        <a
+          href="https://astro.build/"
+          aria-label={
+            locale === "en" ? "Astro official website" : "Astro 공식 사이트"
+          }
+        >
+          Astro
+        </a>{" "}
+        ·{" "}
+        <a
+          href="https://fumadocs.dev/"
+          aria-label={
+            locale === "en"
+              ? "Fumadocs official website"
+              : "Fumadocs 공식 사이트"
+          }
+        >
+          Fumadocs
+        </a>
       </small>
     </footer>
   );

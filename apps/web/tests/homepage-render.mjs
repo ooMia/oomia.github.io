@@ -67,10 +67,13 @@ try {
       if (!(frame instanceof HTMLIFrameElement)) return null;
       const box = frame.getBoundingClientRect();
       return {
-        mode: "build-time-srcdoc",
+        mode: "official-lazy-iframe",
         width: box.width,
         height: box.height,
-        srcdocPresent: Boolean(frame.srcdoc),
+        src: frame.src,
+        loading: frame.loading,
+        providerWidth: Number(frame.width),
+        providerHeight: Number(frame.height),
       };
     });
     for (const theme of ["light", "dark"]) {

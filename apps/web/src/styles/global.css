@@ -1,19 +1,8 @@
 @import "@workspace/ui/globals.css";
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
-@import "@fontsource/gowun-batang/400.css";
-@import "@fontsource/gowun-batang/700.css";
 @import "@fontsource/noto-sans-kr/400.css";
 @import "@fontsource/noto-sans-kr/600.css";
-@import "@fontsource-variable/literata/index.css";
-@import "@fontsource-variable/literata/wght-italic.css";
-@font-face {
-  font-family: "Workshop Display";
-  font-style: normal;
-  font-weight: 300 700;
-  font-display: swap;
-  src: url("../assets/space-grotesk-latin.woff2") format("woff2");
-}
 :root {
   --hue: 145;
   --paper: oklch(0.972 0.008 var(--hue));

@@ -1,4 +1,5 @@
 ---
+import homeDisplayFont from "@/assets/space-grotesk-latin.woff2?url";
 import { HomeFrame } from "@/components/presentation/HomeFrame";
 import ProfileActivity from "@/components/presentation/ProfileActivity.astro";
 import RootLayout from "@/layouts/RootLayout.astro";
@@ -39,6 +40,14 @@ const stories: HomeStory[] = await Promise.all(
   title="ooMia — 개발 기록과 실험"
   description="구조를 고민하고, 작게 실험하며, 오래 쓸 수 있는 소프트웨어를 만듭니다. ooMia의 개발 기록과 실험을 읽어보세요."
 >
+  <link
+    slot="head"
+    rel="preload"
+    href={homeDisplayFont}
+    as="font"
+    type="font/woff2"
+    crossorigin="anonymous"
+  />
   <HomeFrame
     pathname={Astro.url.pathname}
     homeUrl={import.meta.env.BASE_URL}

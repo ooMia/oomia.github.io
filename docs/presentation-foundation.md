@@ -43,9 +43,9 @@ Provider and page presentation share one React island. Astro-rendered Article co
 
 Home uses the accepted Ideas into / systems typography, featured most-recent article, remaining visible articles, independent Profile and subordinate Profile/Activity. Metadata and reading time come from actual records/render results. Lab-only settings, iframe comparison, image editing, invented reading summaries and excerpt specimens are excluded.
 
-The navbar aligns with the Home shell and provides brand→home, notes, profile, locale and maintained theme controls. Profile is the single contact area: GitHub, LinkedIn and email icon links have accessible names. Existing Activity provider/fallback and Gravatar behavior remain; provider embeds stay inside narrow content width.
+The navbar aligns with the Home shell and provides brand→home, notes, profile, locale and maintained theme controls. Profile is the single contact area: GitHub, LinkedIn and email icon links have accessible names. Activity retains its provider/fallback behavior. Gravatar uses its official URL in a native lazy iframe, with the oEmbed dimensions reserved and the complete card scaled to narrow widths. Its internal/cache DTO is `{ src, width, height }`; build does not fetch card HTML. Provider image/CSS optimization and response cache headers remain provider-owned.
 
-Representative images are primary Article links. The same visual appears as a faint, angled, masked decoration on the Article header. Decoration alone is clipped and hidden from accessibility; tag menus remain outside that clip. Selected artwork is explicitly configured by stable Article ID in `lib/presentation/articles.ts`, never assigned by listing position or inferred from a social-preview screenshot. Existing selected SVGs live in `public/images/article-covers`. New articles use a metadata-keyword fallback; template/image choices can be changed in the owning presentation configuration without new Markdown syntax.
+Representative images are primary Article links. The featured Home image loads eagerly with high fetch priority and reserves its 400:260 composition; list images and the faint, angled, masked Article header decoration remain lazy. Decoration alone is clipped and hidden from accessibility; tag menus remain outside that clip. Selected artwork is explicitly configured by stable Article ID in `lib/presentation/articles.ts`, never assigned by listing position or inferred from a social-preview screenshot. Existing selected SVGs live in `public/images/article-covers`. New articles use a metadata-keyword fallback; template/image choices can be changed in the owning presentation configuration without new Markdown syntax.
 
 ## Tags and responsive cards
 
@@ -70,6 +70,10 @@ Reading progress measures the rendered full Article body, excludes header/footer
 ## Shared visual roles
 
 Sage palette values map to the existing shadcn/Fumadocs tokens, including `--muted` surface and `--muted-foreground` text. `--paper`, `--surface`, `--ink`, `--line` and other local aliases derive from that one palette. Light/dark roles preserve readable contrast. Fontsource font assets are self-hosted with license notices; prototype content-specific font subsets are not used for production text.
+
+Common CSS owns Noto Sans KR 400/600 and shared tokens. Home owns Space Grotesk and preloads its one Hero font file. Both Article routes own the complete Gowun Batang and Literata font declarations; Home must not inherit those declarations through the shared content renderer. Original Unicode ranges and font license notices are preserved.
+
+Static pages use Astro's hash-based meta CSP. Site's finalizer adds only the explicitly marked Fumadocs theme bootstrap hash to Astro's generated policy; same-origin module scripts remain allowed for Astro's loader compatibility, while unapproved inline scripts, inline event handlers and eval are blocked. Style attributes remain allowed for native Shiki and React presentation, and next-themes' transition stylesheet has an explicit hash. GitHub Pages response-header controls, including HSTS refinements, COOP, frame-ancestor restrictions and the Trusted Types header audit, remain outside this meta-policy's guarantees.
 
 Root scrollbars follow page background. TOC/tag/table/code scroll surfaces declare their own opaque background token. Native code blocks keep their Shiki surface and independent thumb colors. A new painted scrolling component should declare its surface rather than guessing rendered alpha backgrounds.
 

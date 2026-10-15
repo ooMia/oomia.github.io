@@ -64,9 +64,9 @@ try {
   writeFileSync(
     join(web, "node_modules/.cache/gravatar/oomia6.json"),
     JSON.stringify({
-      srcdoc: "<p>Local profile fixture</p>",
-      width: 336,
-      height: 228,
+      src: "https://gravatar.com/oomia6.card",
+      width: 351,
+      height: 436,
     })
   );
   symlinkSync(

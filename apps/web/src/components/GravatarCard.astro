@@ -10,8 +10,50 @@ const { username } = Astro.props;
 const props = await getGravatarCard(username);
 ---
 
-<iframe
-  class:list={["border-0", "m-0", "p-0"]}
-  title="gravatar card"
-  loading="eager"
-  {...props}></iframe>
+<div
+  class="gravatar-card"
+  style={{
+    width: `${props.width}px`,
+    aspectRatio: `${props.width} / ${props.height}`,
+  }}
+>
+  <iframe title="gravatar card" loading="lazy" {...props}></iframe>
+</div>
+
+<script>
+  // The provider has a fixed-width card. Scale its complete viewport rather
+  // than narrowing the iframe and cutting off the card's links or shadow.
+  const observer = new ResizeObserver((entries) => {
+    for (const { target, contentRect } of entries) {
+      const frame = target.querySelector("iframe");
+      if (!frame) continue;
+      const scale = Math.min(1, contentRect.width / Number(frame.width));
+      (target as HTMLElement).style.setProperty("--gravatar-scale", `${scale}`);
+      target.setAttribute("data-scaled", "");
+    }
+  });
+  document
+    .querySelectorAll(".gravatar-card")
+    .forEach((card) => observer.observe(card));
+</script>
+
+<style>
+  .gravatar-card {
+    max-width: 100%;
+    overflow: auto;
+  }
+
+  .gravatar-card iframe {
+    display: block;
+    max-width: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    transform-origin: top left;
+    transform: scale(var(--gravatar-scale, 1));
+  }
+
+  .gravatar-card[data-scaled] {
+    overflow: hidden;
+  }
+</style>
