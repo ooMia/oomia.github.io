@@ -30,7 +30,10 @@ try {
   for(const width of [320,390,768,1440]) {
     await page.setViewportSize({width,height:1000});
     for(const theme of ["light","dark"]) {
-      await page.evaluate(theme=>document.documentElement.classList.toggle("dark",theme==="dark"),theme);
+      const dark = await page.locator("html").evaluate(el=>el.classList.contains("dark"));
+      if(dark!==(theme==="dark")) await page.getByRole("button",{name:"Toggle Theme"}).click();
+      await page.waitForFunction(theme=>document.documentElement.classList.contains("dark")===(theme==="dark"),theme);
+      assert.equal(await page.locator("html").evaluate(el=>el.classList.contains("dark")),theme==="dark");
       for(const alternative of ["cover","intrinsic","contain"]) {
         await page.locator(".link-card__image").evaluateAll((images,alternative)=>images.forEach(image=>{
           image.style.aspectRatio=alternative==="cover"?"16 / 9":"auto";

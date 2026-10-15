@@ -7,6 +7,11 @@ import {
 
 import type { LinkCardResolver } from "./link-card";
 
+import {
+  nativeArticlePresentation,
+  nativeCodeSources,
+  rehypeArticlePresentation,
+} from "./article-native";
 import { linkCardBinding } from "./link-card-binding";
 
 export const markdownFeatures = {
@@ -26,12 +31,14 @@ export function articleProcessors(resolve: LinkCardResolver) {
   return {
     markdown: satteri({
       features: markdownFeatures,
-      mdastPlugins: [readingTime],
+      mdastPlugins: [readingTime, nativeCodeSources],
+      hastPlugins: [nativeArticlePresentation],
     }),
     mdx: unified({
       gfm: true,
       smartypants: false,
       remarkPlugins: [remarkReadingTime, linkCardBinding(resolve)],
+      rehypePlugins: [rehypeArticlePresentation],
     }),
   };
 }

@@ -15,16 +15,16 @@
 - **Public extension points:** Fumadocs provider, HomeLayout header slot, DocsBody, Core TOC를 실제로 사용한다. 별도 theme lifecycle/heading observer를 복제하지 않는다.
 - **Local presentation:** Site의 editorial 조판·배치·native pre/table adapter는 owning presentation component가 소유한다. Callout/LinkCard는 기존 component boundary와 source semantics를 유지한다.
 
-| Concern | Owner |
-| --- | --- |
-| canonical article / persisted producer outputs | Docs |
-| AI translation production | Engine / Docs workflow; this Site slice does not run it |
-| native parsing / integrity token comparison | `@workspace/md` and existing Astro integration |
-| discovery, publishability, translation verification | Site content collection / `lib/content` |
-| routes, social metadata and Docs revision | Astro pages and existing metadata projection |
-| theme / locale context and shell | Fumadocs Astro RootProvider + HomeLayout |
-| active heading | Fumadocs Core AnchorProvider / TOCItem / useActiveAnchor |
-| reading progress, tags, artwork and editorial layout | Site presentation components |
+| Concern                                              | Owner                                                    |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| canonical article / persisted producer outputs       | Docs                                                     |
+| AI translation production                            | Engine / Docs workflow; this Site slice does not run it  |
+| native parsing / integrity token comparison          | `@workspace/md` and existing Astro integration           |
+| discovery, publishability, translation verification  | Site content collection / `lib/content`                  |
+| routes, social metadata and Docs revision            | Astro pages and existing metadata projection             |
+| theme / locale context and shell                     | Fumadocs Astro RootProvider + HomeLayout                 |
+| active heading                                       | Fumadocs Core AnchorProvider / TOCItem / useActiveAnchor |
+| reading progress, tags, artwork and editorial layout | Site presentation components                             |
 
 ## Runtime composition
 
@@ -61,11 +61,11 @@ ArticleFrame renders the full canonical body, actual metadata, author/dates, nor
 
 Desktop ≥1100px uses a 760px reading column and a 210px supporting TOC rail. Smaller screens use an inline native details/summary outline. This is Article reading support, not a documentation/category sidebar. Heading depth comes from native render results. Core alone selects active headings; Site moves a small marker and colors from that state.
 
-DocsBody keeps the maintained prose primitive. Site-owned `article.css` applies Gowun Batang + Literata, 0.015em Latin tracking, native paragraph justification and first-line indentation, bounded line length and responsive font size. Metadata/header and Home use Noto Sans KR; Hero uses the actual Space Grotesk typeface with Georgia italic. Code remains monospace and visually distinct. Quotes/tables retain their semantic structures and appropriate local sans treatment.
+DocsBody keeps the maintained prose primitive. Site-owned `article.css` applies Gowun Batang + Literata, native paragraph justification and first-line indentation, bounded line length and responsive font size. Latin text uses the font's native spacing; reading does not require text-node splitting or generated Latin spans. Metadata/header and Home use Noto Sans KR; Hero uses the actual Space Grotesk typeface with Georgia italic. Code remains monospace and visually distinct. Quotes/tables retain their semantic structures and appropriate local sans treatment.
 
 Paragraphs containing inline code use start alignment so code spaces remain stable and long tokens wrap naturally. Ordinary prose keeps justification and indentation. LinkCard uses the UI sans family and start alignment; preview images retain their whole composition with intrinsic aspect ratio, a 14rem height cap and `contain`. Empty space uses the existing surface token. Image URLs, summary fragments and anchor semantics retain the existing consumer contract.
 
-Native Astro pre/code highlighting remains unchanged. A hydration adapter adds code actions and scroll surfaces around native elements, preserving code text/line structure. It wraps tables for keyboard-accessible scrolling and adds Latin-only presentation spans without changing text. Cleanup is idempotent; no JavaScript still shows native code, tables, Article links and outline.
+Native Astro pre/code highlighting remains unchanged. Shared build-time HAST presentation adapters add code toolbars and keyboard-accessible table scroll regions through each native processor's extension point. Mermaid fences render to local light/dark SVG images with an expandable original source. These structures, diagrams and source remain readable without JavaScript. One delegated clipboard handler enables the static copy buttons and reports success or selects the source on clipboard failure; it does not move native nodes or rebuild the Article body. Fumadocs theme/TOC and the existing provider island remain the owners of their interactions.
 
 Reading progress measures the rendered full Article body, excludes header/footer, reaches 100% when the body bottom is visible, and exposes min/max/current values. It does not claim comprehension. Scroll/progress/current-heading transitions are short and interruptible. `prefers-reduced-motion` removes smooth movement while retaining information, anchors and focus behavior.
 

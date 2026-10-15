@@ -146,7 +146,15 @@ The live consumer graph includes Article Markdown/MDX, their Docs Git history, `
 
 Docs owns `derived/article-previews.json` (`schemaVersion: 1`, `records`). Each record uses `sourcePath` under `content/articles/` as stable source identity, independent of its deployed URL. It includes `imagePath: derived/article-previews/<sha256>.png`, SHA-256, byte count, `mediaType: image/png`, width 1200 and height 630, plus producer/persistence provenance documented in Docs. Site validates identity, namespace containment, PNG header/dimensions and bytes/hash, then includes that binary at `/social-previews/<sha256>.png` and emits absolute `og:image` and `twitter:image`. Unsupported/corrupt preview data fails closed. A missing manifest or missing record remains a valid non-image article. Existing previews remain stable; Site does not trigger freshness or capture.
 
-`@workspace/md/runtime` exposes lightweight render schema and URL normalization separately from build-time processors/native bindings. Site does not run a browser during build. Preview-present/absent output is covered by `apps/web/tests/article-preview-build.mjs`; full local E2E includes rendered article head assertions.
+`@workspace/md/runtime` exposes lightweight render schema and URL normalization separately from build-time processors/native bindings. Site does not run article capture or generate Docs-owned preview artifacts during build. The only build-browser use is the local, network-blocked Mermaid rendering described below. Preview-present/absent output is covered by `apps/web/tests/article-preview-build.mjs`; full local E2E includes rendered article head assertions.
+
+## Native code, tables and Mermaid
+
+Both native Markdown and MDX processors apply the same Site-owned presentation transform after native code highlighting. Code toolbars and table scroll regions are part of the initial HTML. The browser adds clipboard interaction without reconstructing those structures or splitting prose text nodes.
+
+Fenced `mermaid` source renders at build time through `mermaid-isomorphic` using locally installed Playwright Chromium. Rendering uses strict Mermaid configuration, disables HTML labels, blocks browser network requests and rejects SVG external resources or executable content. SVG is embedded in image context; it does not join the Article DOM. Light/dark variants follow the maintained Site theme class. Authored Mermaid cannot relax the rendering security configuration. Identical source shares an in-process result, and neither source nor generated diagrams are persisted into canonical Docs. No Mermaid runtime is shipped to readers.
+
+The expandable source and clipboard action preserve the native fence text, including indentation and blank lines. JavaScript-disabled reading retains diagrams, source, code and keyboard-scrollable semantic tables. Malformed or unsupported Mermaid fails with the source file in the diagnostic; it is never silently removed. Local/CI sync and build environments therefore install the matching Chromium before consuming Mermaid content. This local browser dependency does not authorize provider calls, target-URL fetches, preview capture or changes to Docs preparation ownership.
 
 ## Optional article translations
 

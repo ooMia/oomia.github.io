@@ -27,10 +27,10 @@ async function openFixture(page, route) {
 }
 
 async function applyTheme(page, theme) {
-  await page.evaluate((theme) => {
-    localStorage.setItem("theme", theme);
-    document.documentElement.classList.toggle("dark", theme === "dark");
-  }, theme);
+  const dark = await page.locator("html").evaluate((el) => el.classList.contains("dark"));
+  if (dark !== (theme === "dark"))
+    await page.getByRole("button", { name: "Toggle Theme" }).click();
+  await page.waitForFunction((theme) => document.documentElement.classList.contains("dark") === (theme === "dark"), theme);
   await page.evaluate(() => document.fonts.ready);
   assert.equal(
     await page.locator("html").evaluate((el) => el.classList.contains("dark")),

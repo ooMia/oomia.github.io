@@ -243,6 +243,13 @@ test("full built corpus hydrates without overflow or broken local images", async
     );
     const images = page.locator("article img[src]");
     for (const image of await images.all()) {
+      // Mermaid ships both static themes; its hidden alternate is validated by
+      // the native-rendering fixture's explicit light/dark matrix.
+      if (
+        (await image.getAttribute("data-mermaid-theme")) &&
+        !(await image.isVisible())
+      )
+        continue;
       await image.scrollIntoViewIfNeeded();
       await expect
         .poll(() =>

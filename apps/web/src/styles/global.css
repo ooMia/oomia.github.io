@@ -29,7 +29,6 @@
   --sb-thumb: oklch(0.67 0.035 var(--hue));
   --article-family: "Literata Variable", "Gowun Batang", serif;
   --article-bold: 700;
-  --latin-tracking: 0.015em;
   color-scheme: light;
 }
 :root.dark {

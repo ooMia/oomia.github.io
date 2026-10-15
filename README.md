@@ -24,9 +24,9 @@ Project context and shared policy start at [Knowledge CONTEXT](https://github.co
 | Browser regression and rendered Evidence              | [Browser validation](#browser-validation) → [web scripts](apps/web/package.json), [Playwright config](apps/web/playwright.config.ts), [tests](apps/web/tests/)                                                                |
 | Manual OS compatibility E2E                           | [OS compatibility workflow](.github/workflows/os-compatibility.yml) → `test:e2e:compat`                                                                                                                                       |
 | PR validation and Pages release/delivery              | [Deploy workflow](.github/workflows/deploy.yaml)                                                                                                                                                                              |
-| Immutable Docs snapshot and preparation integrity      | [Consumption contract](docs/content-consumption-contract.md#article-social-metadata-and-derived-previews), `pnpm --filter web test:docs-snapshot` |
+| Immutable Docs snapshot and preparation integrity     | [Consumption contract](docs/content-consumption-contract.md#article-social-metadata-and-derived-previews), `pnpm --filter web test:docs-snapshot`                                                                             |
 | Issue admission / Development start                   | [Issue orchestration](.github/workflows/issue-activated.yml) → [shared admission][project-admission], [Development script](.github/scripts/create-development-branch.mjs), [policy](.github/scripts/orchestration-policy.mjs) |
-| Native MDX LinkCard rendering and typography          | [Responsive density calibration](docs/evidence/link-card-density/README.md), [native rendering evidence](docs/evidence/mdx-link-card/README.md) → `vp run --filter web test:link-card`, `build:offline` |
+| Native MDX LinkCard rendering and typography          | [Responsive density calibration](docs/evidence/link-card-density/README.md), [native rendering evidence](docs/evidence/mdx-link-card/README.md) → `vp run --filter web test:link-card`, `build:offline`                       |
 | Markdown component investigation                      | [Revision-bound investigation evidence](docs/evidence/markdown-to-js/README.md) → [PR #59](https://github.com/ooMia/oomia.github.io/pull/59)                                                                                  |
 | Revision-bound / historical Evidence                  | [Presentation snapshots](docs/evidence/c1-w4-presentation/README.md), [homepage snapshots](docs/evidence/c1-w4-homepage/README.md) → owning Issue/PR for later results                                                        |
 
@@ -41,6 +41,7 @@ Initialize the canonical content submodule and install dependencies:
 ```sh
 git submodule update --init --recursive
 vp install --frozen-lockfile
+vp exec --filter web -- playwright install chromium
 ```
 
 Run the current consumer checks:
@@ -70,6 +71,8 @@ FILTER_DRAFT_ARTICLES=false
 
 `FILTER_DRAFT_ARTICLES=true` excludes `draft: true` entries from both article discovery and generated routes. It remains opt-in and is currently left disabled, so Pages continues to expose the canonical draft corpus.
 
+Native Mermaid fences are rendered to SVG during content sync/build using local Chromium with browser network requests blocked. Install the matching Playwright browser before sync, typecheck or build; on Linux CI use `playwright install --with-deps chromium`. `PLAYWRIGHT_CHANNEL=chrome` can select installed Chrome locally. Reader pages do not load Mermaid. See the [rendering contract](docs/content-consumption-contract.md#native-code-tables-and-mermaid).
+
 ## Browser validation
 
 Build the pinned corpus first, then run full local regression and optional rendered Evidence:
@@ -86,6 +89,8 @@ vp run --filter web test:e2e:evidence
 `test:e2e:compat` selects only Playwright `@compat` tests in both viewport projects: homepage hierarchy/containment, representative article navigation, theme continuity and one structural provider-failure case. OS is the workflow matrix axis; the mobile project emulates a viewport, not a mobile OS. This small subset runs in CI **only** through the separate `workflow_dispatch` OS compatibility workflow (Ubuntu/macOS/Windows). It is not an ordinary automatic PR/promotion check or required default gate. Run it locally with `vp run --filter web test:e2e:compat` when changing that profile.
 
 The manual workflow keeps `profile=compat` as its default; select `profile=full` to run the existing `test:e2e` regression on the same OS matrix.
+
+PR Promotion also runs `test:native-rendering`, a network-blocked native Markdown/MDX fixture covering static diagrams, original source copying, no-JavaScript reading, tables, theme and narrow widths. `test:built-site` checks the completed artifact's Article metadata, generated navigation, local assets and original/English route pairs before upload. It does not reinterpret authored prose links. The production and compatibility builds install Chromium before content sync. Full browser regression remains the separate manual profile above.
 
 The config owns preview lifecycle on port 4321. Evidence capture starts/stops its own preview; run it after tests finish. Default output is ignored `test-results/homepage`; `PRESENTATION_EVIDENCE_DIR` selects another directory. Capture uses real providers and records the Git revision, viewport/theme, dimensions and dated provider observations. Run from a clean revision and record build settings, exact tested SHA, commands, PASS result, scope and limits in the PR. Also reference the commit that established the profile split.
 
