@@ -31,7 +31,7 @@
 }
 .home-hero h1 {
   margin: 0;
-  font-family: "Workshop Display", "Noto Sans KR", sans-serif;
+  font-family: var(--font-display), var(--font-noto);
   font-size: clamp(80px, 8.2vw, 112px);
   line-height: 0.98;
   font-weight: 500;
@@ -161,8 +161,16 @@
 .home-cover img {
   display: block;
   width: 100%;
-  height: 100%;
   object-fit: contain;
+}
+.home-cover svg {
+  height: 100%;
+}
+.home-cover img {
+  /* A percentage height depends on the grid row's as-yet unresolved height.
+     Reserve the cover ratio before the external image has loaded. */
+  height: auto;
+  aspect-ratio: inherit;
 }
 .home-cover:hover {
   transform: translateY(-2px);

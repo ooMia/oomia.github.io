@@ -59,7 +59,7 @@ const profiles = [
               loading="lazy"
               decoding="async"
               referrerpolicy="no-referrer"
-              onerror="this.hidden = true; this.nextElementSibling.hidden = false;"
+              data-activity-image
               class="h-full w-full max-w-full rounded-md object-contain"
             />
             <p
@@ -85,3 +85,16 @@ const profiles = [
     <GravatarCard username="oomia6" />
   </figure>
 </section>
+
+<script>
+  function showActivityFallback(image: HTMLImageElement) {
+    image.hidden = true;
+    const fallback = image.nextElementSibling;
+    if (fallback instanceof HTMLElement) fallback.hidden = false;
+  }
+  for (const image of document.querySelectorAll<HTMLImageElement>("[data-activity-image]")) {
+    image.addEventListener("error", () => showActivityFallback(image));
+    // A cached failure can precede this deferred module's listener.
+    if (image.complete && image.naturalWidth === 0) showActivityFallback(image);
+  }
+</script>

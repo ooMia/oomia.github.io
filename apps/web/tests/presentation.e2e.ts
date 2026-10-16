@@ -126,25 +126,23 @@ test("canonical article metadata, responsive TOC, keyboard and active anchors", 
 });
 
 test(
-  "theme persists across reload and shared homepage navigation",
+  "theme persists after immediate navigation in both directions and reload",
   { tag: "@compat" },
   async ({ page }, info) => {
     await page.goto(utility);
     await page.getByRole("button", { name: "Toggle Theme" }).click();
-    await expect(page.locator("html")).toHaveClass(/dark/);
-    await expect
-      .poll(() => page.evaluate(() => localStorage.getItem("theme")))
-      .toBe("dark");
-    await evidence(page, info, "dark");
-    await page.reload();
-    await expect(page.locator("html")).toHaveClass(/dark/);
     await page
       .getByRole("navigation", { name: "사이트" })
       .getByRole("link", { name: "ooMia", exact: true })
       .click();
     await expect(page).toHaveURL(new RegExp(`${base}/$`));
     await expect(page.locator("html")).toHaveClass(/dark/);
+    await evidence(page, info, "dark");
+    await page.reload();
+    await expect(page.locator("html")).toHaveClass(/dark/);
     await page.getByRole("button", { name: "Toggle Theme" }).click();
+    await page.locator(".home-featured .home-cover").click();
+    await expect(page).toHaveURL(new RegExp(`${base}/articles/`));
     await expect(page.locator("html")).not.toHaveClass(/dark/);
     await page.keyboard.press("d");
     await expect(page.locator("html")).not.toHaveClass(/dark/);
