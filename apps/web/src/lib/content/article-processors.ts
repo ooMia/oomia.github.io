@@ -26,6 +26,13 @@ export const markdownFeatures = {
   smartPunctuation: false,
 };
 
+/** Shared native Shiki configuration for Markdown, MDX and contract fixtures. */
+export const articleShikiConfig = {
+  themes: { light: "catppuccin-latte", dark: "catppuccin-mocha" },
+  defaultColor: "light",
+  wrap: false,
+} as const;
+
 /** Public Astro integration: native Markdown stays separate from MDX enhancement. */
 export function articleProcessors(resolve: LinkCardResolver) {
   return {

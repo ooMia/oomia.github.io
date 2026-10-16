@@ -425,7 +425,35 @@
   content: none;
 }
 
-/* Native Shiki colors/code bytes stay Astro-owned, including without hydration. */
+/* Native Shiki tokens follow the maintained theme class without hydration. */
+.article-body {
+  --code-surface: #eff1f5;
+  --code-text: #4c4f69;
+  --code-toolbar-surface: #e6e9ef;
+  --code-line: #bcc0cc;
+  --code-toolbar-text: #5c5f77;
+  --code-hover: #dce0e8;
+  --code-scroll-thumb: #9ca0b0;
+  --code-scroll-hover: #7c7f93;
+}
+:root.dark .article-body {
+  --code-surface: #1e1e2e;
+  --code-text: #cdd6f4;
+  --code-toolbar-surface: #181825;
+  --code-line: #45475a;
+  --code-toolbar-text: #bac2de;
+  --code-hover: #313244;
+  --code-scroll-thumb: #585b70;
+  --code-scroll-hover: #7f849c;
+}
+:root.dark .article-body .astro-code,
+:root.dark .article-body .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
 .article-body pre {
   min-width: 0;
   max-width: 100%;
@@ -437,10 +465,12 @@
   line-height: 1.8;
   text-align: start;
   text-indent: 0;
-  --sb-track: #24292e;
-  --component-bg: #24292e;
-  --sb-thumb: #626b71;
-  --sb-hover: #929aa1;
+  background: var(--code-surface);
+  color: var(--code-text);
+  --sb-track: var(--code-surface);
+  --component-bg: var(--code-surface);
+  --sb-thumb: var(--code-scroll-thumb);
+  --sb-hover: var(--code-scroll-hover);
 }
 .article-body pre > code {
   display: block;
@@ -453,18 +483,19 @@
   white-space: pre;
 }
 .article-code-frame {
+  width: fit-content;
   max-width: 100%;
   min-width: 0;
   margin: 28px 0 32px;
-  border: 1px solid #59635b;
+  border: 1px solid var(--code-line);
   border-radius: 10px;
   overflow: hidden;
-  background: #24292e;
-  color: #e1e4e8;
-  --sb-track: #24292e;
-  --component-bg: #24292e;
-  --sb-thumb: #626b71;
-  --sb-hover: #929aa1;
+  background: var(--code-surface);
+  color: var(--code-text);
+  --sb-track: var(--code-surface);
+  --component-bg: var(--code-surface);
+  --sb-thumb: var(--code-scroll-thumb);
+  --sb-hover: var(--code-scroll-hover);
 }
 .article-body .article-code-frame pre {
   margin: 0;
@@ -478,15 +509,17 @@
   gap: 16px;
   min-height: 41px;
   padding: 5px 18px;
-  border-bottom: 1px solid #444d50;
-  background: #202529;
-  color: #b9c5c0;
+  border-bottom: 1px solid var(--code-line);
+  background: var(--code-toolbar-surface);
+  color: var(--code-toolbar-text);
   font-family: var(--font-sans);
   font-size: 11px;
   line-height: 1.5;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 .article-code-toolbar button {
+  flex-shrink: 0;
   min-height: 30px;
   padding: 3px 7px;
   border: 0;
@@ -498,7 +531,7 @@
   cursor: pointer;
 }
 .article-code-toolbar button:hover {
-  background: #30373a;
+  background: var(--code-hover);
 }
 .article-ui-en,
 .article-body[data-article-locale="en"] .article-ui-ko,
