@@ -59,8 +59,14 @@ const integrations = [
 const vite: AstroUserConfig["vite"] = {
   plugins: [tailwindcss()],
   build: {
-    assetsInlineLimit: (path, content) =>
-      path.endsWith(".css") ? content.byteLength <= 16 * 1024 : undefined,
+    assetsInlineLimit: (path, content) => {
+      // Small Unicode shards must remain same-origin font files. Vite's data:
+      // inlining would be blocked by the generated font-src 'self' policy.
+      if (/\.(woff2?|ttf|otf)$/i.test(path)) return false;
+      return path.endsWith(".css")
+        ? content.byteLength <= 16 * 1024
+        : undefined;
+    },
   },
   define: {
     "import.meta.env.DOCS_REVISION": JSON.stringify(resolvedDocsRevision()),
