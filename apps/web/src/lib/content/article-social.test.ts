@@ -35,11 +35,17 @@ describe("article social projection", () => {
       "https://example.com",
       "/",
       "a".repeat(40),
-      "b".repeat(64)
+      {
+        path: `/social-previews/${"b".repeat(64)}.png`,
+        width: 1200,
+        height: 780,
+        mediaType: "image/png",
+      }
     );
-    expect(social.image).toBe(
+    expect(social.image?.url).toBe(
       `https://example.com/social-previews/${"b".repeat(64)}.png`
     );
+    expect(social.image?.height).toBe(780);
     expect(JSON.parse(social.jsonLd).image).toBeUndefined();
   });
 });
