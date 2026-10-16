@@ -1,0 +1,29 @@
+---
+import LinkCard from "../../../../../src/components/LinkCard.astro";
+import { ArticleFrame } from "../../../../../src/components/presentation/ArticleFrame";
+import RootLayout from "../../../../../src/layouts/RootLayout.astro";
+import { SITE_AUTHOR } from "../../../../../src/lib/content/article-metadata";
+const images = ["landscape", "portrait", "text-heavy"];
+---
+
+<RootLayout title="Article quality fixture" description="Image and typography comparison">
+  <ArticleFrame pathname={Astro.url.pathname} homeUrl="/" title="이미지와 코드 조판"
+    description="실제 presentation component 비교" author={SITE_AUTHOR} tags={[]}
+    readingMinutes={1} toc={[]} client:load>
+    <section data-quality-fixture>
+      <p data-inline-sample>아래 예제에서는 <code>Stream&lt;? extends Arguments&gt; provideArguments(ExtensionContext context)</code>를 구현합니다. 긴 영문 코드와 한글 문장이 함께 있을 때 코드 내부의 공백과 줄바꿈을 확인합니다.</p>
+      <p data-prose-sample>일반 문단은 기존 조판을 유지합니다. 문장의 호흡과 읽기 폭을 유지하면서도 코드가 있는 문단의 공백이 과도하게 늘어나지 않도록 처리합니다.</p>
+      {images.map((image) => <section data-image-case={image}>
+        <LinkCard href={`https://example.com/${image}`} card={{
+          url: `https://example.com/${image}`,
+          title: `${image} · 전체 preview`,
+          image: `https://images.example.com/${image}.svg`,
+          siteName: "Image fixture",
+          presentation: {locale: "ko-KR", summaryLines: ["첫 번째 의미를 온전히 보존합니다", "두 번째 의미는 자연스럽게 줄바꿈합니다", "세 번째 의미와 원문 링크를 유지합니다"]},
+        }} />
+      </section>)}
+      <LinkCard href="https://example.com/text-only" card={{url:"https://example.com/text-only",title:"Text-only card",description:"이미지가 없는 카드"}} />
+      <LinkCard href="https://example.com/missing"><strong>Authored fallback</strong></LinkCard>
+    </section>
+  </ArticleFrame>
+</RootLayout>

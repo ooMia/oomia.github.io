@@ -10,6 +10,10 @@
   text-decoration: none;
   min-width: 0;
   font-weight: inherit;
+  font-family: var(--font-sans, sans-serif);
+  text-align: start;
+  text-indent: 0;
+  letter-spacing: 0;
 }
 
 .article-body a.link-card:is(:hover, :focus-visible) {
@@ -19,11 +23,13 @@
 }
 
 .link-card__image {
+  display: block;
   width: 100%;
+  height: auto;
   max-height: 14rem;
   border-radius: 0.5rem;
-  object-fit: cover;
-  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: var(--surface, transparent);
   margin: 0;
 }
 

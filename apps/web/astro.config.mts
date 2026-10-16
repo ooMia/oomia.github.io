@@ -10,7 +10,10 @@ import { mergeWith } from "es-toolkit";
 import resolveLinkCardProps from "@/lib/content/link-card";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
-import { articleProcessors } from "./src/lib/content/article-processors";
+import {
+  articleProcessors,
+  articleShikiConfig,
+} from "./src/lib/content/article-processors";
 import { fonts } from "./src/config/fonts";
 import { verifyDocsConsumption } from "./src/lib/content/docs-consumption";
 import { resolvedDocsRevision } from "./src/lib/content/docs-revision";
@@ -39,6 +42,7 @@ const markdownExConfig: AstroUserConfig = {
   // https://docs.astro.build/ko/guides/markdown-content/#markdown-플러그인
   markdown: {
     processor: processors.markdown,
+    shikiConfig: articleShikiConfig,
   },
   // https://docs.astro.build/ko/guides/integrations-guide/mdx
   integrations: [mdx({ processor: processors.mdx })],

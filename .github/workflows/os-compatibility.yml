@@ -75,11 +75,11 @@ jobs:
           install: false
           require-lockfile: true
       - run: pnpm install --frozen-lockfile
+      - name: Install diagram and compatibility browser
+        run: pnpm --filter web exec playwright install --with-deps chromium
       - run: pnpm --filter web sync
       - name: Build compatibility corpus
         run: pnpm --filter web build
-      - name: Install compatibility browser
-        run: pnpm --filter web exec playwright install --with-deps chromium
       - name: Run core compatibility profile
         if: inputs.profile != 'full'
         run: pnpm --filter web test:e2e:compat
