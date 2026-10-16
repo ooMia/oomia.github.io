@@ -1,7 +1,7 @@
-import notoUnicode from "@fontsource-variable/noto-sans-kr/unicode.json";
+import type { AstroUserConfig } from "astro";
+
 import literataUnicode from "@fontsource-variable/literata/unicode.json";
 import gowunUnicode from "@fontsource/gowun-batang/unicode.json";
-import type { AstroUserConfig } from "astro";
 import { fontProviders } from "astro/config";
 
 type LocalOptions = NonNullable<
@@ -17,10 +17,10 @@ function variants(
   slug: string,
   unicode: Record<string, string>,
   weights: Array<string | number>,
-  styles: Array<"normal" | "italic"> = ["normal"],
+  styles: Array<"normal" | "italic"> = ["normal"]
 ): LocalOptions["variants"] {
   const result: LocalOptions["variants"][number][] = Object.entries(
-    unicode,
+    unicode
   ).flatMap(([subset, range]) =>
     weights.flatMap((weight) =>
       styles.map((style) => ({
@@ -30,8 +30,8 @@ function variants(
         src: [
           `${packageName}/files/${slug}-${subset.replaceAll("[", "").replaceAll("]", "")}-${typeof weight === "number" ? weight : "wght"}-${style}.woff2`,
         ],
-      })),
-    ),
+      }))
+    )
   );
   const [first, ...rest] = result;
   if (!first) throw new Error(`No font variants found for ${packageName}`);
@@ -41,21 +41,6 @@ function variants(
 // Local provider reads the pinned packages directly: no CDN/provider request is
 // needed during sync/build. Astro owns font copying, CSS and fallback metrics.
 export const fonts = [
-  {
-    name: "Noto Sans KR",
-    cssVariable: "--font-noto",
-    provider: fontProviders.local(),
-    weights: ["100 900"],
-    styles: ["normal"],
-    options: {
-      variants: variants(
-        "@fontsource-variable/noto-sans-kr",
-        "noto-sans-kr",
-        notoUnicode,
-        ["100 900"],
-      ),
-    },
-  },
   {
     name: "Workshop Display",
     cssVariable: "--font-display",
@@ -84,7 +69,7 @@ export const fonts = [
         "@fontsource/gowun-batang",
         "gowun-batang",
         gowunUnicode,
-        [400, 700],
+        [400, 700]
       ),
     },
   },
@@ -102,7 +87,7 @@ export const fonts = [
         "literata",
         literataUnicode,
         ["200 900"],
-        ["normal", "italic"],
+        ["normal", "italic"]
       ),
     },
   },

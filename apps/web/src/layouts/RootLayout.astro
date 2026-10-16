@@ -1,7 +1,6 @@
 ---
 import { documentLanguage, type SiteLocale } from "@/lib/presentation/locale";
 import "@/styles/global.css";
-import { Font } from "astro:assets";
 import HeadLayout from "./HeadLayout.astro";
 interface Props {
   title: string;
@@ -13,7 +12,6 @@ const { title, description, locale = "ko" } = Astro.props;
 
 <html lang={documentLanguage(locale)}>
   <HeadLayout>
-    <Font cssVariable="--font-noto" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <slot name="head" />

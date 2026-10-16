@@ -1,7 +1,9 @@
 @import "@workspace/ui/globals.css";
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
+@import "@fontsource-variable/noto-sans-kr/index.css";
 :root {
+  --font-noto: "Noto Sans KR Variable", sans-serif;
   --hue: 145;
   --paper: oklch(0.972 0.008 var(--hue));
   --surface: oklch(0.936 0.012 var(--hue));
