@@ -1,0 +1,6 @@
+/* Large Korean Unicode declarations stay in route-scoped, cacheable CSS. */
+@import "@fontsource/gowun-batang/400.css";
+@import "@fontsource/gowun-batang/700.css";
+:root {
+  --font-gowun: "Gowun Batang", serif;
+}

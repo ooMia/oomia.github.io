@@ -1,7 +1,6 @@
 import type { AstroUserConfig } from "astro";
 
 import literataUnicode from "@fontsource-variable/literata/unicode.json";
-import gowunUnicode from "@fontsource/gowun-batang/unicode.json";
 import { fontProviders } from "astro/config";
 
 type LocalOptions = NonNullable<
@@ -55,22 +54,6 @@ export const fonts = [
           style: "normal",
         },
       ],
-    },
-  },
-  {
-    name: "Gowun Batang",
-    cssVariable: "--font-gowun",
-    provider: fontProviders.local(),
-    weights: [400, 700],
-    styles: ["normal"],
-    fallbacks: ["serif"],
-    options: {
-      variants: variants(
-        "@fontsource/gowun-batang",
-        "gowun-batang",
-        gowunUnicode,
-        [400, 700]
-      ),
     },
   },
   {

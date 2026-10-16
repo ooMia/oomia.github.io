@@ -20,6 +20,7 @@ import {
 import { localizedArticleUrl } from "@/lib/presentation/locale";
 import render from "@/lib/content/render";
 import { Font } from "astro:assets";
+import "@/styles/article-fonts.css";
 import "@/styles/link-card.css";
 import type { InferGetStaticPropsType } from "astro";
 
@@ -62,7 +63,6 @@ const toc = article.headings.map((heading) => ({
 ---
 
 <RootLayout title={metadata.title} description={metadata.description}>
-  <Font slot="head" cssVariable="--font-gowun" />
   <Font slot="head" cssVariable="--font-literata" />
   <ArticleSocialHead slot="head" {social} />
   {
