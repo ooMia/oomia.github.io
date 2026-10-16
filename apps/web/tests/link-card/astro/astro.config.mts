@@ -11,6 +11,7 @@ import {
 import resolveFixtureCard from "../resolver";
 const processors = articleProcessors(resolveFixtureCard);
 export default defineConfig({
+  site: "https://example.test",
   output: "static",
   markdown: {
     processor: processors.markdown,
