@@ -4,27 +4,83 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { mdx } from "@workspace/md";
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 import { mergeWith } from "es-toolkit";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
+import { loadEnv } from "vite-plus";
 
 import resolveLinkCardProps from "@/lib/content/link-card";
-import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
+import { parseSiteEnvironment } from "./src/config/environment";
+import { fonts } from "./src/config/fonts";
 import {
   articleProcessors,
   articleShikiConfig,
 } from "./src/lib/content/article-processors";
-import { fonts } from "./src/config/fonts";
 import { verifyDocsConsumption } from "./src/lib/content/docs-consumption";
 import { resolvedDocsRevision } from "./src/lib/content/docs-revision";
 import { themeCsp } from "./src/lib/security/theme-csp";
 
-const site = normalizeSiteUrl(process.env["SITE_URL"] ?? process.env["SITE"]);
-const base = normalizeBasePath(process.env["BASE_PATH"]);
 const processors = articleProcessors(resolveLinkCardProps);
-if (process.env["DOCS_CHECKOUT_MODE"] === "resolved") {
-  console.log("Prepared Docs snapshot:", verifyDocsConsumption());
-}
+
+const environmentConfig: AstroUserConfig = {
+  env: {
+    schema: {
+      FILTER_DRAFT_ARTICLES: envField.string({
+        context: "server",
+        access: "public",
+        default: "false",
+      }),
+    },
+  },
+  integrations: [
+    {
+      name: "site-environment",
+      hooks: {
+        "astro:config:setup": ({ config, command, updateConfig }) => {
+          const { values } = parseArgs({
+            strict: false,
+            allowPositionals: true,
+            options: { mode: { type: "string" } },
+          });
+          const mode =
+            typeof values.mode === "string"
+              ? values.mode
+              : (config.vite.mode ??
+                (command === "build" || command === "preview"
+                  ? "production"
+                  : "development"));
+          const webRoot = fileURLToPath(config.root);
+          const environment = parseSiteEnvironment({
+            ...loadEnv(mode, webRoot, ""),
+            ...process.env,
+          });
+          const docsRevision = resolvedDocsRevision(
+            webRoot,
+            environment.docsCheckoutMode,
+            environment.docsCheckoutRevision
+          );
+          if (environment.docsCheckoutMode === "resolved")
+            console.log(
+              "Prepared Docs snapshot:",
+              verifyDocsConsumption(resolve(webRoot, "data/articles"))
+            );
+          updateConfig({
+            site: environment.siteUrl,
+            base: environment.basePath,
+            vite: {
+              define: {
+                "import.meta.env.DOCS_REVISION": JSON.stringify(docsRevision),
+              },
+            },
+          });
+        },
+      },
+    },
+  ],
+};
 
 // https://docs.astro.build/ko/guides/integrations-guide/sitemap/#구성
 const sitemapConfig: AstroUserConfig = {
@@ -54,6 +110,7 @@ const reactConfig: AstroUserConfig = {
 };
 
 const integrations = [
+  environmentConfig,
   sitemapConfig,
   markdownExConfig,
   reactConfig,
@@ -72,9 +129,6 @@ const vite: AstroUserConfig["vite"] = {
         : undefined;
     },
   },
-  define: {
-    "import.meta.env.DOCS_REVISION": JSON.stringify(resolvedDocsRevision()),
-  },
 };
 
 // https://astro.build/config
@@ -86,8 +140,6 @@ export default defineConfig(
       ),
     // https://docs.astro.build/ko/reference/configuration-reference/
     {
-      site,
-      base,
       output: "static",
       fonts,
       security: {

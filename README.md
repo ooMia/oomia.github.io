@@ -62,6 +62,20 @@ For local web development:
 vp run --filter web dev
 ```
 
+`dev` first resolves the public [publication marker](https://oomia.github.io/.well-known/oomia-publication.json) once, checks out that exact published Docs SHA, and runs the existing readiness checks and native content sync before starting Astro. The printed Docs SHA is the actual checkout; current Docs `main` can move independently. A missing/malformed/unreachable marker fails explicitly and never silently uses the old Site gitlink. This preparation may clone/fetch Docs but never runs a provider, produces derived content or stages/commits the Site gitlink. Dirty or untracked Docs changes stop preparation before network/checkout; preserve them first.
+
+Preparation can also run separately. Select another source explicitly when needed:
+
+```sh
+vp run --filter web prepare:content                         # published, online
+vp run --filter web prepare:content --source=current        # actual existing HEAD, no fetch/checkout
+vp run --filter web prepare:content --source=pinned         # stored Site gitlink
+vp run --filter web prepare:content --source=cached         # last validated published selection, offline
+vp run --filter web dev --content-source=current --host 127.0.0.1 --port 4322
+```
+
+`current` and `cached` require a local checkout and never fetch; each still validates actual SHA, readiness and native content. `cached` uses ignored `apps/web/.cache/dev-content.json`, written only after successful published preparation. It explicitly represents a previously published selection, without claiming that it is still the live publication. `pinned` may fetch its fixed object when absent. All sources use the same immutable validation after selection. Normal Astro `dev` flags are forwarded; help/version do not require preparation. Direct `astro build/sync` retains its existing explicit checkout-mode contract, so after development preparation use the displayed SHA with `DOCS_CHECKOUT_MODE=resolved DOCS_CHECKOUT_REVISION=<sha>` or choose the appropriate direct mode. Site never commits this local checkout change.
+
 Local environment values can override the public URL/base path when needed:
 
 ```sh
@@ -69,6 +83,12 @@ SITE_URL=http://localhost:4321
 BASE_PATH=/
 FILTER_DRAFT_ARTICLES=false
 ```
+
+Copy `apps/web/.env.example` to `apps/web/.env` for local values. Astro config loads Vite's mode-specific `.env` files (`--mode` is supported); an external environment value takes precedence, including an explicitly empty value. `SITE_URL` takes precedence over the legacy `SITE` alias, and an empty URL retains the localhost default. URL/base normalization and Docs checkout inputs are owned by the pure typed `apps/web/src/config/environment.ts` boundary. Only HTTP(S) Site URLs without credentials are accepted.
+
+`FILTER_DRAFT_ARTICLES` is a server-only `env.schema` field consumed through `astro:env/server`; only literal `true` enables filtering. Astro's built-in `BASE_URL` remains the browser navigation input. The one custom `ImportMetaEnv` declaration, `DOCS_REVISION`, is a string derived from actual validated Docs HEAD by config, rather than a caller-supplied environment value. `DOCS_CHECKOUT_MODE` accepts `pinned` (default), `main` (fetched CI snapshot) or `resolved` (requires the exact lowercase 40-character `DOCS_CHECKOUT_REVISION`). These Node configuration inputs are never read from `process.env` in application content modules. Provider identities, locales and other domain contracts remain code constants.
+
+This boundary follows [Astro environment variables](https://docs.astro.build/en/guides/environment-variables/#in-the-astro-config-file) for config-time `loadEnv` and [typed server/client fields](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables). Add application settings to the schema and this input contract before consuming them; browser-exposed fields must explicitly use a client/public schema context.
 
 `FILTER_DRAFT_ARTICLES=true` excludes `draft: true` entries from both article discovery and generated routes. It remains opt-in and is currently left disabled, so Pages continues to expose the canonical draft corpus.
 
