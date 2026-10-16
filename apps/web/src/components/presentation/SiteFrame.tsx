@@ -144,7 +144,7 @@ export function SiteFooter({ locale = "ko" }: { locale?: SiteLocale }) {
     <footer className="site-footer">
       <span>© {new Date().getFullYear()} ooMia</span>
       <nav aria-label={locale === "en" ? "Site information" : "사이트 정보"}>
-        <span>RSS · {locale === "en" ? "Coming soon" : "준비 중"}</span>
+        <a href={withBasePath("/rss.xml", import.meta.env.BASE_URL)}>RSS ↗</a>
         <a href={withBasePath("/sitemap-index.xml", import.meta.env.BASE_URL)}>
           Sitemap ↗
         </a>

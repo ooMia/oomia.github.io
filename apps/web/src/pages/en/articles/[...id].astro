@@ -7,10 +7,7 @@ import LinkCard from "@/components/LinkCard.astro";
 import { ArticleFrame } from "@/components/presentation/ArticleFrame";
 import RootLayout from "@/layouts/RootLayout.astro";
 import { articleSocial } from "@/lib/content/article-social";
-import {
-  readArticlePreviews,
-  previewForArticle,
-} from "@/lib/content/article-previews";
+import { readArticleSocialImages } from "@/lib/content/article-social-images";
 import { articleSourcePath } from "@/lib/content/article-source";
 import { getArticleRecords } from "@/lib/content/articles";
 import render from "@/lib/content/render";
@@ -28,7 +25,7 @@ import { Font } from "astro:assets";
 import "@/styles/article-fonts.css";
 export async function getStaticPaths() {
   const records = await getArticleRecords();
-  const previews = readArticlePreviews();
+  const images = await readArticleSocialImages(records);
   const localized = await getCollection("articleTranslations");
   const tagIndex = buildTagIndex(records.map(({ metadata }) => metadata));
   return records.map(({ entry, metadata }) => {
@@ -44,13 +41,13 @@ export async function getStaticPaths() {
         translated,
         descriptor,
         tagIndex,
-        previewHash: previewForArticle(entry.filePath, previews)?.sha256,
+        socialImage: images.get(entry.id)?.image,
       },
     };
   });
 }
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
-const { post, metadata, translated, descriptor, tagIndex, previewHash } =
+const { post, metadata, translated, descriptor, tagIndex, socialImage } =
   Astro.props as Props;
 const originalUrl = localizedArticleUrl(
   post.id,
@@ -69,7 +66,7 @@ const originalSocial = articleSocial(
   Astro.site!.href,
   import.meta.env.BASE_URL,
   import.meta.env["DOCS_REVISION"],
-  previewHash,
+  socialImage,
 );
 const translatedUrl = new URL(
   localizedArticleUrl(post.id, "en", import.meta.env.BASE_URL),

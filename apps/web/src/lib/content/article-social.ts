@@ -1,6 +1,14 @@
 import type { ArticleMetadata } from "./article-metadata";
 
+import { localizedArticleUrl } from "../presentation/locale";
 import { withBasePath } from "../utils";
+
+export interface ArticleSocialImage {
+  path: string;
+  width: number;
+  height: number;
+  mediaType: "image/png" | "image/jpeg";
+}
 
 /** Shared configured public URL projection for article and derived preview routes. */
 export function publicSiteUrl(path: string, site: string, base: string) {
@@ -12,13 +20,13 @@ export function articleSocial(
   site: string,
   base: string,
   docsRevision: string,
-  previewHash?: string
+  socialImage?: ArticleSocialImage
 ) {
   if (!/^[a-f0-9]{40}$/.test(docsRevision))
     throw new Error("Missing Docs checkout revision");
-  const url = publicSiteUrl(`/articles/${metadata.id}/`, site, base);
-  const image = previewHash
-    ? publicSiteUrl(`/social-previews/${previewHash}.png`, site, base)
+  const url = new URL(localizedArticleUrl(metadata.id, "ko", base), site).href;
+  const image = socialImage
+    ? { ...socialImage, url: publicSiteUrl(socialImage.path, site, base) }
     : undefined;
   const published = metadata.publishedAt?.toISOString();
   const modified = metadata.updatedAt?.toISOString();

@@ -73,6 +73,26 @@ const html = await readFile(
   "dist/articles/tech/log/publishing-platform-1/index.html",
   "utf8"
 );
-assert.ok(!html.includes('property="og:image"'));
-assert.ok(!html.includes('name="twitter:image"'));
-console.log("Preview-absent build: non-image metadata remains valid.");
+const fallbackUrl = /property="og:image" content="([^"]+)"/.exec(html)?.[1];
+assert.ok(
+  fallbackUrl,
+  "A local article cover supplies the absent Docs preview"
+);
+assert.notEqual(
+  fallbackUrl,
+  `https://oomia.github.io/social-previews/${sha256}.png`
+);
+assert.ok(html.includes(`name="twitter:image" content="${fallbackUrl}"`));
+const fallback = await sharp(
+  await readFile(`dist${new URL(fallbackUrl).pathname}`)
+).metadata();
+assert.equal(fallback.format, "png");
+assert.ok(
+  html.includes(`property="og:image:width" content="${fallback.width}"`)
+);
+assert.ok(
+  html.includes(`property="og:image:height" content="${fallback.height}"`)
+);
+console.log(
+  "Preview-absent build: local cover fallback matches emitted PNG dimensions."
+);
