@@ -64,9 +64,10 @@ jobs:
           cache: false
           cache-dir: apps/web/node_modules/.astro
           out-dir: apps/web/dist
-      - name: Verify built article social URLs
-        if: steps.publication.outputs.publish == 'true'
-        run: node apps/web/tests/verify-article-social.mjs
+          build-cmd: |
+            pnpm --filter web exec playwright install --with-deps chromium
+            pnpm run build
+            pnpm --filter web test:built-site
   deploy:
     if: needs.build.outputs.publish == 'true'
     needs: build

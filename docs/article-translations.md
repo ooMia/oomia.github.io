@@ -3,7 +3,7 @@
 > **Authority:** REFERENCE\
 > **Owner:** Site optional translated-content input and native rendering\
 > **Scope:** local Docs translation artifacts consumed by Site\
-> **Read when:** implementing or validating KO/EN routes and a compatible translation producer\
+> **Read when:** creating a manual translation, implementing or validating KO/EN routes and a compatible translation producer\
 > **Source of truth:** `apps/web/src/content.config.ts`, `article-translations.ts`, native integrity checks and fixtures
 
 Site supports Korean original URLs and English routes under `/en/` using the existing Astro content collection and native Markdown/MDX pipeline. This document describes the implemented consumer input. It is a candidate format for alignment with a future Engine/Docs producer; it does not establish or operate that producer, choose an AI provider, declare a new Docs production workflow, or attest that the current corpus has English translations.
@@ -33,16 +33,16 @@ At the selected Docs checkout, the consumer reads `derived/article-translations.
 
 The placeholders illustrate the shape and are not usable fixture hashes.
 
-| Field | Meaning and checks |
-| --- | --- |
-| `schemaVersion` | Exactly numeric `1`. |
-| `sourcePath` | Stable original source identity under `content/articles/`; `.md` or `.mdx`; no empty, `.` or `..` path segment and no backslash. One record per source identity. |
-| `targetLocale` | Exactly `en` in this slice. Korean remains the original content path. |
-| `sourceSha256` | SHA-256 of the full original file bytes, including frontmatter. Must match the source blob at the original revision, source blob at the selected Docs revision, and actual source file bytes. |
-| `translationSha256` | SHA-256 of the full translated file bytes. |
-| `translationPath` | Exactly `derived/article-translations/en/<translationSha256>` plus the original `.md`/`.mdx` extension. No duplicate artifact path or grammar conversion. |
-| `originalDocsRevision` | An existing ancestor of the actual selected Docs checkout. Equality with the selected revision is allowed but not required. This permits a producer to read original commit A and persist derived artifacts in later commit B while the original remains unchanged. |
-| `status` | Exactly `available`. Failure/pending status records are not interpreted as successful translations. A producer can omit unavailable outputs from this optional successful-record set while retaining its operational failures in the producer-owned recovery/evidence surface. |
+| Field                  | Meaning and checks                                                                                                                                                                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `schemaVersion`        | Exactly numeric `1`.                                                                                                                                                                                                                                                           |
+| `sourcePath`           | Stable original source identity under `content/articles/`; `.md` or `.mdx`; no empty, `.` or `..` path segment and no backslash. One record per source identity.                                                                                                               |
+| `targetLocale`         | Exactly `en` in this slice. Korean remains the original content path.                                                                                                                                                                                                          |
+| `sourceSha256`         | SHA-256 of the full original file bytes, including frontmatter. Must match the source blob at the original revision, source blob at the selected Docs revision, and actual source file bytes.                                                                                  |
+| `translationSha256`    | SHA-256 of the full translated file bytes.                                                                                                                                                                                                                                     |
+| `translationPath`      | Exactly `derived/article-translations/en/<translationSha256>` plus the original `.md`/`.mdx` extension. No duplicate artifact path or grammar conversion.                                                                                                                      |
+| `originalDocsRevision` | An existing ancestor of the actual selected Docs checkout. Equality with the selected revision is allowed but not required. This permits a producer to read original commit A and persist derived artifacts in later commit B while the original remains unchanged.            |
+| `status`               | Exactly `available`. Failure/pending status records are not interpreted as successful translations. A producer can omit unavailable outputs from this optional successful-record set while retaining its operational failures in the producer-owned recovery/evidence surface. |
 
 The selected Docs SHA is derived from the actual Git checkout. The existing immutable Docs selection and readiness contract still applies; translation provenance does not replace the Article `oomia:docs-revision` marker. A supplied selected SHA must equal actual HEAD. The original revision must be reachable, so the required Git history must be available.
 
@@ -69,6 +69,71 @@ Translated heading text produces different native heading IDs. Consumer v1 there
 Relative image/media references cannot be silently consumed from a hash file under `derived/`, because the native compiler's source directory and browser route may differ from the canonical source context. Consumer v1 therefore rejects relative Markdown images, reference images, raw HTML media and static JSX media sources. Absolute public paths or scheme-qualified sources are retained verbatim and remain subject to the existing asset/render validation. The consumer does not repair canonical URLs or change authored destinations. `srcset` and dynamic JSX media references require a deliberate asset resolver and are unsupported here.
 
 A future source-relative resolver or producer artifact layout must demonstrate native asset resolution and preserve canonical URI semantics before relaxing these restrictions. An absence of translated artifacts in the current corpus does not prove support for these unresolved asset cases.
+
+## Create a translation manually
+
+This is a manual way to prepare this consumer's optional input in a separate Docs working checkout. It does not install an automatic producer or choose/run an AI provider. Keep canonical `content/` unchanged. Work from a clean, committed original with full Git history; preserve any existing author changes before proceeding.
+
+1. In the Docs checkout, select one committed `content/articles/**/*.md` or `.mdx` file and record `git rev-parse HEAD` as original commit A. Confirm `git status --porcelain --untracked-files=all` is empty. Copy that file to a temporary file with the **same extension** outside the Docs checkout. Translate prose, headings and the frontmatter `title`/`description` by hand. Do not rename `.md` to `.mdx` or add a wrapper renderer. `title` must be nonempty and `description` must be a string; the original continues to own author, dates, draft, tags, aliases, identity and order. Omit those other translated metadata fields to avoid misleading authors; supplied provenance fields are overwritten by the validated consumer DTO.
+2. Preserve protected bytes and order exactly: code fences/content/whitespace, inline code, math, raw HTML, MDX tags/attributes/expressions/imports/exports, and link/image/reference destinations. Natural link labels, image descriptions and Markdown link tooltips may be translated. Retain absolute URLs and public image paths verbatim. Relative images/media, `srcset`, dynamic media, nonempty local fragments (`#heading`) and unresolved dynamic `href` are unsupported. A source with these constructs cannot be made compatible by changing or removing them only in its translation. Use a supported source or resolve the canonical authoring/asset contract separately.
+3. Package the final UTF-8 **full file bytes**, including frontmatter and final newline, under the hash filename and add one successful manifest record. Any edit after hashing requires a new hash, filename and record. The following local command only packages an already manually translated file; it does not translate or call a provider. Replace its three arguments with your Docs checkout, source identity and temporary translated file. The extension must match the source.
+
+```sh
+node --input-type=module - /absolute/path/to/docs \
+  content/articles/tech/example.mdx /absolute/path/to/translated-example.mdx <<'NODE'
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {dirname, extname, resolve} from 'node:path';
+
+const [docs, sourcePath, translatedFile] = process.argv.slice(2);
+const git = (...args) => execFileSync('git', ['-C', docs, ...args]);
+assert.equal(git('status', '--porcelain', '--untracked-files=all').toString().trim(), '', 'Start from a clean committed Docs checkout');
+assert.match(sourcePath, /^content\/articles\/.+\.(md|mdx)$/);
+assert.ok(!sourcePath.includes('\\') && sourcePath.split('/').every(part => part && part !== '.' && part !== '..'));
+assert.equal(extname(translatedFile), extname(sourcePath));
+const originalDocsRevision = git('rev-parse', 'HEAD').toString().trim();
+const source = readFileSync(resolve(docs, sourcePath));
+assert.deepEqual(source, git('show', `${originalDocsRevision}:${sourcePath}`));
+const translation = readFileSync(translatedFile);
+new TextDecoder('utf-8', {fatal: true}).decode(translation);
+const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+const sourceSha256 = hash(source);
+const translationSha256 = hash(translation);
+const translationPath = `derived/article-translations/en/${translationSha256}${extname(sourcePath)}`;
+const manifestPath = resolve(docs, 'derived/article-translations.json');
+const manifest = existsSync(manifestPath)
+  ? JSON.parse(readFileSync(manifestPath, 'utf8')) : {schemaVersion: 1, records: []};
+assert.equal(manifest.schemaVersion, 1);
+assert.ok(Array.isArray(manifest.records));
+assert.ok(!manifest.records.some(record => record.sourcePath === sourcePath), 'Review/replace an existing record deliberately');
+const artifact = resolve(docs, translationPath);
+mkdirSync(dirname(artifact), {recursive: true});
+if (existsSync(artifact)) assert.deepEqual(readFileSync(artifact), translation);
+else writeFileSync(artifact, translation, {flag: 'wx'});
+manifest.records.push({sourcePath, targetLocale: 'en', sourceSha256,
+  translationSha256, translationPath, originalDocsRevision, status: 'available'});
+manifest.records.sort((a, b) => a.sourcePath.localeCompare(b.sourcePath, 'en'));
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+console.log(JSON.stringify({originalDocsRevision, sourceSha256,
+  translationSha256, translationPath}, null, 2));
+NODE
+```
+
+The command refuses to silently replace an existing source record. For a revision, deliberately update that record after revalidating the unchanged source, write the new hash artifact, and remove the older artifact only if no manifest record references it. Preserve all unrelated records. This packaging example checks bytes and identity; the actual native consumer below validates metadata, syntax, namespaces and provenance.
+
+4. Review the Docs diff and commit only `derived/article-translations.json` and the exact printed `translationPath` through Docs' normal PR/review path. Keep original commit A as `originalDocsRevision`; the derived commit B is the selected checkout. A must be an ancestor of B, and the source blob must have the same `sourceSha256` at A, at B and on disk. Full history is necessary. Do not replace A with a Site SHA or an uncommitted state. Changing source later invalidates the record until it is reviewed and retranslated; removing an optional successful record deliberately restores the labeled Korean fallback.
+5. Validate locally using the existing native checks below. To consume your committed derived checkout B, mount that independent Docs checkout at `apps/web/data/articles` in a disposable Site worktree (preserving any existing checkout), then run `vp run --filter web prepare:content --source=current`. This selects actual B without fetch/checkout and runs readiness plus native content sync; it does not mint `derived/site-consumption.json`. A missing/stale attestation must be resolved through [Docs preparation](https://github.com/ooMia/oomia.github.io.docs/blob/main/docs/enrichment-workflow.md#main-push-convergence-and-site-release-readiness-30), not a fabricated marker. Use the printed B for a full local build:
+
+```sh
+DOCS_CHECKOUT_MODE=resolved DOCS_CHECKOUT_REVISION=<full-Docs-B-SHA> \
+  vp run --filter web build
+```
+
+The English route must contain the translated title/body and native Markdown/MDX output, the Article marker must identify B, and original metadata must remain authoritative. An invalid supplied record is a build error; absence alone uses fallback. For a reproducible supported `.md`/`.mdx` example without touching a real Docs checkout, run the temporary native fixture below. Do not use synthetic fixture artifacts as production content.
+
+After the Docs change is reviewed and integrated, follow [Docs publishing/preparation](https://github.com/ooMia/oomia.github.io.docs/blob/main/docs/enrichment-workflow.md#workflow-entry-points) and [Site publishing operations](publishing.md). Docs' current automatic workflow does not create translations; this guide does not add producer persistence or broaden its derived-write allowlist. Readiness, local build, CI, Pages delivery and public English-route verification are separate evidence. Site consumes the committed artifact and never generates it during build/navigation.
 
 ## Verification
 

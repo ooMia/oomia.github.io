@@ -231,7 +231,7 @@ export function HomeFrame({
               href={featured.url}
               aria-label={featured.title}
             >
-              <ArticleVisual visual={featured.visual} />
+              <ArticleVisual visual={featured.visual} priority />
             </a>
           </section>
         )}

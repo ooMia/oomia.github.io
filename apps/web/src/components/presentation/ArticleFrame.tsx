@@ -13,7 +13,7 @@ import { ArticleTags } from "./ArticleTags";
 import { ArticleTOC } from "./ArticleTOC";
 import { ArticleVisual } from "./ArticleVisual";
 import { Icon } from "./Icon";
-import { NativeArticleEnhancements } from "./NativeArticleEnhancements";
+import { NativeCodeActions } from "./NativeCodeActions";
 import { ReadingProgress } from "./ReadingProgress";
 import { SiteFooter, SiteFrame } from "./SiteFrame";
 import "./article.css";
@@ -160,10 +160,11 @@ export function ArticleFrame({
                 className="article-body"
                 lang={contentLanguage}
                 data-reading-body
+                data-article-locale={locale}
               >
                 {children}
               </DocsBody>
-              <NativeArticleEnhancements bodyRef={body} locale={locale} />
+              <NativeCodeActions bodyRef={body} locale={locale} />
             </div>
             <ArticleTOC
               items={toc}

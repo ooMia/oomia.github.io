@@ -23,6 +23,7 @@ Project context and shared policy start at [Knowledge CONTEXT](https://github.co
 | Local development, check, unit test, typecheck, build | [Development](#development) → [root scripts](package.json), [web scripts](apps/web/package.json), [check/unit configuration](vite.config.ts)                                                                                  |
 | Browser regression and rendered Evidence              | [Browser validation](#browser-validation) → [web scripts](apps/web/package.json), [Playwright config](apps/web/playwright.config.ts), [tests](apps/web/tests/)                                                                |
 | Manual OS compatibility E2E                           | [OS compatibility workflow](.github/workflows/os-compatibility.yml) → `test:e2e:compat`                                                                                                                                       |
+| Home navigation performance and unscored audits | [Lighthouse evidence and reproduction](docs/evidence/lighthouse-navigation/README.md) → `vp run --filter web test:lighthouse` |
 | PR validation and Pages release/delivery              | [Site CI](.github/workflows/ci.yml), [Publish Site](.github/workflows/deploy.yaml), [publishing operations](docs/publishing.md)                                                                                               |
 | Immutable Docs snapshot and preparation integrity     | [Consumption contract](docs/content-consumption-contract.md#article-social-metadata-and-derived-previews), `pnpm --filter web test:docs-snapshot`                                                                             |
 | Issue admission / Development start                   | [Issue orchestration](.github/workflows/issue-activated.yml) → [shared admission][project-admission], [Development script](.github/scripts/create-development-branch.mjs), [policy](.github/scripts/orchestration-policy.mjs) |
@@ -41,6 +42,7 @@ Initialize the canonical content submodule and install dependencies:
 ```sh
 git submodule update --init --recursive
 vp install --frozen-lockfile
+vp exec --filter web -- playwright install chromium
 ```
 
 Run the current consumer checks:
@@ -60,6 +62,20 @@ For local web development:
 vp run --filter web dev
 ```
 
+`dev` first resolves the public [publication marker](https://oomia.github.io/.well-known/oomia-publication.json) once, checks out that exact published Docs SHA, and runs the existing readiness checks and native content sync before starting Astro. The printed Docs SHA is the actual checkout; current Docs `main` can move independently. A missing/malformed/unreachable marker fails explicitly and never silently uses the old Site gitlink. This preparation may clone/fetch Docs but never runs a provider, produces derived content or stages/commits the Site gitlink. Dirty or untracked Docs changes stop preparation before network/checkout; preserve them first.
+
+Preparation can also run separately. Select another source explicitly when needed:
+
+```sh
+vp run --filter web prepare:content                         # published, online
+vp run --filter web prepare:content --source=current        # actual existing HEAD, no fetch/checkout
+vp run --filter web prepare:content --source=pinned         # stored Site gitlink
+vp run --filter web prepare:content --source=cached         # last validated published selection, offline
+vp run --filter web dev --content-source=current --host 127.0.0.1 --port 4322
+```
+
+`current` and `cached` require a local checkout and never fetch; each still validates actual SHA, readiness and native content. `cached` uses ignored `apps/web/.cache/dev-content.json`, written only after successful published preparation. It explicitly represents a previously published selection, without claiming that it is still the live publication. `pinned` may fetch its fixed object when absent. All sources use the same immutable validation after selection. Normal Astro `dev` flags are forwarded; help/version do not require preparation. Direct `astro build/sync` retains its existing explicit checkout-mode contract, so after development preparation use the displayed SHA with `DOCS_CHECKOUT_MODE=resolved DOCS_CHECKOUT_REVISION=<sha>` or choose the appropriate direct mode. Site never commits this local checkout change.
+
 Local environment values can override the public URL/base path when needed:
 
 ```sh
@@ -68,7 +84,15 @@ BASE_PATH=/
 FILTER_DRAFT_ARTICLES=false
 ```
 
+Copy `apps/web/.env.example` to `apps/web/.env` for local values. Astro config loads Vite's mode-specific `.env` files (`--mode` is supported); an external environment value takes precedence, including an explicitly empty value. `SITE_URL` takes precedence over the legacy `SITE` alias, and an empty URL retains the localhost default. URL/base normalization and Docs checkout inputs are owned by the pure typed `apps/web/src/config/environment.ts` boundary. Only HTTP(S) Site URLs without credentials are accepted.
+
+`FILTER_DRAFT_ARTICLES` is a server-only `env.schema` field consumed through `astro:env/server`; only literal `true` enables filtering. Astro's built-in `BASE_URL` remains the browser navigation input. The one custom `ImportMetaEnv` declaration, `DOCS_REVISION`, is a string derived from actual validated Docs HEAD by config, rather than a caller-supplied environment value. `DOCS_CHECKOUT_MODE` accepts `pinned` (default), `main` (fetched CI snapshot) or `resolved` (requires the exact lowercase 40-character `DOCS_CHECKOUT_REVISION`). These Node configuration inputs are never read from `process.env` in application content modules. Provider identities, locales and other domain contracts remain code constants.
+
+This boundary follows [Astro environment variables](https://docs.astro.build/en/guides/environment-variables/#in-the-astro-config-file) for config-time `loadEnv` and [typed server/client fields](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables). Add application settings to the schema and this input contract before consuming them; browser-exposed fields must explicitly use a client/public schema context.
+
 `FILTER_DRAFT_ARTICLES=true` excludes `draft: true` entries from both article discovery and generated routes. It remains opt-in and is currently left disabled, so Pages continues to expose the canonical draft corpus.
+
+Native Mermaid fences are rendered to SVG during content sync/build using local Chromium with browser network requests blocked. Install the matching Playwright browser before sync, typecheck or build; on Linux CI use `playwright install --with-deps chromium`. `PLAYWRIGHT_CHANNEL=chrome` can select installed Chrome locally. Reader pages do not load Mermaid. See the [rendering contract](docs/content-consumption-contract.md#native-code-tables-and-mermaid).
 
 ## Browser validation
 
@@ -86,6 +110,8 @@ vp run --filter web test:e2e:evidence
 `test:e2e:compat` selects only Playwright `@compat` tests in both viewport projects: homepage hierarchy/containment, representative article navigation, theme continuity and one structural provider-failure case. OS is the workflow matrix axis; the mobile project emulates a viewport, not a mobile OS. This small subset runs in CI **only** through the separate `workflow_dispatch` OS compatibility workflow (Ubuntu/macOS/Windows). It is not an ordinary automatic PR/promotion check or required default gate. Run it locally with `vp run --filter web test:e2e:compat` when changing that profile.
 
 The manual workflow keeps `profile=compat` as its default; select `profile=full` to run the existing `test:e2e` regression on the same OS matrix.
+
+PR Promotion also runs `test:native-rendering`, a network-blocked native Markdown/MDX fixture covering static diagrams, original source copying, no-JavaScript reading, tables, theme and narrow widths. `test:built-site` checks the completed artifact's Article metadata, generated navigation, local assets and original/English route pairs before upload. It does not reinterpret authored prose links. The production and compatibility builds install Chromium before content sync. Full browser regression remains the separate manual profile above.
 
 The config owns preview lifecycle on port 4321. Evidence capture starts/stops its own preview; run it after tests finish. Default output is ignored `test-results/homepage`; `PRESENTATION_EVIDENCE_DIR` selects another directory. Capture uses real providers and records the Git revision, viewport/theme, dimensions and dated provider observations. Run from a clean revision and record build settings, exact tested SHA, commands, PASS result, scope and limits in the PR. Also reference the commit that established the profile split.
 

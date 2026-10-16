@@ -3,6 +3,7 @@ dist/
 
 # generated types
 .astro/
+/apps/web/.cache/
 
 # dependencies
 node_modules/
@@ -15,6 +16,7 @@ yarn-error.log*
 
 # environment variables
 .env*
+!.env.example
 
 # turbo
 .turbo
@@ -38,6 +40,7 @@ test-results/
 
 # Independent LinkCard render/calibration evidence
 /apps/web/link-card-evidence/
+/apps/web/native-rendering-evidence/
 
 # Generated only for a production Pages artifact.
 apps/web/public/.well-known/oomia-publication.json

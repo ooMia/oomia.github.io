@@ -10,6 +10,7 @@ import {
   realpathSync,
   rmSync,
   symlinkSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -40,6 +41,48 @@ const commit = (cwd, message) => {
   return git(cwd, "rev-parse", "HEAD");
 };
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
+// Resource URLs must remain absolute at the selected base on nested routes;
+// a successful build alone cannot detect browser-relative asset 404s.
+function verifyBuiltAssets(basePath) {
+  for (const page of [
+    "index.html",
+    "en/index.html",
+    "articles/latest/index.html",
+  ]) {
+    const html = readFileSync(join(web, "dist", page), "utf8");
+    const resources = [...html.matchAll(/<(script|link)\b[^>]*>/g)].flatMap(
+      ([tag, name]) => {
+        const attributes = Object.fromEntries(
+          [...tag.matchAll(/\b(src|href|rel)=(['"])(.*?)\2/g)].map(
+            ([, attribute, , value]) => [attribute, value]
+          )
+        );
+        if (name === "script") return attributes.src ? [attributes.src] : [];
+        return /(?:^|\s)(?:stylesheet|modulepreload)(?:\s|$)/.test(
+          attributes.rel ?? ""
+        )
+          ? [attributes.href]
+          : [];
+      }
+    );
+    assert.ok(resources.length > 0, `${page}: expected built CSS/JS resources`);
+    for (const resource of resources) {
+      assert.ok(
+        resource?.startsWith(basePath),
+        `${page}: non-absolute base asset ${resource}`
+      );
+      const path = decodeURIComponent(
+        new URL(resource, "https://oomia.github.io").pathname.slice(
+          basePath.length
+        )
+      );
+      assert.ok(
+        statSync(join(web, "dist", path)).isFile(),
+        `${page}: missing built asset ${resource}`
+      );
+    }
+  }
+}
 try {
   mkdirSync(web, { recursive: true });
   for (const path of [
@@ -64,9 +107,9 @@ try {
   writeFileSync(
     join(web, "node_modules/.cache/gravatar/oomia6.json"),
     JSON.stringify({
-      srcdoc: "<p>Local profile fixture</p>",
-      width: 336,
-      height: 228,
+      src: "https://gravatar.com/oomia6.card",
+      width: 351,
+      height: 436,
     })
   );
   symlinkSync(
@@ -155,6 +198,11 @@ try {
     })
   );
   const latest = commit(docs, "Prepared latest Docs snapshot");
+  // Config and Astro schema honor external values over local file defaults.
+  writeFileSync(
+    join(web, ".env"),
+    "SITE_URL=https://ignored.example.test\nBASE_PATH=/ignored\nDOCS_CHECKOUT_MODE=pinned\n"
+  );
   // Production does not follow this ref after resolving its SHA.
   git(docs, "update-ref", "refs/remotes/origin/main", stale);
   const astroPackageUrl = import.meta.resolve("astro/package.json");
@@ -165,7 +213,7 @@ try {
   const preload = fileURLToPath(
     new URL("./link-card/no-network.mjs", import.meta.url)
   );
-  const result = spawnSync(process.execPath, [cli, "build", "--root", web], {
+  const buildOptions = {
     cwd: web,
     env: {
       ...process.env,
@@ -177,12 +225,25 @@ try {
       NODE_OPTIONS: (process.env.NODE_OPTIONS ?? "") + " --import=" + preload,
     },
     encoding: "utf8",
+  };
+  const forged = spawnSync(process.execPath, [cli, "build", "--root", web], {
+    ...buildOptions,
+    env: { ...buildOptions.env, DOCS_REVISION: "f".repeat(40) },
   });
+  assert.notEqual(forged.status, 0);
+  assert.match(forged.stderr + forged.stdout, /DOCS_REVISION is build-derived/);
+  const result = spawnSync(
+    process.execPath,
+    [cli, "build", "--root", web],
+    buildOptions
+  );
   assert.equal(result.status, 0, result.stderr + result.stdout);
   const rich = readFileSync(
     join(web, "dist/articles/latest/index.html"),
     "utf8"
   );
+  assert.ok(rich.includes("https://oomia.github.io/articles/latest/"));
+  assert.ok(!rich.includes("ignored.example.test"));
   assert.ok(rich.includes("Latest Docs canonical content"));
   assert.match(
     rich,
@@ -210,7 +271,8 @@ try {
     readFileSync(join(web, "dist/articles/old/index.html"), "utf8"),
   ])
     assert.ok(
-      html.includes('name="oomia:docs-revision" content="' + latest + '"')
+      html.includes('name="oomia:docs-revision" content="' + latest + '"'),
+      html.match(/name="oomia:docs-revision" content="[^"]*"/)?.[0]
     );
   assert.equal(
     readFileSync(join(docs, "content/articles/latest.mdx"), "utf8"),
@@ -222,6 +284,14 @@ try {
   );
   assert.ok(git(root, "ls-files", "--stage").includes(stale));
   assert.notEqual(latest, stale);
+  verifyBuiltAssets("/");
+  const nestedBase = "/nested/site/";
+  const nested = spawnSync(process.execPath, [cli, "build", "--root", web], {
+    ...buildOptions,
+    env: { ...buildOptions.env, BASE_PATH: nestedBase },
+  });
+  assert.equal(nested.status, 0, nested.stderr + nested.stdout);
+  verifyBuiltAssets(nestedBase);
   console.log(
     JSON.stringify(
       {
@@ -235,6 +305,7 @@ try {
         allArticleRevisionMarkers: true,
         canonicalSourcePreserved: true,
         buildNetwork: "blocked",
+        absoluteBuiltAssets: ["/", nestedBase],
       },
       null,
       2

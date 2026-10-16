@@ -1,7 +1,9 @@
 import type { CollectionEntry } from "astro:content";
 
 import { getCollection } from "astro:content";
+import { FILTER_DRAFT_ARTICLES } from "astro:env/server";
 
+import { draftFilterEnabled } from "../../config/environment";
 import { readArticleGitHistory } from "./article-history";
 import { type ArticleMetadata, mapArticleMetadata } from "./article-metadata";
 import { compareArticleMetadata, isArticleVisible } from "./article-policy";
@@ -25,7 +27,7 @@ export function toArticleRecord(
 }
 
 export async function getArticleRecords({
-  filterDraft = import.meta.env["FILTER_DRAFT_ARTICLES"] === "true",
+  filterDraft = draftFilterEnabled(FILTER_DRAFT_ARTICLES),
 }: {
   filterDraft?: boolean;
 } = {}): Promise<ArticleRecord[]> {

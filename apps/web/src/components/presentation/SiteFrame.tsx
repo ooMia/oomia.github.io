@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { HomeLayout, useHomeLayout } from "fumadocs-ui/layouts/home";
 import { RootProvider } from "fumadocs-ui/provider/astro";
+import { useTheme } from "fumadocs-ui/provider/base";
 import { createContext, useContext } from "react";
 
 import type { SiteLocale } from "@/lib/presentation/locale";
@@ -19,7 +20,7 @@ const HeaderContext = createContext({
 function SiteHeader() {
   const { slots } = useHomeLayout();
   const { homeUrl, locale, localeUrl } = useContext(HeaderContext);
-  const ThemeSwitch = slots.themeSwitch;
+  const { resolvedTheme, setTheme } = useTheme();
   return (
     <header className="site-header">
       <nav
@@ -46,7 +47,18 @@ function SiteHeader() {
             <Icon name="languages" />
             {locale === "en" ? "KO" : "EN"}
           </a>
-          {ThemeSwitch && <ThemeSwitch mode="light-dark" />}
+          <button
+            className="site-theme-toggle"
+            aria-label="Toggle Theme"
+            onClick={() => {
+              // Persist through the existing provider before a following link
+              // click can unload this page. A view transition defers this write.
+              setTheme(resolvedTheme === "dark" ? "light" : "dark");
+            }}
+          >
+            <Icon name="sun" className="theme-light" />
+            <Icon name="moon" className="theme-dark" />
+          </button>
         </div>
       </nav>
     </header>
@@ -76,7 +88,7 @@ export function SiteFrame({
     <RootProvider
       pathname={pathname}
       search={{ enabled: false }}
-      theme={{ hotKey: false }}
+      theme={{ hotKey: false, scriptProps: { "data-site-theme": "bootstrap" } }}
       i18n={{
         locale,
         defaultLanguage: "ko",
@@ -149,8 +161,25 @@ export function SiteFooter({ locale = "ko" }: { locale?: SiteLocale }) {
       </nav>
       <small>
         Powered by ooMia Publishing Platform ·{" "}
-        <a href="https://astro.build/">Astro</a> ·{" "}
-        <a href="https://fumadocs.dev/">Fumadocs</a>
+        <a
+          href="https://astro.build/"
+          aria-label={
+            locale === "en" ? "Astro official website" : "Astro 공식 사이트"
+          }
+        >
+          Astro
+        </a>{" "}
+        ·{" "}
+        <a
+          href="https://fumadocs.dev/"
+          aria-label={
+            locale === "en"
+              ? "Fumadocs official website"
+              : "Fumadocs 공식 사이트"
+          }
+        >
+          Fumadocs
+        </a>
       </small>
     </footer>
   );

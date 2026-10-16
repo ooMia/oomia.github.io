@@ -1,0 +1,49 @@
+---
+title: Native article structure
+---
+
+# Native article structure
+
+한글 문단입니다. English text stays intact. `Stream<? extends Arguments> provideArguments(ExtensionContext context)`를 구현합니다.
+
+## Code
+
+```js
+const message = "<tag>& 한글";
+const indentation = "  keep  spaces";
+
+```
+
+## Table
+
+| 분류 | 긴 값 |
+| --- | --- |
+| Markdown | long-value-long-value-long-value-long-value-long-value-long-value-long-value-long-value-long-value-long-value-long-value-long-value- |
+
+## Diagram
+
+```mermaid
+flowchart TD
+    CoreNet["Carrier Core Network<br/>(APN / PDN Gateway)"]
+    Android["Android Phone<br/>(Router & VPN Server)"]
+    CoreNet -. 5G / LTE Radio .-> Android
+
+    Win["Windows Laptop<br/>(SSTP Client<br/>with ICS Enabled)"]
+    Mac["macOS Laptop<br/>(PPTP Client)"]
+
+    Android -. Wi-Fi + PPTP .-> Mac
+    Android -. Wi-Fi + SSTP .-> Win
+    Win -- Ethernet<br/>(ICS via shared VPN) --> Router
+
+    subgraph HomeNet["Home Network"]
+        Router["Router"]
+        Devices["LAN Devices"]
+    Router -- Ethernet / Wi-Fi --> Devices
+    end
+```
+
+```mermaid
+flowchart TD
+  accTitle: Source & diagram
+  A["<tag> & 한글"] --> B["Result"]
+```
