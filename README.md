@@ -104,3 +104,5 @@ Optional KO/EN article consumption and native translation fixture: [Article tran
 ## Discovery
 
 `robots.txt` allows crawling and links to the configured Site/base sitemap. `llms.txt` follows the [llms.txt proposal](https://llmstxt.org/) with a Site introduction and canonical Article links/descriptions. It reuses Article visibility and listing order, so English fallback routes do not duplicate the originals. This index is informational and does not define crawler access or content licensing.
+
+`rss.xml` uses Astro's official `@astrojs/rss` helper and the same Article collection policy. It publishes one item per visible original with its title, description, canonical URL, tags and available publication date, in the Site's listing order. The feed contains summaries only and does not parse or render Markdown/MDX bodies. Every page advertises the feed in its head and footer.

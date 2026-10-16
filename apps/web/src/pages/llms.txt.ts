@@ -22,6 +22,7 @@ export const GET: APIRoute = async ({ site }) => {
     "",
     `- [Home](${url("/")}): About ooMia and recent writing.`,
     `- [Sitemap](${url("/sitemap-index.xml")}): Published Site URLs.`,
+    `- [RSS feed](${url("/rss.xml")}): Canonical Article titles, summaries and publication dates.`,
     "",
     "## Articles",
     "",
