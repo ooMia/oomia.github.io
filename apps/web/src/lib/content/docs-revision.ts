@@ -4,8 +4,8 @@ import { resolve } from "node:path";
 /** Derive provenance from Git at the selected checkout, never caller-supplied SHA metadata. */
 export function resolvedDocsRevision(
   webRoot = process.cwd(),
-  mode = process.env["DOCS_CHECKOUT_MODE"] ?? "pinned",
-  expected = process.env["DOCS_CHECKOUT_REVISION"]
+  mode = "pinned",
+  expected?: string
 ) {
   const docsRoot = resolve(webRoot, "data/articles");
   const git = (root: string, args: string[]) =>

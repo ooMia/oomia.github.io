@@ -68,6 +68,12 @@ BASE_PATH=/
 FILTER_DRAFT_ARTICLES=false
 ```
 
+Copy `apps/web/.env.example` to `apps/web/.env` for local values. Astro config loads Vite's mode-specific `.env` files (`--mode` is supported); an external environment value takes precedence, including an explicitly empty value. `SITE_URL` takes precedence over the legacy `SITE` alias, and an empty URL retains the localhost default. URL/base normalization and Docs checkout inputs are owned by the pure typed `apps/web/src/config/environment.ts` boundary. Only HTTP(S) Site URLs without credentials are accepted.
+
+`FILTER_DRAFT_ARTICLES` is a server-only `env.schema` field consumed through `astro:env/server`; only literal `true` enables filtering. Astro's built-in `BASE_URL` remains the browser navigation input. The one custom `ImportMetaEnv` declaration, `DOCS_REVISION`, is a string derived from actual validated Docs HEAD by config, rather than a caller-supplied environment value. `DOCS_CHECKOUT_MODE` accepts `pinned` (default), `main` (fetched CI snapshot) or `resolved` (requires the exact lowercase 40-character `DOCS_CHECKOUT_REVISION`). These Node configuration inputs are never read from `process.env` in application content modules. Provider identities, locales and other domain contracts remain code constants.
+
+This boundary follows [Astro environment variables](https://docs.astro.build/en/guides/environment-variables/#in-the-astro-config-file) for config-time `loadEnv` and [typed server/client fields](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables). Add application settings to the schema and this input contract before consuming them; browser-exposed fields must explicitly use a client/public schema context.
+
 `FILTER_DRAFT_ARTICLES=true` excludes `draft: true` entries from both article discovery and generated routes. It remains opt-in and is currently left disabled, so Pages continues to expose the canonical draft corpus.
 
 ## Browser validation

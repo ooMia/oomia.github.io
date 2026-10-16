@@ -155,6 +155,11 @@ try {
     })
   );
   const latest = commit(docs, "Prepared latest Docs snapshot");
+  // Config and Astro schema honor external values over local file defaults.
+  writeFileSync(
+    join(web, ".env"),
+    "SITE_URL=https://ignored.example.test\nBASE_PATH=/ignored\nDOCS_CHECKOUT_MODE=pinned\n"
+  );
   // Production does not follow this ref after resolving its SHA.
   git(docs, "update-ref", "refs/remotes/origin/main", stale);
   const astroPackageUrl = import.meta.resolve("astro/package.json");
@@ -165,7 +170,7 @@ try {
   const preload = fileURLToPath(
     new URL("./link-card/no-network.mjs", import.meta.url)
   );
-  const result = spawnSync(process.execPath, [cli, "build", "--root", web], {
+  const buildOptions = {
     cwd: web,
     env: {
       ...process.env,
@@ -177,12 +182,25 @@ try {
       NODE_OPTIONS: (process.env.NODE_OPTIONS ?? "") + " --import=" + preload,
     },
     encoding: "utf8",
+  };
+  const forged = spawnSync(process.execPath, [cli, "build", "--root", web], {
+    ...buildOptions,
+    env: { ...buildOptions.env, DOCS_REVISION: "f".repeat(40) },
   });
+  assert.notEqual(forged.status, 0);
+  assert.match(forged.stderr + forged.stdout, /DOCS_REVISION is build-derived/);
+  const result = spawnSync(
+    process.execPath,
+    [cli, "build", "--root", web],
+    buildOptions
+  );
   assert.equal(result.status, 0, result.stderr + result.stdout);
   const rich = readFileSync(
     join(web, "dist/articles/latest/index.html"),
     "utf8"
   );
+  assert.ok(rich.includes("https://oomia.github.io/articles/latest/"));
+  assert.ok(!rich.includes("ignored.example.test"));
   assert.ok(rich.includes("Latest Docs canonical content"));
   assert.match(
     rich,
@@ -210,7 +228,8 @@ try {
     readFileSync(join(web, "dist/articles/old/index.html"), "utf8"),
   ])
     assert.ok(
-      html.includes('name="oomia:docs-revision" content="' + latest + '"')
+      html.includes('name="oomia:docs-revision" content="' + latest + '"'),
+      html.match(/name="oomia:docs-revision" content="[^"]*"/)?.[0]
     );
   assert.equal(
     readFileSync(join(docs, "content/articles/latest.mdx"), "utf8"),
