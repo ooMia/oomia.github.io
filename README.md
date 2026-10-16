@@ -60,6 +60,20 @@ For local web development:
 vp run --filter web dev
 ```
 
+`dev` first resolves the public [publication marker](https://oomia.github.io/.well-known/oomia-publication.json) once, checks out that exact published Docs SHA, and runs the existing readiness checks and native content sync before starting Astro. The printed Docs SHA is the actual checkout; current Docs `main` can move independently. A missing/malformed/unreachable marker fails explicitly and never silently uses the old Site gitlink. This preparation may clone/fetch Docs but never runs a provider, produces derived content or stages/commits the Site gitlink. Dirty or untracked Docs changes stop preparation before network/checkout; preserve them first.
+
+Preparation can also run separately. Select another source explicitly when needed:
+
+```sh
+vp run --filter web prepare:content                         # published, online
+vp run --filter web prepare:content --source=current        # actual existing HEAD, no fetch/checkout
+vp run --filter web prepare:content --source=pinned         # stored Site gitlink
+vp run --filter web prepare:content --source=cached         # last validated published selection, offline
+vp run --filter web dev --content-source=current --host 127.0.0.1 --port 4322
+```
+
+`current` and `cached` require a local checkout and never fetch; each still validates actual SHA, readiness and native content. `cached` uses ignored `apps/web/.cache/dev-content.json`, written only after successful published preparation. It explicitly represents a previously published selection, without claiming that it is still the live publication. `pinned` may fetch its fixed object when absent. All sources use the same immutable validation after selection. Normal Astro `dev` flags are forwarded; help/version do not require preparation. Direct `astro build/sync` retains its existing explicit checkout-mode contract, so after development preparation use the displayed SHA with `DOCS_CHECKOUT_MODE=resolved DOCS_CHECKOUT_REVISION=<sha>` or choose the appropriate direct mode. Site never commits this local checkout change.
+
 Local environment values can override the public URL/base path when needed:
 
 ```sh

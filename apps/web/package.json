@@ -6,9 +6,10 @@
   "scripts": {
     "build": "astro build",
     "build:offline": "node tests/link-card/build.mjs",
-    "dev": "astro dev",
+    "dev": "node scripts/dev.mjs",
     "format": "prettier -w '**/*.astro' --cache --cache-strategy metadata | awk '!/(unchanged)/'",
     "lint": "eslint",
+    "prepare:content": "node scripts/prepare-content.mjs",
     "preview": "astro preview",
     "sync": "astro sync",
     "test:docs-snapshot": "node tests/docs-snapshot-build.mjs",
