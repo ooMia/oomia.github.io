@@ -15,16 +15,16 @@
 - **Public extension points:** Fumadocs provider, HomeLayout header slot, DocsBody, Core TOC를 실제로 사용한다. 별도 theme lifecycle/heading observer를 복제하지 않는다.
 - **Local presentation:** Site의 editorial 조판·배치·native pre/table adapter는 owning presentation component가 소유한다. Callout/LinkCard는 기존 component boundary와 source semantics를 유지한다.
 
-| Concern | Owner |
-| --- | --- |
-| canonical article / persisted producer outputs | Docs |
-| AI translation production | Engine / Docs workflow; this Site slice does not run it |
-| native parsing / integrity token comparison | `@workspace/md` and existing Astro integration |
-| discovery, publishability, translation verification | Site content collection / `lib/content` |
-| routes, social metadata and Docs revision | Astro pages and existing metadata projection |
-| theme / locale context and shell | Fumadocs Astro RootProvider + HomeLayout |
-| active heading | Fumadocs Core AnchorProvider / TOCItem / useActiveAnchor |
-| reading progress, tags, artwork and editorial layout | Site presentation components |
+| Concern                                              | Owner                                                    |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| canonical article / persisted producer outputs       | Docs                                                     |
+| AI translation production                            | Engine / Docs workflow; this Site slice does not run it  |
+| native parsing / integrity token comparison          | `@workspace/md` and existing Astro integration           |
+| discovery, publishability, translation verification  | Site content collection / `lib/content`                  |
+| routes, social metadata and Docs revision            | Astro pages and existing metadata projection             |
+| theme / locale context and shell                     | Fumadocs Astro RootProvider + HomeLayout                 |
+| active heading                                       | Fumadocs Core AnchorProvider / TOCItem / useActiveAnchor |
+| reading progress, tags, artwork and editorial layout | Site presentation components                             |
 
 ## Runtime composition
 
@@ -37,15 +37,15 @@ canonical Docs → Astro collections → native processors → Astro render
                                                       └─ SiteFooter
 ```
 
-Provider and page presentation share one React island. Astro-rendered Article content and Profile/Activity remain static children. Fumadocs owns theme persistence/system preference; theme hotkey is disabled. RootProvider receives explicit KO/EN locale context and BASE_PATH-aware navigation. Site does not introduce a second localStorage theme or MutationObserver controller.
+Provider and page presentation share one React island. Astro-rendered Article content and Profile/Activity remain static children. Fumadocs owns theme persistence/system preference; theme hotkey is disabled. The header calls its public `useTheme().setTheme` directly so persistence happens in the click handler before immediate navigation; it does not defer the write inside a view transition. RootProvider receives explicit KO/EN locale context and BASE_PATH-aware navigation. Site does not introduce a second localStorage theme or MutationObserver controller.
 
 ## Home and navigation
 
 Home uses the accepted Ideas into / systems typography, featured most-recent article, remaining visible articles, independent Profile and subordinate Profile/Activity. Metadata and reading time come from actual records/render results. Lab-only settings, iframe comparison, image editing, invented reading summaries and excerpt specimens are excluded.
 
-The navbar aligns with the Home shell and provides brand→home, notes, profile, locale and maintained theme controls. Profile is the single contact area: GitHub, LinkedIn and email icon links have accessible names. Existing Activity provider/fallback and Gravatar behavior remain; provider embeds stay inside narrow content width.
+The navbar aligns with the Home shell and provides brand→home, notes, profile, locale and maintained theme controls. Profile is the single contact area: GitHub, LinkedIn and email icon links have accessible names. Activity retains its provider/fallback behavior. Gravatar uses its official URL in a native lazy iframe with a deliberate 336×402 viewport; the complete card scales to narrow widths. Provider-reported oEmbed geometry is not a layout input. Build neither contacts Gravatar nor stores a provider metadata cache. Provider image/CSS optimization and response cache headers remain provider-owned.
 
-Representative images are primary Article links. The same visual appears as a faint, angled, masked decoration on the Article header. Decoration alone is clipped and hidden from accessibility; tag menus remain outside that clip. Selected artwork is explicitly configured by stable Article ID in `lib/presentation/articles.ts`, never assigned by listing position or inferred from a social-preview screenshot. Existing selected SVGs live in `public/images/article-covers`. New articles use a metadata-keyword fallback; template/image choices can be changed in the owning presentation configuration without new Markdown syntax.
+Representative images are primary Article links. The featured Home image loads eagerly with high fetch priority and reserves its 400:260 composition; list images and the faint, angled, masked Article header decoration remain lazy. Decoration alone is clipped and hidden from accessibility; tag menus remain outside that clip. Selected artwork is explicitly configured by stable Article ID in `lib/presentation/articles.ts`, never assigned by listing position or inferred from a social-preview screenshot. Existing selected SVGs live in `public/images/article-covers`. New articles use a metadata-keyword fallback; template/image choices can be changed in the owning presentation configuration without new Markdown syntax.
 
 ## Tags and responsive cards
 
@@ -61,15 +61,23 @@ ArticleFrame renders the full canonical body, actual metadata, author/dates, nor
 
 Desktop ≥1100px uses a 760px reading column and a 210px supporting TOC rail. Smaller screens use an inline native details/summary outline. This is Article reading support, not a documentation/category sidebar. Heading depth comes from native render results. Core alone selects active headings; Site moves a small marker and colors from that state.
 
-DocsBody keeps the maintained prose primitive. Site-owned `article.css` applies Gowun Batang + Literata, 0.015em Latin tracking, native paragraph justification and first-line indentation, bounded line length and responsive font size. Metadata/header and Home use Noto Sans KR; Hero uses the actual Space Grotesk typeface with Georgia italic. Code remains monospace and visually distinct. Quotes/tables retain their semantic structures and appropriate local sans treatment.
+DocsBody keeps the maintained prose primitive. Site-owned `article.css` applies Gowun Batang + Literata, native paragraph justification and first-line indentation, bounded line length and responsive font size. Latin text uses the font's native spacing; reading does not require text-node splitting or generated Latin spans. Metadata/header and Home use Noto Sans KR; Hero uses the actual Space Grotesk typeface with Georgia italic. Code remains monospace and visually distinct. Quotes/tables retain their semantic structures and appropriate local sans treatment.
 
-Native Astro pre/code highlighting remains unchanged. A hydration adapter adds code actions and scroll surfaces around native elements, preserving code text/line structure. It wraps tables for keyboard-accessible scrolling and adds Latin-only presentation spans without changing text. Cleanup is idempotent; no JavaScript still shows native code, tables, Article links and outline.
+Paragraphs containing inline code use start alignment so code spaces remain stable and long tokens wrap naturally. Ordinary prose keeps justification and indentation. LinkCard uses the UI sans family and start alignment; preview images retain their whole composition with intrinsic aspect ratio, a 14rem height cap and `contain`. Empty space uses the existing surface token. Image URLs, summary fragments and anchor semantics retain the existing consumer contract.
+
+Native Astro pre/code highlighting uses Catppuccin Latte/Mocha through the shared Shiki configuration; the maintained theme class selects the generated token colors without a client highlighter. Code frames fit their content and toolbar within the reading column, while long lines scroll inside the frame without wrapping authored whitespace. Shared build-time HAST presentation adapters add code toolbars and keyboard-accessible table scroll regions through each native processor's extension point. Mermaid fences render to local light/dark SVG images with an expandable original source. These structures, diagrams and source remain readable without JavaScript. One delegated clipboard handler enables the static copy buttons and reports success or selects the source on clipboard failure; it does not move native nodes or rebuild the Article body. Fumadocs theme/TOC and the existing provider island remain the owners of their interactions.
 
 Reading progress measures the rendered full Article body, excludes header/footer, reaches 100% when the body bottom is visible, and exposes min/max/current values. It does not claim comprehension. Scroll/progress/current-heading transitions are short and interruptible. `prefers-reduced-motion` removes smooth movement while retaining information, anchors and focus behavior.
 
 ## Shared visual roles
 
 Sage palette values map to the existing shadcn/Fumadocs tokens, including `--muted` surface and `--muted-foreground` text. `--paper`, `--surface`, `--ink`, `--line` and other local aliases derive from that one palette. Light/dark roles preserve readable contrast. Fontsource font assets are self-hosted with license notices; prototype content-specific font subsets are not used for production text.
+
+Astro's Fonts API owns the Home display and Latin Article declarations, copied assets and metric-adjusted fallbacks. Its local provider reads pinned Fontsource packages and the existing Space Grotesk asset; sync/build does not contact a font CDN. Noto Sans KR and Article-only Gowun Batang use the maintained Fontsource stylesheets so their large Korean Unicode declarations remain in cacheable CSS rather than enlarging every HTML document. Noto Sans KR uses the same upstream v40 typeface as a variable font, so a Unicode range used at multiple weights is transferred once. All Fontsource Unicode ranges remain available; content-specific subsetting is not used.
+
+Shared CSS declares Noto Sans KR without preloading its entire Korean character set. Home alone registers and preloads the critical Space Grotesk Hero face. Both Article routes register Gowun Batang 400/700 and normal/italic Literata without preloading their full sets. Literata has no generic fallback inside its generated variable, allowing Korean text to reach Gowun Batang. CSS uses generated variables for API fonts and named stacks for Fontsource stylesheets, retaining the established typefaces and their license notices. Home must not inherit prose declarations through the shared renderer. Performance claims require the controlled Lighthouse comparison, separate from these build checks.
+
+Static pages use Astro's hash-based meta CSP. Site's finalizer adds only the explicitly marked Fumadocs theme bootstrap hash to Astro's generated policy; same-origin module scripts remain allowed for Astro's loader compatibility, while unapproved inline scripts, inline event handlers and eval are blocked. Style attributes remain allowed for native Shiki and React presentation, and next-themes' transition stylesheet has an explicit hash. GitHub Pages response-header controls, including HSTS refinements, COOP, frame-ancestor restrictions and the Trusted Types header audit, remain outside this meta-policy's guarantees.
 
 Root scrollbars follow page background. TOC/tag/table/code scroll surfaces declare their own opaque background token. Native code blocks keep their Shiki surface and independent thumb colors. A new painted scrolling component should declare its surface rather than guessing rendered alpha backgrounds.
 
@@ -93,4 +101,5 @@ Update this baseline with the implementing PR when introducing documentation pag
 
 - [Fumadocs Astro](https://www.fumadocs.dev/docs/manual-installation/astro), [Headless TOC](https://www.fumadocs.dev/docs/headless/components/toc), [Theme](https://www.fumadocs.dev/docs/ui/theme)
 - [Astro content collections](https://docs.astro.build/en/guides/content-collections/), [React integration](https://docs.astro.build/en/guides/integrations-guide/react/)
+- [Astro Fonts](https://docs.astro.build/en/guides/fonts/), [local font provider](https://docs.astro.build/en/reference/font-provider-reference/#local)
 - [Fontsource Gowun Batang](https://fontsource.org/fonts/gowun-batang), [Literata](https://fontsource.org/fonts/literata)

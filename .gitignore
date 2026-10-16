@@ -40,6 +40,7 @@ test-results/
 
 # Independent LinkCard render/calibration evidence
 /apps/web/link-card-evidence/
+/apps/web/native-rendering-evidence/
 
 # Generated only for a production Pages artifact.
 apps/web/public/.well-known/oomia-publication.json

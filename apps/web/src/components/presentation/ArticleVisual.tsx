@@ -1,11 +1,20 @@
 import type { ArticleVisualModel } from "@/lib/presentation/articles";
-export function ArticleVisual({ visual }: { visual: ArticleVisualModel }) {
+export function ArticleVisual({
+  visual,
+  priority = false,
+}: {
+  visual: ArticleVisualModel;
+  priority?: boolean;
+}) {
   if (visual.src)
     return (
       <img
         src={visual.src}
         alt={visual.alt ?? ""}
-        loading="lazy"
+        width={400}
+        height={260}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : undefined}
         decoding="async"
       />
     );

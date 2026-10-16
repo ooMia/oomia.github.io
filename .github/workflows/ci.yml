@@ -54,13 +54,17 @@ jobs:
             pnpm-store-v1-${{ runner.os }}-${{ runner.arch }}-pnpm12-
 
       - run: pnpm install --frozen-lockfile
+      - name: Install offline diagram and regression browser
+        run: pnpm --filter web exec playwright install --with-deps chromium
       - run: pnpm --filter web sync
       - run: pnpm exec vp check --no-fmt
       - run: pnpm exec vp test
       - name: Verify immutable Docs rendering and fallback offline
         run: pnpm --filter web test:docs-snapshot
+      - name: Verify native Markdown and MDX diagrams, source and static controls
+        run: pnpm --filter web test:native-rendering
       # The root build script owns workspace orchestration; recursive execution
       # would start both turbo and web builds against the same output directory.
       - run: pnpm exec vp run build
-      - name: Verify built article social URLs
-        run: node apps/web/tests/verify-article-social.mjs
+      - name: Verify built article routes, assets and metadata
+        run: pnpm --filter web test:built-site

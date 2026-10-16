@@ -1,6 +1,24 @@
 import { useEffect, useId, useRef, useState } from "react";
 
 import type { SiteLocale } from "@/lib/presentation/locale";
+
+type TagMeasurement = () => (() => void) | undefined;
+const pendingMeasurements = new Set<TagMeasurement>();
+let measurementFrame: number | undefined;
+
+function scheduleMeasurement(measure: TagMeasurement) {
+  pendingMeasurements.add(measure);
+  if (measurementFrame !== undefined) return;
+  measurementFrame = requestAnimationFrame(() => {
+    measurementFrame = undefined;
+    const batch = [...pendingMeasurements];
+    pendingMeasurements.clear();
+    // Measure every card before React updates any folded tags.
+    const updates = batch.map((read) => read());
+    updates.forEach((write) => write?.());
+  });
+}
+
 export function ArticleTags({
   tags,
   homeUrl,
@@ -20,10 +38,9 @@ export function ArticleTags({
     const ul = rail.current;
     if (!ul) return;
     let alive = true;
-    const fit = () => {
+    const measure: TagMeasurement = () => {
       if (!alive) return;
       const items = [...ul.querySelectorAll<HTMLElement>("[data-fold-tag]")];
-      items.forEach((x) => (x.style.display = ""));
       const gap = parseFloat(getComputedStyle(ul).gap) || 6;
       const widths = items.map((x) => x.getBoundingClientRect().width);
       const available = ul.clientWidth;
@@ -41,8 +58,12 @@ export function ArticleTags({
           if (width <= available) break;
         }
       }
-      items.forEach((x, i) => (x.style.display = i < count ? "" : "none"));
-      setVisible(count);
+      return () => {
+        if (alive) setVisible(count);
+      };
+    };
+    const fit = () => {
+      if (alive) scheduleMeasurement(measure);
     };
     const observer = new ResizeObserver(fit);
     observer.observe(ul);
@@ -50,6 +71,7 @@ export function ArticleTags({
     fit();
     return () => {
       alive = false;
+      pendingMeasurements.delete(measure);
       observer.disconnect();
     };
   }, [tags]);
@@ -77,6 +99,10 @@ export function ArticleTags({
   if (!tags.length) return null;
   const href = (tag: string) =>
     `${homeUrl}?tag=${encodeURIComponent(tag)}#recent-articles`;
+  const linkName = (tag: string) =>
+    locale === "en"
+      ? `Browse articles tagged ${tag}`
+      : `${tag} 태그 글 모아보기`;
   return (
     <div
       ref={root}
@@ -97,9 +123,16 @@ export function ArticleTags({
         aria-label={locale === "en" ? "Tags" : "태그"}
         ref={rail}
       >
-        {tags.map((tag) => (
-          <li className="tag" data-fold-tag key={tag}>
-            <a href={href(tag)}>#{tag}</a>
+        {tags.map((tag, index) => (
+          <li
+            className="tag"
+            data-fold-tag
+            data-folded={index >= visible ? "true" : undefined}
+            key={tag}
+          >
+            <a href={href(tag)} aria-label={linkName(tag)}>
+              #{tag}
+            </a>
           </li>
         ))}
         <li className="tag tag-expander" hidden={visible === tags.length}>
@@ -129,7 +162,7 @@ export function ArticleTags({
         aria-label={locale === "en" ? "All tags" : "모든 태그"}
       >
         {tags.map((tag) => (
-          <a href={href(tag)} key={tag}>
+          <a href={href(tag)} aria-label={linkName(tag)} key={tag}>
             #{tag}
           </a>
         ))}

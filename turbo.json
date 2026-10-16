@@ -13,7 +13,8 @@
         "FILTER_DRAFT_ARTICLES",
         "DOCS_CHECKOUT_MODE",
         "DOCS_CHECKOUT_REVISION"
-      ]
+      ],
+      "passThroughEnv": ["PLAYWRIGHT_CHANNEL", "PLAYWRIGHT_BROWSERS_PATH"]
     },
     "lint": {
       "dependsOn": ["^lint"]

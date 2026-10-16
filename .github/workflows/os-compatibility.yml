@@ -11,12 +11,33 @@ on:
         options:
           - compat
           - full
+          - quality
+          - performance
+      baseline_revision:
+        description: Full Site commit SHA used by the performance baseline
+        type: string
+        required: false
+        default: 4431d23140a42e13835e0fb7650ec84e590f6712
+      docs_revision:
+        description: Full prepared Docs commit SHA used by quality/performance
+        type: string
+        required: false
+        default: 5a2eaff17e6a8136d32c4eb9a32211adde0b9317
+      throttling_method:
+        description: Simulated scoring or actual DevTools network and CPU throttling
+        type: choice
+        required: false
+        default: simulate
+        options:
+          - simulate
+          - devtools
 
 permissions:
   contents: read
 
 jobs:
   compatibility:
+    if: inputs.profile == 'compat' || inputs.profile == 'full'
     env:
       DOCS_CHECKOUT_MODE: main
       SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
@@ -54,11 +75,11 @@ jobs:
           install: false
           require-lockfile: true
       - run: pnpm install --frozen-lockfile
+      - name: Install diagram and compatibility browser
+        run: pnpm --filter web exec playwright install --with-deps chromium
       - run: pnpm --filter web sync
       - name: Build compatibility corpus
         run: pnpm --filter web build
-      - name: Install compatibility browser
-        run: pnpm --filter web exec playwright install --with-deps chromium
       - name: Run core compatibility profile
         if: inputs.profile != 'full'
         run: pnpm --filter web test:e2e:compat
@@ -73,3 +94,195 @@ jobs:
             apps/web/playwright-report/
             apps/web/test-results/
           retention-days: 7
+
+  quality:
+    if: inputs.profile == 'quality'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DOCS_CHECKOUT_MODE: resolved
+      DOCS_CHECKOUT_REVISION: ${{ inputs.docs_revision }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
+      BASE_PATH: /
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require an immutable Docs revision
+        run: '[[ "$DOCS_CHECKOUT_REVISION" =~ ^[a-f0-9]{40}$ ]]'
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          fetch-depth: 1
+      - name: Checkout quality Docs snapshot
+        uses: actions/checkout@v7
+        with:
+          repository: ooMia/oomia.github.io.docs
+          ref: ${{ inputs.docs_revision }}
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          path: apps/web/data/articles
+          fetch-depth: 0
+      - name: Record content revisions
+        run: bash .github/scripts/record-content-revisions.sh
+      - uses: pnpm/setup@v3
+        with:
+          cache: false
+          install: false
+          require-lockfile: true
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web sync
+      - run: pnpm --filter web build
+      - run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Verify theme persistence, CSP and loading behavior
+        run: >-
+          pnpm --filter web test:e2e
+          tests/presentation.e2e.ts tests/csp.e2e.ts tests/lighthouse-loading.e2e.ts
+          --grep 'theme|dark preference|production CSP|loading path'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: quality-${{ github.sha }}
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+          retention-days: 7
+
+  performance:
+    if: inputs.profile == 'performance'
+    # Serialize controlled measurements without cancelling an in-flight run.
+    concurrency:
+      group: site-navigation-performance
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BASELINE_REVISION: ${{ inputs.baseline_revision }}
+      THROTTLING_METHOD: ${{ inputs.throttling_method }}
+      DOCS_CHECKOUT_MODE: resolved
+      DOCS_CHECKOUT_REVISION: ${{ inputs.docs_revision }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
+      BASE_PATH: /
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require immutable comparison revisions
+        run: |
+          [[ "$BASELINE_REVISION" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$DOCS_CHECKOUT_REVISION" =~ ^[a-f0-9]{40}$ ]]
+
+      - name: Checkout candidate
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          fetch-depth: 1
+
+      - name: Checkout baseline
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.baseline_revision }}
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          path: test-results/lighthouse-baseline
+          fetch-depth: 1
+
+      - name: Checkout candidate Docs snapshot
+        uses: actions/checkout@v7
+        with:
+          repository: ooMia/oomia.github.io.docs
+          ref: ${{ inputs.docs_revision }}
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          path: apps/web/data/articles
+          fetch-depth: 0
+
+      - name: Checkout baseline Docs snapshot
+        uses: actions/checkout@v7
+        with:
+          repository: ooMia/oomia.github.io.docs
+          ref: ${{ inputs.docs_revision }}
+          token: ${{ secrets.PRIVATES_GITHUB_PAT }}
+          path: test-results/lighthouse-baseline/apps/web/data/articles
+          fetch-depth: 0
+
+      - name: Verify comparison identities
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C test-results/lighthouse-baseline rev-parse HEAD)" = "$BASELINE_REVISION"
+          test "$(git -C apps/web/data/articles rev-parse HEAD)" = "$DOCS_CHECKOUT_REVISION"
+          test "$(git -C test-results/lighthouse-baseline/apps/web/data/articles rev-parse HEAD)" = "$DOCS_CHECKOUT_REVISION"
+          bash .github/scripts/record-content-revisions.sh
+
+      - uses: pnpm/setup@v3
+        with:
+          cache: false
+          install: false
+          require-lockfile: true
+
+      - name: Install candidate
+        run: pnpm install --frozen-lockfile
+
+      - name: Install baseline
+        working-directory: test-results/lighthouse-baseline
+        run: pnpm install --frozen-lockfile
+
+      - name: Build baseline
+        working-directory: test-results/lighthouse-baseline
+        run: pnpm --filter web build
+
+      - name: Build candidate
+        run: pnpm --filter web build
+
+      - name: Select the shared measurement browser
+        # Ubuntu's AppArmor profile supports the installed Chrome sandbox;
+        # downloaded testing binaries may fail before opening a debugging port.
+        # https://pptr.dev/troubleshooting#issues-with-apparmor-on-ubuntu
+        run: |
+          measurement_chrome="$(command -v google-chrome)"
+          "$measurement_chrome" --version
+          printf 'LIGHTHOUSE_CHROME_PATH=%s\n' "$measurement_chrome" >> "$GITHUB_ENV"
+
+      - name: Compare navigation performance
+        run: |
+          pnpm --filter web test:lighthouse \
+            --baseline-dist "$GITHUB_WORKSPACE/test-results/lighthouse-baseline/apps/web/dist" \
+            --candidate-dist "$GITHUB_WORKSPACE/apps/web/dist" \
+            --runs 3 --modes desktop,mobile --interactions false \
+            --throttling-method "$THROTTLING_METHOD" \
+            --output "$GITHUB_WORKSPACE/test-results/lighthouse-navigation"
+
+      - name: Publish medians and audit inventory
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+          const root = 'test-results/lighthouse-navigation';
+          const path = `${root}/summary.json`;
+          if (!existsSync(path)) process.exit(0);
+          const { metadata, medians, results } = JSON.parse(readFileSync(path, 'utf8'));
+          const audits = {};
+          for (const { variant, mode, run, audits: inventory } of results) {
+            for (const [id, audit] of Object.entries(inventory)) {
+              (audits[id] ??= []).push({ variant, mode, run, ...audit });
+            }
+          }
+          writeFileSync(`${root}/audit-ledger.json`, JSON.stringify({
+            metadata,
+            interpretation: 'All audit IDs, including unscored, manual and N/A entries. Cause, ownership and disposition require review against docs/evidence/lighthouse-navigation/README.md; scores do not establish those conclusions.',
+            audits,
+          }, null, 2) + '\n');
+          const rows = medians.map(({ variant, mode, successfulRuns, metrics, byType }) =>
+            `| ${variant} | ${mode} | ${successfulRuns}/3 | ${metrics.fcpMs ?? '-'} | ${metrics.lcpMs ?? '-'} | ${byType.Font?.transferBytes ?? '-'} |`);
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+            '\n## Controlled navigation medians\n',
+            `Docs snapshot: \`${process.env.DOCS_CHECKOUT_REVISION}\`\n`,
+            '| Build | Viewport | Successful runs | FCP ms | LCP ms | Font transfer B |',
+            '| --- | --- | --- | --- | --- | --- |', ...rows, '',
+            'Same runner, Chromium, Docs snapshot and local compressed server. This is not a deployed Pages audit. See the artifact for raw reports, warnings, traces and every audit ID.\n',
+          ].join('\n'));
+          NODE
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: navigation-performance-${{ github.sha }}
+          path: test-results/lighthouse-navigation/
+          retention-days: 14

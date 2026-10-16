@@ -4,11 +4,11 @@ Site owns immutable consumption, build and GitHub Pages delivery. [Docs](https:/
 
 ## Development and publication
 
-| Workflow                | Trigger                                                  | Purpose                                                                      |
-| ----------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Site CI                 | PR to main/develop                                       | Checks, unit tests, immutable offline fixture, build and output verification |
-| Publish Site            | Site main push; main-only dispatch from Docs or operator | Resolve one Docs snapshot, validate readiness, build, verify and deploy      |
-| Manual OS compatibility | Explicit dispatch                                        | Optional browser/OS regression diagnostics                                   |
+| Workflow                | Trigger                                                  | Purpose                                                                                            |
+| ----------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Site CI                 | PR to main/develop                                       | Checks, unit tests, immutable offline and native rendering fixtures, build and output verification |
+| Publish Site            | Site main push; main-only dispatch from Docs or operator | Resolve one Docs snapshot, validate readiness, build, verify and deploy                            |
+| Manual OS compatibility | Explicit dispatch                                        | Optional browser/OS regression diagnostics                                                         |
 
 A Docs main push runs Publish Docs. After its trusted Windows preparation persists or reuses a consumable main SHA, Docs requests Publish Site with `docs_revision` set to that full SHA. No operator dispatch is required in the ordinary path once the one-time credential below is configured. Optional metadata enrichment, recovery and deployed-page preview capture remain explicit maintenance operations; their committed changes request fresh Docs convergence automatically.
 
@@ -20,7 +20,7 @@ The complete selection/build/deploy workflow shares one non-cancelling `pages` c
 
 `.well-known/oomia-publication.json` is generated before Astro builds and is included in the Pages artifact. It records the actual Site/Docs pair. If that exact pair is already public, another notification skips the expensive build. Missing/unreachable public markers cause a rebuild. Private API/authentication and provenance failures remain fatal. Publication markers do not replace Docs attestation or output validation.
 
-Readiness is still mandatory: an unprepared or invalid snapshot fails explicitly. A Site-code main push can encounter preparation still in progress; the later successful Docs convergence automatically requests the ready release. Site never calls Ollama, LilysAI or target pages during build. The delivery job runs only after build and social URL/Docs revision verification succeed.
+Readiness is still mandatory: an unprepared or invalid snapshot fails explicitly. A Site-code main push can encounter preparation still in progress; the later successful Docs convergence automatically requests the ready release. Site never calls Ollama, LilysAI or target pages during build. The delivery job runs only after build and artifact verification succeed. Local Chromium renders Mermaid during the build with browser network requests blocked; it does not call content providers or target pages. Both Site CI and production install the matching Playwright Chromium before content sync/build. Production verifies Article social URLs/Docs revisions, generated navigation, local assets and original/English route pairs before uploading the Pages artifact.
 
 ## One-time cross-repository connection
 
