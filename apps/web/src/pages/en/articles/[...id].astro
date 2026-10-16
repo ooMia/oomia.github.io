@@ -24,7 +24,7 @@ import {
   localizedHomeUrl,
 } from "@/lib/presentation/locale";
 import "@/styles/link-card.css";
-import "@/styles/article-fonts.css";
+import { Font } from "astro:assets";
 export async function getStaticPaths() {
   const records = await getArticleRecords();
   const previews = readArticlePreviews();
@@ -94,6 +94,8 @@ const toc = article.headings.map((h) => ({
 ---
 
 <RootLayout title={display.title} description={display.description} locale="en">
+  <Font slot="head" cssVariable="--font-gowun" />
+  <Font slot="head" cssVariable="--font-literata" />
   <ArticleSocialHead slot="head" {social} locale={translated ? "en" : "ko"} />
   {!translated && <meta slot="head" name="robots" content="noindex,follow" />}
   {

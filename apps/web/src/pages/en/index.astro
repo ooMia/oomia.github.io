@@ -1,5 +1,5 @@
 ---
-import homeDisplayFont from "@/assets/space-grotesk-latin.woff2?url";
+import { Font } from "astro:assets";
 import { HomeFrame } from "@/components/presentation/HomeFrame";
 import ProfileActivity from "@/components/presentation/ProfileActivity.astro";
 import RootLayout from "@/layouts/RootLayout.astro";
@@ -50,14 +50,7 @@ const stories: HomeStory[] = await Promise.all(
   description="Software, writing and small experiments by ooMia."
   locale="en"
 >
-  <link
-    slot="head"
-    rel="preload"
-    href={homeDisplayFont}
-    as="font"
-    type="font/woff2"
-    crossorigin="anonymous"
-  />
+  <Font slot="head" cssVariable="--font-display" preload />
   <HomeFrame
     pathname={Astro.url.pathname}
     homeUrl={localizedHomeUrl("en", import.meta.env.BASE_URL)}

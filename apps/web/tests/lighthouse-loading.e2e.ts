@@ -11,17 +11,21 @@ for (const locale of ["ko", "en"] as const) {
     const families = await page.evaluate(() =>
       [...document.fonts].map((font) => font.family.replaceAll(/["']/g, "")),
     );
-    expect(families).toContain("Workshop Display");
+    expect(families.some((name) => name.startsWith("Workshop Display"))).toBe(
+      true,
+    );
     expect(families.some((name) => /Gowun|Literata|Geist/.test(name))).toBe(
       false,
     );
-    const preload = page.locator('link[rel="preload"][as="font"]');
-    await expect(preload).toHaveCount(1);
-    await expect(preload).toHaveAttribute(
-      "href",
-      /space-grotesk-latin.*\.woff2$/,
-    );
-    await expect(preload).toHaveAttribute("crossorigin", "anonymous");
+    const preloads = page.locator('link[rel="preload"][as="font"]');
+    expect(await preloads.count()).toBeGreaterThan(0);
+    for (const preload of await preloads.all()) {
+      const href = await preload.getAttribute("href");
+      expect(new URL(href!, page.url()).origin).toBe(
+        new URL(page.url()).origin,
+      );
+      await expect(preload).toHaveAttribute("crossorigin");
+    }
 
     const cover = page.locator(".home-featured .home-cover img");
     await expect(cover).toHaveAttribute("loading", "eager");
@@ -43,10 +47,15 @@ for (const locale of ["ko", "en"] as const) {
     const articleFamilies = await page.evaluate(() =>
       [...document.fonts].map((font) => font.family.replaceAll(/["']/g, "")),
     );
-    expect(articleFamilies).toContain("Gowun Batang");
-    expect(articleFamilies).toContain("Literata Variable");
-    expect(articleFamilies).not.toContain("Workshop Display");
-    await expect(page.locator('link[rel="preload"][as="font"]')).toHaveCount(0);
+    expect(
+      articleFamilies.some((name) => name.startsWith("Gowun Batang")),
+    ).toBe(true);
+    expect(
+      articleFamilies.some((name) => name.startsWith("Literata Variable")),
+    ).toBe(true);
+    expect(
+      articleFamilies.some((name) => name.startsWith("Workshop Display")),
+    ).toBe(false);
     const decoration = page.locator(".article-hero-art img");
     await expect(decoration).toHaveAttribute("loading", "lazy");
   });

@@ -11,6 +11,7 @@ import resolveLinkCardProps from "@/lib/content/link-card";
 import { normalizeSiteUrl, normalizeBasePath } from "@/lib/utils";
 
 import { articleProcessors } from "./src/lib/content/article-processors";
+import { fonts } from "./src/config/fonts";
 import { verifyDocsConsumption } from "./src/lib/content/docs-consumption";
 import { resolvedDocsRevision } from "./src/lib/content/docs-revision";
 import { themeCsp } from "./src/lib/security/theme-csp";
@@ -78,6 +79,7 @@ export default defineConfig(
       site,
       base,
       output: "static",
+      fonts,
       security: {
         csp: {
           algorithm: "SHA-256",

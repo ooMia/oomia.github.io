@@ -71,7 +71,9 @@ Reading progress measures the rendered full Article body, excludes header/footer
 
 Sage palette values map to the existing shadcn/Fumadocs tokens, including `--muted` surface and `--muted-foreground` text. `--paper`, `--surface`, `--ink`, `--line` and other local aliases derive from that one palette. Light/dark roles preserve readable contrast. Fontsource font assets are self-hosted with license notices; prototype content-specific font subsets are not used for production text.
 
-Common CSS owns Noto Sans KR 400/600 and shared tokens. Home owns Space Grotesk and preloads its one Hero font file. Both Article routes own the complete Gowun Batang and Literata font declarations; Home must not inherit those declarations through the shared content renderer. Original Unicode ranges and font license notices are preserved.
+Astro's Fonts API owns font declarations, copied assets and metric-adjusted fallbacks. Its local provider reads pinned Fontsource packages and the existing Space Grotesk asset; sync/build does not contact a font CDN. Noto Sans KR uses the same upstream v40 typeface as a variable font, so a Unicode range used at multiple weights is transferred once. All Fontsource Unicode ranges remain available; content-specific subsetting is not used.
+
+RootLayout registers Noto Sans KR without preloading its entire Korean character set. Home alone registers and preloads the critical Space Grotesk Hero face. Both Article routes register Gowun Batang 400/700 and normal/italic Literata without preloading their full sets. Literata has no generic fallback inside its generated variable, allowing Korean text to reach Gowun Batang. CSS uses the generated variables, retaining the established typefaces and their license notices. Home must not inherit prose declarations through the shared renderer. Performance claims require the controlled Lighthouse comparison, separate from these build checks.
 
 Static pages use Astro's hash-based meta CSP. Site's finalizer adds only the explicitly marked Fumadocs theme bootstrap hash to Astro's generated policy; same-origin module scripts remain allowed for Astro's loader compatibility, while unapproved inline scripts, inline event handlers and eval are blocked. Style attributes remain allowed for native Shiki and React presentation, and next-themes' transition stylesheet has an explicit hash. GitHub Pages response-header controls, including HSTS refinements, COOP, frame-ancestor restrictions and the Trusted Types header audit, remain outside this meta-policy's guarantees.
 
@@ -97,4 +99,5 @@ Update this baseline with the implementing PR when introducing documentation pag
 
 - [Fumadocs Astro](https://www.fumadocs.dev/docs/manual-installation/astro), [Headless TOC](https://www.fumadocs.dev/docs/headless/components/toc), [Theme](https://www.fumadocs.dev/docs/ui/theme)
 - [Astro content collections](https://docs.astro.build/en/guides/content-collections/), [React integration](https://docs.astro.build/en/guides/integrations-guide/react/)
+- [Astro Fonts](https://docs.astro.build/en/guides/fonts/), [local font provider](https://docs.astro.build/en/reference/font-provider-reference/#local)
 - [Fontsource Gowun Batang](https://fontsource.org/fonts/gowun-batang), [Literata](https://fontsource.org/fonts/literata)

@@ -1,10 +1,3 @@
-@font-face {
-  font-family: "Workshop Display";
-  font-style: normal;
-  font-weight: 300 700;
-  font-display: swap;
-  src: url("../../assets/space-grotesk-latin.woff2") format("woff2");
-}
 .home-page {
   width: 100%;
   max-width: 1212px;
@@ -38,7 +31,7 @@
 }
 .home-hero h1 {
   margin: 0;
-  font-family: "Workshop Display", "Noto Sans KR", sans-serif;
+  font-family: var(--font-display), var(--font-noto);
   font-size: clamp(80px, 8.2vw, 112px);
   line-height: 0.98;
   font-weight: 500;

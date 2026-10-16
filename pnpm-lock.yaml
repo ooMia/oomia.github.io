@@ -173,15 +173,15 @@ importers:
       '@fontsource-variable/literata':
         specifier: ^5.3.0
         version: 5.3.0
+      '@fontsource-variable/noto-sans-kr':
+        specifier: 5.3.1
+        version: 5.3.1
       '@fontsource-variable/space-grotesk':
         specifier: ^5.3.0
         version: 5.3.0
       '@fontsource/gowun-batang':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/noto-sans-kr':
-        specifier: ^5.3.1
-        version: 5.3.1
       '@workspace/md':
         specifier: workspace:*
         version: link:../../packages/md
@@ -974,14 +974,14 @@ packages:
   '@fontsource-variable/literata@5.3.0':
     resolution: {integrity: sha512-1Jw7xvOcoGyB83lxB2nG4bfNbqtX2/TTbdh9sHAOmU064SvmSdulDtA5RBu5JYWf64fdaKX7xU+z3GO1T2bCHA==}
 
+  '@fontsource-variable/noto-sans-kr@5.3.1':
+    resolution: {integrity: sha512-f5aty6Qgk2LVU5TjCtXHxiYHqUWYW8f75ll0Chn8ucCqoOlIomcACUwf1V47yUt6wTdWZiGr3dcbQk+zlOspMA==}
+
   '@fontsource-variable/space-grotesk@5.3.0':
     resolution: {integrity: sha512-2IxmvfB08i9vnGB3Ym/AXvhRE+8XOjWMXIyDum03c+tPwH0FUoMNQfGpU8NXPxjbws0Vvss3AH0Zqt4oJBBAdw==}
 
   '@fontsource/gowun-batang@5.3.0':
     resolution: {integrity: sha512-wWDwzFKhKbk7l94OFQjZTH6x9PjqErCXBsXQ+h/SopIOosN2LjAN5W22Zua4unCmOIK2hc1fI6jNrB4OqYh6Qg==}
-
-  '@fontsource/noto-sans-kr@5.3.1':
-    resolution: {integrity: sha512-aKnPug5P6zBHaiLbGEVNyBQesyOeEUYl6C3Xedb00xO3iAHJZPQs2JOsPNVqHanKSVe1fTVmTPuYIao4noImXw==}
 
   '@formatjs/ecma402-abstract@2.3.6':
     resolution: {integrity: sha512-HJnTFeRM2kVFVr5gr5kH1XP6K0JcJtE7Lzvtr3FS/so5f1kpsqqqxy5JF+FRaO6H2qmcMfAUIox7AJteieRtVw==}
@@ -6677,11 +6677,11 @@ snapshots:
 
   '@fontsource-variable/literata@5.3.0': {}
 
+  '@fontsource-variable/noto-sans-kr@5.3.1': {}
+
   '@fontsource-variable/space-grotesk@5.3.0': {}
 
   '@fontsource/gowun-batang@5.3.0': {}
-
-  '@fontsource/noto-sans-kr@5.3.1': {}
 
   '@formatjs/ecma402-abstract@2.3.6':
     dependencies:

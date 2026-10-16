@@ -1,8 +1,6 @@
 @import "@workspace/ui/globals.css";
 @import "fumadocs-ui/css/shadcn.css";
 @import "fumadocs-ui/css/preset.css";
-@import "@fontsource/noto-sans-kr/400.css";
-@import "@fontsource/noto-sans-kr/600.css";
 :root {
   --hue: 145;
   --paper: oklch(0.972 0.008 var(--hue));
@@ -16,7 +14,7 @@
   --code-bg: oklch(0.94 0.012 calc(var(--hue) - 80));
   --sb-track: var(--paper);
   --sb-thumb: oklch(0.67 0.035 var(--hue));
-  --article-family: "Literata Variable", "Gowun Batang", serif;
+  --article-family: var(--font-literata), var(--font-gowun);
   --article-bold: 700;
   --latin-tracking: 0.015em;
   color-scheme: light;
@@ -51,7 +49,7 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--focus);
-  --font-sans: "Noto Sans KR", sans-serif;
+  --font-sans: var(--font-noto);
   --color-fd-muted: var(--surface);
 }
 html {
