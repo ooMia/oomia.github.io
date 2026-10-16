@@ -7,7 +7,7 @@ interface Props {
 
 const { username } = Astro.props;
 
-const props = await getGravatarCard(username);
+const props = getGravatarCard(username);
 ---
 
 <div
@@ -40,7 +40,7 @@ const props = await getGravatarCard(username);
 <style>
   .gravatar-card {
     max-width: 100%;
-    overflow: auto;
+    overflow: hidden;
   }
 
   .gravatar-card iframe {
