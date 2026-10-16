@@ -23,6 +23,14 @@ on:
         type: string
         required: false
         default: 5a2eaff17e6a8136d32c4eb9a32211adde0b9317
+      throttling_method:
+        description: Simulated scoring or actual DevTools network and CPU throttling
+        type: choice
+        required: false
+        default: simulate
+        options:
+          - simulate
+          - devtools
 
 permissions:
   contents: read
@@ -149,6 +157,7 @@ jobs:
     timeout-minutes: 45
     env:
       BASELINE_REVISION: ${{ inputs.baseline_revision }}
+      THROTTLING_METHOD: ${{ inputs.throttling_method }}
       DOCS_CHECKOUT_MODE: resolved
       DOCS_CHECKOUT_REVISION: ${{ inputs.docs_revision }}
       SITE_URL: ${{ vars.SITE_URL || 'https://oomia.github.io' }}
@@ -237,6 +246,7 @@ jobs:
             --baseline-dist "$GITHUB_WORKSPACE/test-results/lighthouse-baseline/apps/web/dist" \
             --candidate-dist "$GITHUB_WORKSPACE/apps/web/dist" \
             --runs 3 --modes desktop,mobile --interactions false \
+            --throttling-method "$THROTTLING_METHOD" \
             --output "$GITHUB_WORKSPACE/test-results/lighthouse-navigation"
 
       - name: Publish medians and audit inventory

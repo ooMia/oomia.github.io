@@ -15,7 +15,7 @@ export function ArticleVisual({
         height={260}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : undefined}
-        decoding={priority ? "sync" : "async"}
+        decoding="async"
       />
     );
   return (

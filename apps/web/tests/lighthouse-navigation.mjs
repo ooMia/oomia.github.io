@@ -1,8 +1,8 @@
 import { chromium } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { createServer } from "node:http";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -15,15 +15,17 @@ const args = new Map();
 for (let i = 2; i < process.argv.length; i += 2) {
   if (!process.argv[i].startsWith("--") || !process.argv[i + 1])
     throw new Error(
-      "Arguments use --name value pairs; see the evidence README.",
+      "Arguments use --name value pairs; see the evidence README."
     );
   args.set(process.argv[i].slice(2), process.argv[i + 1]);
 }
 const output = resolve(
-  args.get("output") ??
-    resolve(web, "../../test-results/lighthouse-navigation"),
+  args.get("output") ?? resolve(web, "../../test-results/lighthouse-navigation")
 );
 const runs = Number(args.get("runs") ?? 3);
+const throttlingMethod = args.get("throttling-method") ?? "simulate";
+if (!["simulate", "devtools"].includes(throttlingMethod))
+  throw new Error("--throttling-method accepts simulate,devtools");
 if (!Number.isInteger(runs) || runs < 1)
   throw new Error("--runs must be a positive integer");
 const modes = (args.get("modes") ?? "desktop,mobile").split(",");
@@ -83,7 +85,7 @@ const variants = requestedVariants
   }));
 const base = `/${(args.get("base") ?? "").replace(/^\/+|\/+$/g, "")}`.replace(
   /\/$/,
-  "",
+  ""
 );
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -128,7 +130,7 @@ async function serve(dist) {
   const server = createServer(async (request, response) => {
     try {
       const pathname = decodeURIComponent(
-        new URL(request.url, "http://localhost").pathname,
+        new URL(request.url, "http://localhost").pathname
       );
       if (base && pathname !== base && !pathname.startsWith(`${base}/`)) {
         response.writeHead(404).end();
@@ -192,7 +194,7 @@ function auditSummary(lhr) {
     fetchTime: lhr.fetchTime,
     browserUserAgent: lhr.environment.hostUserAgent,
     categories: Object.fromEntries(
-      Object.entries(lhr.categories).map(([id, item]) => [id, item.score]),
+      Object.entries(lhr.categories).map(([id, item]) => [id, item.score])
     ),
     metrics: {
       fcpMs: metric("first-contentful-paint"),
@@ -207,8 +209,8 @@ function auditSummary(lhr) {
       .filter(
         (request) =>
           !request.url.startsWith(
-            lhr.finalDisplayedUrl?.split("/").slice(0, 3).join("/"),
-          ),
+            lhr.finalDisplayedUrl?.split("/").slice(0, 3).join("/")
+          )
       )
       .map(({ url, resourceType, transferSize, statusCode }) => ({
         url,
@@ -226,14 +228,14 @@ function auditSummary(lhr) {
             ([category, item]) =>
               item.auditRefs
                 .filter((ref) => ref.id === id)
-                .map((ref) => ({ category, weight: ref.weight })),
+                .map((ref) => ({ category, weight: ref.weight }))
           ),
           ...(audit.displayValue ? { displayValue: audit.displayValue } : {}),
           ...(audit.explanation ? { explanation: audit.explanation } : {}),
           ...(audit.errorMessage ? { errorMessage: audit.errorMessage } : {}),
           ...(audit.warnings?.length ? { warnings: audit.warnings } : {}),
         },
-      ]),
+      ])
     ),
     warnings: lhr.runWarnings,
     runtimeError: lhr.runtimeError ?? null,
@@ -245,7 +247,7 @@ function auditSummary(lhr) {
         "cls-culprits-insight",
         "baseline",
         "valid-source-maps",
-      ].map((id) => [id, lhr.audits[id]?.details ?? null]),
+      ].map((id) => [id, lhr.audits[id]?.details ?? null])
     ),
   };
 }
@@ -258,7 +260,7 @@ function coverageSummary(entries, origin) {
       const ranges = entry.functions.flatMap((fn) => fn.ranges);
       const points = [
         ...new Set(
-          ranges.flatMap((range) => [range.startOffset, range.endOffset]),
+          ranges.flatMap((range) => [range.startOffset, range.endOffset])
         ),
       ].sort((a, b) => a - b);
       let executed = 0;
@@ -267,11 +269,11 @@ function coverageSummary(entries, origin) {
         const end = points[i + 1];
         const containing = ranges
           .filter(
-            (range) => range.startOffset <= start && range.endOffset >= end,
+            (range) => range.startOffset <= start && range.endOffset >= end
           )
           .sort(
             (a, b) =>
-              a.endOffset - a.startOffset - (b.endOffset - b.startOffset),
+              a.endOffset - a.startOffset - (b.endOffset - b.startOffset)
           );
         if (containing[0]?.count > 0) executed += end - start;
       }
@@ -280,7 +282,7 @@ function coverageSummary(entries, origin) {
         sourceUtf16CodeUnits: entry.source.length,
         executedUtf16CodeUnits: executed,
         executedPercent: Number(
-          ((100 * executed) / entry.source.length).toFixed(2),
+          ((100 * executed) / entry.source.length).toFixed(2)
         ),
       };
     });
@@ -307,14 +309,14 @@ async function interactionEvidence(url, mode) {
     const requests = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("request", (request) =>
-      requests.push({ url: request.url(), type: request.resourceType() }),
+      requests.push({ url: request.url(), type: request.resourceType() })
     );
     await page.coverage.startJSCoverage({ resetOnNavigation: false });
     await page.goto(url, { waitUntil: "networkidle" });
     await page.getByRole("button", { name: "Toggle Theme" }).waitFor();
     const navigationCoverage = coverageSummary(
       await page.coverage.stopJSCoverage(),
-      new URL(url).origin,
+      new URL(url).origin
     );
     const beforeScroll = requests.slice();
     // Reload in this fresh profile with coverage across the full interaction flow.
@@ -325,7 +327,7 @@ async function interactionEvidence(url, mode) {
       lang: document.documentElement.lang,
       landmarks: [
         ...document.querySelectorAll(
-          "main,nav,header,footer,aside,[role=region]",
+          "main,nav,header,footer,aside,[role=region]"
         ),
       ].map((el) => ({
         tag: el.tagName,
@@ -334,10 +336,10 @@ async function interactionEvidence(url, mode) {
         text: el.textContent.trim().slice(0, 60),
       })),
       headings: [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(
-        (el) => ({ level: Number(el.tagName[1]), text: el.textContent.trim() }),
+        (el) => ({ level: Number(el.tagName[1]), text: el.textContent.trim() })
       ),
       positiveTabIndices: [...document.querySelectorAll("[tabindex]")].filter(
-        (el) => el.tabIndex > 0,
+        (el) => el.tabIndex > 0
       ).length,
       overflow: {
         viewport: innerWidth,
@@ -402,7 +404,7 @@ async function interactionEvidence(url, mode) {
             outline: `${style.outlineStyle} ${style.outlineWidth}`,
             boxShadow: style.boxShadow,
           };
-        }),
+        })
       );
     }
     const theme = page.getByRole("button", { name: "Toggle Theme" });
@@ -424,7 +426,7 @@ async function interactionEvidence(url, mode) {
       .evaluate((el) => el === document.activeElement);
     await options.last().press("Escape");
     const escapeReturned = await summary.evaluate(
-      (el) => el === document.activeElement,
+      (el) => el === document.activeElement
     );
     const closed = !((await picker.getAttribute("open")) === "");
     await summary.press("Enter");
@@ -454,7 +456,7 @@ async function interactionEvidence(url, mode) {
       await expander.press("Enter");
       const expanded = await expander.getAttribute("aria-expanded");
       const focusInMenu = await page.evaluate(() =>
-        Boolean(document.activeElement?.closest(".tag-overflow")),
+        Boolean(document.activeElement?.closest(".tag-overflow"))
       );
       await page.keyboard.press("Escape");
       overflow = {
@@ -463,7 +465,7 @@ async function interactionEvidence(url, mode) {
         expanded,
         focusInMenu,
         escapedToTrigger: await expander.evaluate(
-          (el) => el === document.activeElement,
+          (el) => el === document.activeElement
         ),
         closed: (await expander.getAttribute("aria-expanded")) === "false",
       };
@@ -479,7 +481,7 @@ async function interactionEvidence(url, mode) {
     const afterScroll = requests.slice();
     const interactedCoverage = coverageSummary(
       await page.coverage.stopJSCoverage(),
-      new URL(url).origin,
+      new URL(url).origin
     );
     return {
       browserVersion: browser.version(),
@@ -504,10 +506,10 @@ async function interactionEvidence(url, mode) {
       },
       tagOverflowKeyboard: overflow,
       gravatarRequestsBeforeScroll: beforeScroll.filter((item) =>
-        /gravatar\.com/.test(item.url),
+        /gravatar\.com/.test(item.url)
       ),
       gravatarRequestsAfterScroll: afterScroll.filter((item) =>
-        /gravatar\.com/.test(item.url),
+        /gravatar\.com/.test(item.url)
       ),
       pageErrors: errors,
       manualLimit:
@@ -531,7 +533,7 @@ const { default: lighthouse } = await import(
 const moduleRequire = createRequire(
   lighthouseModule
     ? resolve(lighthouseModule)
-    : createRequire(import.meta.url).resolve("lighthouse"),
+    : createRequire(import.meta.url).resolve("lighthouse")
 );
 const { launch } = await import(
   pathToFileURL(moduleRequire.resolve("chrome-launcher")).href
@@ -546,7 +548,7 @@ const metadata = {
   modes,
   profiles,
   basePath: base || "/",
-  throttlingMethod: "simulate",
+  throttlingMethod,
   server: {
     compression: "gzip level 6 for text/JS/CSS/SVG/JSON/XML",
     cacheControl: "max-age=600",
@@ -563,7 +565,7 @@ for (const variant of variants) {
     docsRevision: git(
       resolve(repo, "apps/web/data/articles"),
       "rev-parse",
-      "HEAD",
+      "HEAD"
     ),
   });
   Object.assign(metadata.variants.at(-1), {
@@ -595,24 +597,24 @@ for (const variant of variants) {
               output: "json",
               logLevel: "error",
               ...profiles[mode],
-              throttlingMethod: "simulate",
+              throttlingMethod,
               disableStorageReset: false,
             });
             if (result.lhr.lighthouseVersion !== "13.4.1")
               throw new Error(
-                `Expected Lighthouse 13.4.1, received ${result.lhr.lighthouseVersion}`,
+                `Expected Lighthouse 13.4.1, received ${result.lhr.lighthouseVersion}`
               );
             await writeFile(
               resolve(output, `${variant.label}-${mode}-${run}.json`),
-              result.report + "\n",
+              result.report + "\n"
             );
             if (run === 1 && result.artifacts?.Trace) {
               await writeFile(
                 resolve(
                   output,
-                  `${variant.label}-${mode}-${run}.trace.json.gz`,
+                  `${variant.label}-${mode}-${run}.trace.json.gz`
                 ),
-                gzipSync(JSON.stringify(result.artifacts.Trace)),
+                gzipSync(JSON.stringify(result.artifacts.Trace))
               );
             }
             results.push({
@@ -643,7 +645,7 @@ for (const variant of variants) {
       }
       if (args.get("interactions") !== "false") {
         console.log(
-          `${variant.label}/${mode} keyboard and JavaScript coverage`,
+          `${variant.label}/${mode} keyboard and JavaScript coverage`
         );
         const evidence = {
           variant: variant.label,
@@ -664,7 +666,7 @@ const medians = variants.flatMap(({ label }) =>
         item.variant === label &&
         item.mode === mode &&
         !item.error &&
-        !item.runtimeError,
+        !item.runtimeError
     );
     return {
       variant: label,
@@ -674,13 +676,13 @@ const medians = variants.flatMap(({ label }) =>
         Object.keys(selected[0]?.categories ?? {}).map((key) => [
           key,
           median(selected.map((item) => item.categories[key])),
-        ]),
+        ])
       ),
       metrics: Object.fromEntries(
         Object.keys(selected[0]?.metrics ?? {}).map((key) => [
           key,
           median(selected.map((item) => item.metrics[key])),
-        ]),
+        ])
       ),
       byType: Object.fromEntries(
         [...new Set(selected.flatMap((item) => Object.keys(item.byType)))].map(
@@ -688,20 +690,20 @@ const medians = variants.flatMap(({ label }) =>
             key,
             {
               requests: median(
-                selected.map((item) => item.byType[key]?.requests ?? 0),
+                selected.map((item) => item.byType[key]?.requests ?? 0)
               ),
               transferBytes: median(
-                selected.map((item) => item.byType[key]?.transferBytes ?? 0),
+                selected.map((item) => item.byType[key]?.transferBytes ?? 0)
               ),
               resourceBytes: median(
-                selected.map((item) => item.byType[key]?.resourceBytes ?? 0),
+                selected.map((item) => item.byType[key]?.resourceBytes ?? 0)
               ),
             },
-          ],
-        ),
+          ]
+        )
       ),
     };
-  }),
+  })
 );
 await save("summary.json", { metadata, medians, results, interactions });
 console.log(JSON.stringify({ output, medians }, null, 2));
