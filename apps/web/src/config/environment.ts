@@ -28,7 +28,7 @@ export function parseSiteEnvironment(input: EnvironmentInput): SiteEnvironment {
     url.password
   )
     throw new Error("SITE_URL must be an HTTP(S) URL without credentials");
-  const base = input["BASE_PATH"]?.trim();
+  const base = input["BASE_PATH"]?.trim().replace(/^\/+|\/+$/g, "");
   const mode = input["DOCS_CHECKOUT_MODE"] ?? "pinned";
   if (!["pinned", "main", "resolved"].includes(mode))
     throw new Error("Unsupported Docs checkout mode");
@@ -39,7 +39,9 @@ export function parseSiteEnvironment(input: EnvironmentInput): SiteEnvironment {
     );
   return {
     siteUrl: siteUrl.replace(/\/+$/, ""),
-    basePath: base ? base.replace(/^\/+|\/+$/g, "") : "/",
+    // Integration updates happen after Astro's initial normalization. Keep
+    // this absolute so nested pages never resolve assets relative to themselves.
+    basePath: base ? `/${base}/` : "/",
     // Retain the existing opt-in behavior: only the literal "true" filters drafts.
     filterDraftArticles: draftFilterEnabled(input["FILTER_DRAFT_ARTICLES"]),
     docsCheckoutMode: mode as DocsCheckoutMode,

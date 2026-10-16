@@ -10,6 +10,7 @@ import {
   realpathSync,
   rmSync,
   symlinkSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -40,6 +41,48 @@ const commit = (cwd, message) => {
   return git(cwd, "rev-parse", "HEAD");
 };
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
+// Resource URLs must remain absolute at the selected base on nested routes;
+// a successful build alone cannot detect browser-relative asset 404s.
+function verifyBuiltAssets(basePath) {
+  for (const page of [
+    "index.html",
+    "en/index.html",
+    "articles/latest/index.html",
+  ]) {
+    const html = readFileSync(join(web, "dist", page), "utf8");
+    const resources = [...html.matchAll(/<(script|link)\b[^>]*>/g)].flatMap(
+      ([tag, name]) => {
+        const attributes = Object.fromEntries(
+          [...tag.matchAll(/\b(src|href|rel)=(['"])(.*?)\2/g)].map(
+            ([, attribute, , value]) => [attribute, value]
+          )
+        );
+        if (name === "script") return attributes.src ? [attributes.src] : [];
+        return /(?:^|\s)(?:stylesheet|modulepreload)(?:\s|$)/.test(
+          attributes.rel ?? ""
+        )
+          ? [attributes.href]
+          : [];
+      }
+    );
+    assert.ok(resources.length > 0, `${page}: expected built CSS/JS resources`);
+    for (const resource of resources) {
+      assert.ok(
+        resource?.startsWith(basePath),
+        `${page}: non-absolute base asset ${resource}`
+      );
+      const path = decodeURIComponent(
+        new URL(resource, "https://oomia.github.io").pathname.slice(
+          basePath.length
+        )
+      );
+      assert.ok(
+        statSync(join(web, "dist", path)).isFile(),
+        `${page}: missing built asset ${resource}`
+      );
+    }
+  }
+}
 try {
   mkdirSync(web, { recursive: true });
   for (const path of [
@@ -241,6 +284,14 @@ try {
   );
   assert.ok(git(root, "ls-files", "--stage").includes(stale));
   assert.notEqual(latest, stale);
+  verifyBuiltAssets("/");
+  const nestedBase = "/nested/site/";
+  const nested = spawnSync(process.execPath, [cli, "build", "--root", web], {
+    ...buildOptions,
+    env: { ...buildOptions.env, BASE_PATH: nestedBase },
+  });
+  assert.equal(nested.status, 0, nested.stderr + nested.stdout);
+  verifyBuiltAssets(nestedBase);
   console.log(
     JSON.stringify(
       {
@@ -254,6 +305,7 @@ try {
         allArticleRevisionMarkers: true,
         canonicalSourcePreserved: true,
         buildNetwork: "blocked",
+        absoluteBuiltAssets: ["/", nestedBase],
       },
       null,
       2

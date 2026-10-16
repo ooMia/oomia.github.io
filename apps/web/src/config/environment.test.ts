@@ -19,9 +19,14 @@ describe("Site environment input", () => {
       })
     ).toMatchObject({
       siteUrl: "https://example.test",
-      basePath: "nested/site",
+      basePath: "/nested/site/",
       filterDraftArticles: true,
     });
+    for (const BASE_PATH of ["", "/", "///"])
+      expect(parseSiteEnvironment({ BASE_PATH }).basePath).toBe("/");
+    expect(parseSiteEnvironment({ BASE_PATH: "nested/site" }).basePath).toBe(
+      "/nested/site/"
+    );
     expect(
       parseSiteEnvironment({
         SITE: "https://alias.test/",
