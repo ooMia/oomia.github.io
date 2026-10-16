@@ -222,8 +222,14 @@ jobs:
       - name: Build candidate
         run: pnpm --filter web build
 
-      - name: Install the shared measurement browser
-        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Select the shared measurement browser
+        # Ubuntu's AppArmor profile supports the installed Chrome sandbox;
+        # downloaded testing binaries may fail before opening a debugging port.
+        # https://pptr.dev/troubleshooting#issues-with-apparmor-on-ubuntu
+        run: |
+          measurement_chrome="$(command -v google-chrome)"
+          "$measurement_chrome" --version
+          printf 'LIGHTHOUSE_CHROME_PATH=%s\n' "$measurement_chrome" >> "$GITHUB_ENV"
 
       - name: Compare navigation performance
         run: |
